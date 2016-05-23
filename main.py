@@ -5,7 +5,7 @@ import time
 import bluetooth
 import sys
 import subprocess
-import Tkinter as tk
+
 
 # --------- User Settings ---------
 WEIGHT_SAMPLES = 500
