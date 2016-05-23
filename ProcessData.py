@@ -1,4 +1,7 @@
 import matplotlib
+matplotlib.use("TkAgg")
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
+from matplotlib.figure import Figure
 import Tkinter as tk
 import numpy as np
 
@@ -22,7 +25,7 @@ def uploadData(data):
     return [TL, TR, BL, BR, time]
 
 
-Data = open('/home/danielosorio/PycharmProjects/WiiBoard/Data/Raw_Mon_16:22:19')
+Data = open('Data/PreMarks/Raw_Mon_16:22:19')
 
 [TL, TR, BL, BR, time] = uploadData(Data)
 
