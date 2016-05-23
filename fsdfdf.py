@@ -188,8 +188,7 @@ class Wiiboard:
         rawTL = (int(bytes[4].encode("hex"), 16) << 8) + int(bytes[5].encode("hex"), 16)
         rawBL = (int(bytes[6].encode("hex"), 16) << 8) + int(bytes[7].encode("hex"), 16)
         
-        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}".format(rawTL, rawTR, rawBL, rawBR) 
-        print(tempStr)
+        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}".format(rawTL, rawTR, rawBL, rawBR)
         f.write(tempStr + "\n")
 
         topLeft = self.calcMass(rawTL, TOP_LEFT)

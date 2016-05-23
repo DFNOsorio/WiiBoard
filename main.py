@@ -5,6 +5,7 @@ import time
 import bluetooth
 import sys
 import subprocess
+import Tkinter as tk
 
 # --------- User Settings ---------
 WEIGHT_SAMPLES = 500
@@ -188,11 +189,21 @@ class Wiiboard:
         rawTL = (int(bytes[4].encode("hex"), 16) << 8) + int(bytes[5].encode("hex"), 16)
         rawBL = (int(bytes[6].encode("hex"), 16) << 8) + int(bytes[7].encode("hex"), 16)
 
+        SampleTime = time.time()
         topLeft = self.calcMass(rawTL, TOP_LEFT)
         topRight = self.calcMass(rawTR, TOP_RIGHT)
         bottomLeft = self.calcMass(rawBL, BOTTOM_LEFT)
         bottomRight = self.calcMass(rawBR, BOTTOM_RIGHT)
         boardEvent = BoardEvent(topLeft, topRight, bottomLeft, bottomRight, buttonPressed, buttonReleased)
+
+
+        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}, {4:6.2f}".format(rawTL, rawTR, rawBL, rawBR, SampleTime)
+        File1.write(tempStr + "\n")
+        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}, {4:6.2f}, {5:6.2f}".format(topLeft, topRight, bottomLeft, bottomRight, boardEvent.totalWeight, SampleTime)
+        File2.write(tempStr + "\n")
+
+        print(tempStr)
+
         return boardEvent
 
     def calcMass(self, raw, pos):
@@ -294,4 +305,11 @@ def main():
     board.receive()
 
 if __name__ == "__main__":
+    File1Name = "Raw_" + str(time.strftime('%a_%H:%M:%S'))+".txt"
+    File2Name = "Converted_" + str(time.strftime('%a_%H:%M:%S'))+".txt"
+    File1 = open("Data/"+File1Name, "w")
+    File2 = open("Data/"+File2Name, "w")
+    File1.write('TL,TR, BL, BR, time \n')
+    File2.write('TL,TR, BL, BR, TotalWeight, time \n')
+
     main()
