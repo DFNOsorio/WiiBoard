@@ -197,9 +197,9 @@ class Wiiboard:
         boardEvent = BoardEvent(topLeft, topRight, bottomLeft, bottomRight, buttonPressed, buttonReleased)
 
 
-        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}, {4:6.2f}".format(rawTL, rawTR, rawBL, rawBR, SampleTime)
+        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}; {4:6.2f}".format(rawTL, rawTR, rawBL, rawBR, SampleTime)
         File1.write(tempStr + "\n")
-        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}, {4:6.2f}, {5:6.2f}".format(topLeft, topRight, bottomLeft, bottomRight, boardEvent.totalWeight, SampleTime)
+        tempStr = "{0:6.2f}; {1:6.2f}; {2:6.2f}; {3:6.2f}; {4:6.2f}; {5:6.2f}".format(topLeft, topRight, bottomLeft, bottomRight, boardEvent.totalWeight, SampleTime)
         File2.write(tempStr + "\n")
 
         print(tempStr)
@@ -309,7 +309,7 @@ if __name__ == "__main__":
     File2Name = "Converted_" + str(time.strftime('%a_%H:%M:%S'))+".txt"
     File1 = open("Data/"+File1Name, "w")
     File2 = open("Data/"+File2Name, "w")
-    File1.write('TL,TR, BL, BR, time \n')
-    File2.write('TL,TR, BL, BR, TotalWeight, time \n')
+    File1.write('TL, TR, BL, BR, time \n')
+    File2.write('TL, TR, BL, BR, TotalWeight, time \n')
 
     main()
