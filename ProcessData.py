@@ -1,12 +1,12 @@
 import matplotlib
 import seaborn
 
+
+
 from NOVAWiiBoard import *
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-
-
 
 from Tkinter import *
 from PIL import Image, ImageTk
