@@ -1,30 +1,53 @@
 import matplotlib
-matplotlib.use("TkAgg")
+import seaborn
+
+from NOVAWiiBoard import *
+
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
+
+
+
 from Tkinter import *
 from PIL import Image, ImageTk
-import numpy as np
+
 
 # Main Window Definitions
 
-class Window(Frame):
+
+
+
+class COPWindow(Frame):
     def __init__(self,master = None):
         Frame.__init__(self,master)
         self.master = master
         self.init_window()
-        self.LibPhysLogo()
+
 
 
     def init_window(self):
         self.master.title("Wii Balance Board Data Processor")
 
         self.pack(fill = BOTH, expand = 1)
+        f = Figure()
+        a = f.add_subplot(111)
+        canvas = FigureCanvasTkAgg(f, self)
 
-        quitButton = Button(self, text = "Quit", command = self.client_exit)
+        #Frame1
 
-        quitButton.place(x=640, y=400)
+        frame1 = Frame(self)
+        frame1.pack(side = TOP,fill = X)
+        self.libPhysLogo(frame1)
+        self.unlLogo(frame1)
 
+        Video = Button(frame1, text="Animation")
+        Video.pack(side=RIGHT, fill=BOTH, expand=False)
+
+        label = Label(frame1, text="COP Plots")
+        label.pack(side=RIGHT, fill=BOTH, expand=True)
+
+
+        #Menus
         menu = Menu(self.master)
         self.master.config(menu = menu)
 
@@ -38,18 +61,41 @@ class Window(Frame):
         menu.add_cascade(label = "Edit", menu = edit)
 
 
+
+        self.drawPlot(COPx, COPy, a ,canvas)
+
     def client_exit(self):
         exit()
 
-    def LibPhysLogo(self):
+    def libPhysLogo(self,frame):
         load = Image.open("Images/logo_libphys.png")
         render = ImageTk.PhotoImage(load)
-        img = Label(self,image = render)
+        img = Label(frame,image = render)
         img.image = render
-        img.place(x=0,y=0)
+        img.pack(side=LEFT, fill = BOTH, expand = False, padx = 5)
+
+    def unlLogo(self, frame):
+        load = Image.open("Images/UNL.gif")
+        render = ImageTk.PhotoImage(load)
+        img = Label(frame, image=render)
+        img.image = render
+        img.pack(side=LEFT, fill=BOTH, expand=False, padx=5)
+
+    def drawPlot(self, x, y, a,canvas):
+        a.plot(x, y)
+        canvas.show()
+        canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)
+        toolbar = NavigationToolbar2TkAgg(canvas, self)
+        toolbar.update()
+        canvas._tkcanvas.pack(side=TOP, fill=BOTH, expand=True)
 
 
-# Data Processing Fuctions
+
+
+
+# Other functions
+
+
 
 def uploadData(data):
     TL = []
@@ -72,16 +118,17 @@ def uploadData(data):
 
 
 
-
+#MainFunction
 
 if __name__ == "__main__":
 
-    Data = open('Data/PreMarks/Raw_Mon_16:22:19')
+    Data = open('Data/Raw_Tue_15:22:47.txt')
     [TL, TR, BL, BR, time] = uploadData(Data)
+    [COPx, COPy] = getCorrectedCOP(100,TL, TR, BL, BR)
 
 
     root = Tk()
-    root.geometry("640x400")
+    root.geometry("700x680")
 
-    app = Window(root)
+    app = COPWindow(root)
     root.mainloop()
