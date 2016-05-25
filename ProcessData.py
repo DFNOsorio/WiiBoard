@@ -7,6 +7,8 @@ from NOVAWiiBoard import *
 
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
+from scipy.misc import imread
+
 
 from Tkinter import *
 from PIL import Image, ImageTk
@@ -82,6 +84,8 @@ class COPWindow(Frame):
         img.pack(side=LEFT, fill=BOTH, expand=False, padx=5)
 
     def drawPlot(self, x, y, a,canvas):
+        img = imread("Images/Wii.JPG")
+        a.imshow(img, zorder=0, extent=[-216, 216, -114, 114])
         a.plot(x, y)
         canvas.show()
         canvas.get_tk_widget().pack(side=BOTTOM, fill=BOTH, expand=True)

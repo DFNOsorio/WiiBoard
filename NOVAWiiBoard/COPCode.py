@@ -39,9 +39,7 @@ def getInitialPosition(TLo, TRo, BLo, BRo):
         by Harrison L.Bartlett (PUBMED ref: 23910725)
     '''
 
-    [COPxo, COPyo] = COP(TLo, TRo, BLo, BRo)
-
-    return [np.mean(COPxo),np.mean(COPyo)]
+    TODO GET ZEROS FOR EACH SENSOR
 
 def getCorrectedCOP(finalIndex,TL, TR, BL, BR):
 
@@ -55,3 +53,15 @@ def getCorrectedCOP(finalIndex,TL, TR, BL, BR):
 
 
     return [RawCOPx - COPxo,RawCOPy - COPyo]
+
+
+
+
+
+
+
+
+
+
+
+
