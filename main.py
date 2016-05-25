@@ -46,7 +46,6 @@ class EventProcessor:
                     self._sum += self._events[x]
                 self._weight = self._sum/WEIGHT_SAMPLES
                 self._measureCnt = 0
-                print str(self._weight) + " lbs"
             if not self._measured:
                 self._measured = True
 
