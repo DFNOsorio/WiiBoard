@@ -1,1 +1,1 @@
-from pathmath_interpolationxy import *
+from pathmath import *
