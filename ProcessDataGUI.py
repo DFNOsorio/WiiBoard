@@ -13,7 +13,6 @@ from Tkinter import *
 from PIL import Image, ImageTk
 
 
-
 # Logos
 
 def libPhysLogo(frame):
