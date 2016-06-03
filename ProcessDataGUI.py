@@ -349,6 +349,6 @@ if __name__ == "__main__":
     Data = open('Data/Joao.txt')
     [FS, COPx, COPy, COPmaxx, COPminx, COPmaxy, COPminyx, freqPlot, Y] = getData(Data)
     app = WiiBoardProcApp()
-    app.geometry("700x560")
+    app.geometry("700x600")
     app.resizable(width=FALSE,height=FALSE) #Lock the size of the window
     app.mainloop()
