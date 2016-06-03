@@ -322,7 +322,7 @@ def area_calc(contour_array):
     return area / 2.0
 
 
-def get_area(x, y, scanning_window=1):
+def get_area(x, y, scanning_window=1, show_plot=False):
 
     """ This function calculates the area of a set of scattered points.
 
@@ -337,6 +337,9 @@ def get_area(x, y, scanning_window=1):
         scanning_window: float
             Value for the segmentation window. 0 to use the mean distance between points.
 
+        show_plot: boolean
+            option to plot the contour
+
         Returns
         -------
         area: float
@@ -346,11 +349,11 @@ def get_area(x, y, scanning_window=1):
 
     scanning_window, points_total, points_on_window, index_on_window = get_windows(x, y, scanning_window)
 
-    contour_array = area_contour(points_total, True)
+    contour_array = area_contour(points_total, show_plot)
 
     area = area_calc(contour_array)
 
-    return area, contour_array
+    return area, contour_array, scanning_window
 
 ###
 
@@ -554,20 +557,20 @@ def bokeh_subplot(x, y, title, xlabel, ylabel):
 
 # Random scatter data
 
-x, y = generate_random_data([-20, 20], [-20, 20], 100)
+# x, y = generate_random_data([-20, 20], [-20, 20], 100)
 
-figure2 = regular_plot(x, y, "Generated Data", "x", "y", plot_line='o')
+#figure2 = regular_plot(x, y, "Generated Data", "x", "y", plot_line='o')
 
-area, contour_array = get_area(x, y, scanning_window=0)
+#area, contour_array = get_area(x, y, scanning_window=0)
 
-print area
+#print area
 
-print_simple_bokeh(x, y, "Generated Data", "x", "y")
+#print_simple_bokeh(x, y, "Generated Data", "x", "y")
 
-bokeh_subplot([x, contour_array[:, 0]], [y, contour_array[:, 1]], ["Generated Data", "Contour Plot"], ["x", "x"], ["y", "y"])
+#bokeh_subplot([x, contour_array[:, 0]], [y, contour_array[:, 1]], ["Generated Data", "Contour Plot"], ["x", "x"], ["y", "y"])
 
 
-plt.show()
+#plt.show()
 
 
 # [t,x,y] =  generate_circle(r=2)

@@ -3,6 +3,7 @@ import seaborn
 import numpy as np
 
 from NOVAWiiBoard import *
+from PathMath import *
 from matplotlib import gridspec
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
@@ -344,10 +345,22 @@ def getData(Data):
     return [FS, COPx, COPy, COPmaxx, COPminx, COPmaxy, COPminyx, freqPlot, Y]
 #MainFunction
 
+### Delete this
+
+def test_bokeh_and_area(x,y):
+    window = 0
+    area, contour_array, window = pathmath.get_area(x, y, scanning_window=window)
+    print_simple_bokeh(x, y, "COP data", "COPx (mm)", "COPy (mm)")
+    bokeh_subplot([x, contour_array[:, 0]], [y, contour_array[:, 1]], ["COP data (window = "+str(window)+" mm)", "Contour Plot"], ["COPx (mm)", "COPx (mm)"],
+                  ["COPy (mm)", "COPy (mm)"])
+    print area
+###
+
 if __name__ == "__main__":
 
     Data = open('Data/Joao.txt')
     [FS, COPx, COPy, COPmaxx, COPminx, COPmaxy, COPminyx, freqPlot, Y] = getData(Data)
+    test_bokeh_and_area(COPx, COPy)
     app = WiiBoardProcApp()
     app.geometry("700x600")
     app.resizable(width=FALSE,height=FALSE) #Lock the size of the window
