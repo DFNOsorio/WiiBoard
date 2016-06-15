@@ -557,6 +557,9 @@ def bokeh_subplot(x, y, title, xlabel, ylabel):
 
 # Random scatter data
 
+
+
+
 # x, y = generate_random_data([-20, 20], [-20, 20], 100)
 
 #figure2 = regular_plot(x, y, "Generated Data", "x", "y", plot_line='o')
