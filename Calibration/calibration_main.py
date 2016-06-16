@@ -56,7 +56,7 @@ def load_file(complete_raw_path, complete_converted_path, axes, title="Plots", s
     figure = add_sup_title(figure, title, fontsize=14)
     if show_plot:
         plot_show(figure)
-
+    http: // nellev.github.io / tmp / jhepc / gallery.html
     return [rtl, rtr, rbl, rbr, rt, rtw, ctl, ctr, cbl, cbr, ct, ctw, figure, axis1, axis2, axis3]
 
 
