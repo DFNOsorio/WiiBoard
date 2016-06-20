@@ -69,7 +69,7 @@ def grid():
     return f, ax1, ax2, ax3, ax4, ax5, ax6, ax7, ax8, ax9
 
 
-def ax13_populator(filler, ax):
+def ax9_populator(filler, ax):
 
     for i in range(0, len(filler[1])):
         ax.plot(filler[0][i], filler[1][i])

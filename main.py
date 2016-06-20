@@ -175,6 +175,8 @@ class Wiiboard:
             buttonPressed = True
             if not self.buttonDown:
                 print "Button pressed"
+                File1.write("Button pressed" + "\n")
+                File2.write("Button pressed" + "\n")
                 self.buttonDown = True
 
         if not buttonPressed:
@@ -304,8 +306,8 @@ def main():
     board.receive()
 
 if __name__ == "__main__":
-    File1Name = "Raw_" + str(time.strftime('%a_%H:%M:%S'))+"_Calibration_tds_v4_sendr.txt"
-    File2Name = "Converted_" + str(time.strftime('%a_%H:%M:%S'))+"_Calibration_tds_v4_sendr.txt"
+    File1Name = "Raw_" + str(time.strftime('%a_%H:%M:%S'))+"_Calibration_nothing.txt"
+    File2Name = "Converted_" + str(time.strftime('%a_%H:%M:%S'))+"_Calibration_nothing.txt"
     File1 = open("Data/"+File1Name, "w")
     File2 = open("Data/"+File2Name, "w")
     File1.write('TL, TR, BL, BR, time \n')
