@@ -15,7 +15,7 @@ def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-'):
 
 def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], fontsize=[14]):
     fig = plt.figure()
-
+    axes = []
     if (columns*lines) >= len(y):
         if isinstance(fontsize, int ):
             fontsize = [fontsize]
@@ -25,7 +25,7 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
         for i in range(0, len(x)):
             xx = x[i]
             yy = y[i]
-            plt.subplot(lines, columns, i + 1)
+            temp_ax = plt.subplot(lines, columns, i + 1)
             for j in range(0, len(yy)):
                 plt.plot(xx, yy[j])
             plt.xlabel(xlabel[i])
@@ -33,8 +33,9 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
             plt.title(title[i], fontsize=fontsize[i])
             if len(legend) is not 0:
                 plt.legend(legend[i], fontsize=5)
+            axes.append(temp_ax)
 
-        return fig
+        return fig, axes
     else:
         print "Wrong configuration"
 
@@ -111,16 +112,39 @@ def axe_populator(data, ax):
     ax.set_ylabel(data[3])
     ax.set_title(data[4], fontsize=12)
     ax.legend(data[5], fontsize=10)
+
     return ax
+
+
+def add_vlines(axis, intervals, maximum, time):
+    for i in range(0, len(axis)):
+        for j in intervals:
+            axis[i].axvline(x=time[j[0]], ymin=0, ymax=maximum[i], linestyle='--')
+            axis[i].axvline(x=time[j[1]], ymin=0, ymax=maximum[i], linestyle='--')
+    return axis
+
+
+def add_hlines(axis, intervals, means, time):
+    for i in range(0, len(axis)):
+        means_axis = means[i]
+        previous_legend = axis[i].get_legend().get_texts()
+        new_legend = []
+        for j in range(0, len(previous_legend)):
+            new_legend.append(previous_legend[j].get_text())
+
+        for j in range(0, len(intervals)):
+            means_interval = means_axis[j]
+            for t in means_interval:
+                axis[i].plot([time[intervals[j][0]], time[intervals[j][1]]], [t, t], 'k')
+                axis[i].set_xlim([0, time[len(time)-1]])
+        new_legend.append("INT MEAN")
+        axis[i].legend(new_legend)
+    return axis
 
 
 def add_sup_title(figure, title, fontsize=20):
     figure.suptitle(title, fontsize=fontsize)
     return figure
-
-
-def plot_show(figure):
-    plt.show(figure)
 
 
 def plot_show_all():

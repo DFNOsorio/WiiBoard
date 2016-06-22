@@ -32,7 +32,7 @@ def file_reader(name_of_file):
     return [tl, tr, bl, br, time, tw]
 
 
-def load_file(complete_raw_path, complete_converted_path, axes, title="Plots", show_plot=False):
+def load_file(complete_raw_path, complete_converted_path, axes, title="Plots"):
 
     [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
     [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
@@ -50,8 +50,6 @@ def load_file(complete_raw_path, complete_converted_path, axes, title="Plots", s
                              lines=1, columns=3, fontsize=12)
 
     figure = add_sup_title(figure, title, fontsize=14)
-    if show_plot:
-        plot_show(figure)
 
     data1 = [rt, [rtl, rtr, rbl, rbr], "Time(s)", "Raw values",  "Raw " + title,
              ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"]]
@@ -61,6 +59,40 @@ def load_file(complete_raw_path, complete_converted_path, axes, title="Plots", s
     axis1 = axe_populator(data1, axes[0])
     axis2 = axe_populator(data2, axes[1])
 
-
-
     return [rtl, rtr, rbl, rbr, rt, rtw, ctl, ctr, cbl, cbr, ct, ctw, figure, axis1, axis2]
+
+
+def zero_files(complete_raw_path):
+    [tl, tr, bl, br, t, tw] = file_reader(complete_raw_path)
+    zero_out([tr, br, tl, bl])
+
+
+def center_file(complete_raw_path, complete_converted_path):
+    [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
+    [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
+
+    rt = time_reshape(rt)
+    ct = time_reshape(ct)
+
+    means_raw = interval_means(intervals_1, [rtr, rbr, rtl, rbl])
+    means_converted = interval_means(intervals_1, [ctr, cbr, ctl, cbl])
+    means_tw = interval_means(intervals_1, [ctw])
+
+    figure, axes = subplot_overlap([rt, ct, ct], [[rtl, rtr, rbl, rbr], [ctl, ctr, cbl, cbr], [ctw]],
+                             title=['Raw files', 'Converted files', 'Total weight'],
+                             xlabel=["Time (s)", "Time (s)", "Time (s)"],
+                             ylabel=["Raw values", "Converted Values (Kg)", 'Total weight (Kg)'],
+                             legend=[["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+                                     ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+                                     ["TOTAL"]],
+                             lines=1, columns=3, fontsize=12)
+
+    #axes = add_vlines(axes, intervals_1, [max([max(rtl), max(rtr), max(rbl), max(rbr)]),
+    #                                      max([max(ctl), max(ctr), max(cbl), max(cbr)]), max(ctw)], rt)
+
+    axes = add_hlines(axes, intervals_1, [means_raw, means_converted, means_tw], rt)
+
+    print means_raw[0]
+    print calibration_matrix_adjusted[0]
+    print means_converted
+
