@@ -73,12 +73,15 @@ def load_12kg(folder_path):
 
 def load_center(cut_index, folder_name):
 
-    center_file(folder_name + '/raw/Raw_center.txt', folder_name + '/converted/Converted_center.txt')
+    center_file(folder_name + '/raw/Raw_center.txt', folder_name + '/converted/Converted_center.txt',
+                intervals_1, cumu_weight)
+    center_file(folder_name + '/raw/Raw_center_2.txt', folder_name + '/converted/Converted_center_2.txt'
+                , intervals_2, cumu_weight_2)
+
     plot_show_all()
 
 
 folder_name = '../Calibration/data'
-zero_files('../Calibration/data/nothing/Raw_1.txt')
 load_center(1, folder_name)
 #load_12kg(folder_name)
 

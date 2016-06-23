@@ -1,6 +1,7 @@
 import seaborn
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
+import matplotlib.patches as mpatches
 
 
 def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-'):
@@ -17,7 +18,7 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
     fig = plt.figure()
     axes = []
     if (columns*lines) >= len(y):
-        if isinstance(fontsize, int ):
+        if isinstance(fontsize, int):
             fontsize = [fontsize]
             [[fontsize.append(fontsize[0])] for _ in xrange(0, len(x))]
         elif len(fontsize) is 1:
@@ -27,12 +28,12 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
             yy = y[i]
             temp_ax = plt.subplot(lines, columns, i + 1)
             for j in range(0, len(yy)):
-                plt.plot(xx, yy[j])
-            plt.xlabel(xlabel[i])
-            plt.ylabel(ylabel[i])
-            plt.title(title[i], fontsize=fontsize[i])
+                temp_ax.plot(xx, yy[j], label='test'+str(j))
+            temp_ax.set_xlabel(xlabel[i])
+            temp_ax.set_ylabel(ylabel[i])
+            temp_ax.set_title(title[i], fontsize=fontsize[i])
             if len(legend) is not 0:
-                plt.legend(legend[i], fontsize=5)
+                temp_ax.legend(legend[i], fontsize=10)
             axes.append(temp_ax)
 
         return fig, axes
@@ -124,21 +125,24 @@ def add_vlines(axis, intervals, maximum, time):
     return axis
 
 
-def add_hlines(axis, intervals, means, time):
+def add_hlines(axis, intervals, means, time, linestyle='-', linecolor="k", legendText="INT MEAN"):
     for i in range(0, len(axis)):
         means_axis = means[i]
         previous_legend = axis[i].get_legend().get_texts()
         new_legend = []
         for j in range(0, len(previous_legend)):
             new_legend.append(previous_legend[j].get_text())
-
         for j in range(0, len(intervals)):
             means_interval = means_axis[j]
+            if type(means_interval) is not list:
+                means_interval = [means_interval]
             for t in means_interval:
-                axis[i].plot([time[intervals[j][0]], time[intervals[j][1]]], [t, t], 'k')
+                axis[i].plot([time[intervals[j][0]], time[intervals[j][1]]], [t, t], linestyle+linecolor, label="NEW"+str(j))
                 axis[i].set_xlim([0, time[len(time)-1]])
-        new_legend.append("INT MEAN")
-        axis[i].legend(new_legend)
+        h, l = axis[i].get_legend_handles_labels()
+        h[len(previous_legend)].set_color(linecolor)
+        new_legend.append(legendText)
+        axis[i].legend(new_legend, fontsize=10)
     return axis
 
 

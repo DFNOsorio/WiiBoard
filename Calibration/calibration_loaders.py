@@ -62,22 +62,18 @@ def load_file(complete_raw_path, complete_converted_path, axes, title="Plots"):
     return [rtl, rtr, rbl, rbr, rt, rtw, ctl, ctr, cbl, cbr, ct, ctw, figure, axis1, axis2]
 
 
-def zero_files(complete_raw_path):
-    [tl, tr, bl, br, t, tw] = file_reader(complete_raw_path)
-    zero_out([tr, br, tl, bl])
-
-
-def center_file(complete_raw_path, complete_converted_path):
+def center_file(complete_raw_path, complete_converted_path, intervals, cumu_weights):
     [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
     [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
-
+    zero_out([rtr[intervals[0][0]:intervals[0][1]], rbr[intervals[0][0]:intervals[0][1]],
+             rtl[intervals[0][0]:intervals[0][1]], rbl[intervals[0][0]:intervals[0][1]]])
     rt = time_reshape(rt)
     ct = time_reshape(ct)
 
-    means_raw = interval_means(intervals_1, [rtr, rbr, rtl, rbl])
-    means_converted = interval_means(intervals_1, [ctr, cbr, ctl, cbl])
-    means_tw = interval_means(intervals_1, [ctw])
-
+    means_raw = interval_means(intervals, [rtr, rbr, rtl, rbl])
+    means_converted = interval_means(intervals, [ctr, cbr, ctl, cbl])
+    means_tw = interval_means(intervals, [ctw])
+    
     figure, axes = subplot_overlap([rt, ct, ct], [[rtl, rtr, rbl, rbr], [ctl, ctr, cbl, cbr], [ctw]],
                              title=['Raw files', 'Converted files', 'Total weight'],
                              xlabel=["Time (s)", "Time (s)", "Time (s)"],
@@ -90,9 +86,41 @@ def center_file(complete_raw_path, complete_converted_path):
     #axes = add_vlines(axes, intervals_1, [max([max(rtl), max(rtr), max(rbl), max(rbr)]),
     #                                      max([max(ctl), max(ctr), max(cbl), max(cbr)]), max(ctw)], rt)
 
-    axes = add_hlines(axes, intervals_1, [means_raw, means_converted, means_tw], rt)
+    axes = add_hlines(axes, intervals, [means_raw, means_converted, means_tw], rt, linecolor='y')
+    axes = add_hlines([axes[2]], intervals, [cumu_weights], rt, linecolor='g', legendText="CORR WEIGHT")
 
-    print means_raw[0]
-    print calibration_matrix_adjusted[0]
-    print means_converted
+    #[converted_tl, converted_tr, converted_bl, converted_br] = all_2_kilo([rtl, rtr, rbl, rbr],
+    #                                                           [TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT],
+    #                                                           calibration_matrix_adjusted)
 
+    #tw_c = weight_sum(ctl, ctr, cbl, cbr)
+    #tw_r = weight_sum(converted_tl, converted_tr, converted_bl, converted_br)
+
+    #figure, axes = subplot_overlap([ct, ct, ct], [[converted_tl, converted_tr, converted_bl, converted_br],
+    #                                              [ctl, ctr, cbl, cbr], [ctw, tw_c, tw_r]],
+    #                               title=['Internal Conversion', 'Wii Conversion', 'Total weight'],
+    #                               xlabel=["Time (s)", "Time (s)", "Time (s)"],
+    #                               ylabel=["Raw values", "Converted Values (Kg)", 'Total weight (Kg)'],
+    #                               legend=[["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+    #                                       ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+    #                                       ["TOTAL", "CORNER SUM", "RAW SUM"]],
+    #                               lines=1, columns=3, fontsize=12)
+
+    #axes = add_hlines([axes[2]], intervals_1, [cumu_weight], rt, linecolor='g', legendText="CORR WEIGHT")
+
+    #means_twc = interval_means(intervals_1, [tw_r])
+    #means_left_top = interval_means(intervals_1, [converted_tl])
+    #means_left_bottom = interval_means(intervals_1, [converted_bl])
+
+    #wd = weight_difference(cumu_weight, means_twc)
+    #ld = weight_difference(means_left_bottom, means_left_top)
+
+
+    #figure, axes = subplot_overlap([cumu_weight, cumu_weight, cumu_weight], [[wd], [ld], [wd, ld]],
+    #                               title=['Total Weight Difference', 'Left Sensor Differences', 'Total vs Left'],
+    #                               xlabel=["Weight (kg)", "Weight (kg)", "Weight (kg)"],
+    #                               ylabel=["Weight Difference (Kg)", "Weight Difference (Kg)", 'Weight Difference (Kg)'],
+    #                               legend=[['Total Weight Difference'],
+    #                                       ['Left Sensor Differences'],
+    #                                       ['Total Weight Difference', 'Left Sensor Differences']],
+    #                               lines=1, columns=3, fontsize=12)
