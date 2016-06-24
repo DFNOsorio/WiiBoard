@@ -14,10 +14,10 @@ def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-'):
     return fig
 
 
-def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], fontsize=[14]):
+def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], fontsize=[14], overlapx=False):
     fig = plt.figure()
     axes = []
-    if (columns*lines) >= len(y):
+    if (columns*lines) >= len(x):
         if isinstance(fontsize, int):
             fontsize = [fontsize]
             [[fontsize.append(fontsize[0])] for _ in xrange(0, len(x))]
@@ -28,7 +28,11 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
             yy = y[i]
             temp_ax = plt.subplot(lines, columns, i + 1)
             for j in range(0, len(yy)):
-                temp_ax.plot(xx, yy[j], label='test'+str(j))
+                if overlapx:
+                    temp_ax.plot(xx[j], yy[j], label='test'+str(j))
+                else:
+                    temp_ax.plot(xx, yy[j], label='test'+str(j))
+
             temp_ax.set_xlabel(xlabel[i])
             temp_ax.set_ylabel(ylabel[i])
             temp_ax.set_title(title[i], fontsize=fontsize[i])

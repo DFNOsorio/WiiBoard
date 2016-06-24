@@ -15,7 +15,7 @@ def raw_to_kilos(raw_data_point, corner, matrix):
     m_17 = (17*1.0) / (matrix[1][corner] - matrix[0][corner]*1.0)
     b_17 = 17 - m_17 * matrix[1][corner] * 1.0
 
-    m_37 = (17 - 37.5 * 1.0) / (matrix[2][corner] - matrix[1][corner] * 1.0)
+    m_37 = (37.5 * 1.0 - 17.0) / (matrix[2][corner] - matrix[1][corner] * 1.0)
     b_37 = 37.5 - m_37 * matrix[2][corner] * 1.0
 
     for i in range(0, len(raw_data_point)):
@@ -69,3 +69,15 @@ def weight_sum(tl, tr, bl, br):
     for i in range(0, len(tl)):
         total_weight.append(tl[i] + tr[i] + bl[i] + br[i])
     return total_weight
+
+
+def print_calibration_curves():
+    raw_points = []
+    points = []
+    corners = [TOP_RIGHT, BOTTOM_RIGHT, TOP_LEFT, BOTTOM_LEFT]
+    for i in corners:
+        temp = range(calibration_matrix_adjusted[0][i], calibration_matrix_adjusted[2][i])
+        tr = raw_to_kilos(temp, i, calibration_matrix)
+        raw_points.append(temp)
+        points.append(tr)
+    return raw_points, points

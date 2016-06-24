@@ -32,7 +32,7 @@ def file_reader(name_of_file):
     return [tl, tr, bl, br, time, tw]
 
 
-def load_file(complete_raw_path, complete_converted_path, axes, title="Plots"):
+def load_file(complete_raw_path, complete_converted_path, axes, intervals, title="Plots"):
 
     [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
     [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
@@ -40,7 +40,7 @@ def load_file(complete_raw_path, complete_converted_path, axes, title="Plots"):
     rt = time_reshape(rt)
     ct = time_reshape(ct)
 
-    figure = subplot_overlap([rt, ct, ct], [[rtl, rtr, rbl, rbr], [ctl, ctr, cbl, cbr], [ctw]],
+    figure, i_axes = subplot_overlap([rt, ct, ct], [[rtl, rtr, rbl, rbr], [ctl, ctr, cbl, cbr], [ctw]],
                              title=['Raw files', 'Converted files', 'Total weight'],
                              xlabel=["Time (s)", "Time (s)", "Time (s)"],
                              ylabel=["Raw values", "Converted Values (Kg)", 'Total weight (Kg)'],
@@ -51,37 +51,79 @@ def load_file(complete_raw_path, complete_converted_path, axes, title="Plots"):
 
     figure = add_sup_title(figure, title, fontsize=14)
 
-    data1 = [rt, [rtl, rtr, rbl, rbr], "Time(s)", "Raw values",  "Raw " + title,
-             ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"]]
-    data2 = [ct, [ctl, ctr, cbl, cbr], "Time (s)", "Converted Values (Kg)", 'Converted files',
-             ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"]]
+    means_raw = interval_means(intervals, [rtr, rbr, rtl, rbl])
+    means_converted = interval_means(intervals, [ctr, cbr, ctl, cbl])
+    means_tw = interval_means(intervals, [ctw])
 
-    axis1 = axe_populator(data1, axes[0])
-    axis2 = axe_populator(data2, axes[1])
+    i_axes = add_hlines(i_axes, intervals, [means_raw, means_converted, means_tw], rt, linecolor='y')
+    temp_axes = add_hlines([i_axes[2]], intervals, [[12.6]], rt, linecolor='g', legendText="CORR WEIGHT")
+    i_axes[2] = temp_axes[0]
 
-    return [rtl, rtr, rbl, rbr, rt, rtw, ctl, ctr, cbl, cbr, ct, ctw, figure, axis1, axis2]
+    [converted_tl, converted_tr, converted_bl, converted_br] = all_2_kilo([rtl, rtr, rbl, rbr],
+                                                                          [TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT,
+                                                                           BOTTOM_RIGHT],
+                                                                          calibration_matrix_adjusted)
+
+    tw_c = weight_sum(ctl, ctr, cbl, cbr)
+    tw_r = weight_sum(converted_tl, converted_tr, converted_bl, converted_br)
+
+    figure, axes = subplot_overlap([ct, ct, ct], [[converted_tl, converted_tr, converted_bl, converted_br],
+                                                  [ctl, ctr, cbl, cbr], [ctw, tw_c, tw_r]],
+                                   title=['Internal Conversion', 'Wii Conversion', 'Total weight'],
+                                   xlabel=["Time (s)", "Time (s)", "Time (s)"],
+                                   ylabel=["Raw values", "Converted Values (Kg)", 'Total weight (Kg)'],
+                                   legend=[["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+                                           ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+                                           ["TOTAL", "CORNER SUM", "RAW SUM"]],
+                                   lines=1, columns=3, fontsize=12)
+
+    means_twc = interval_means(intervals, [tw_r])
+    means_left_top = interval_means(intervals, [converted_tl])
+    means_left_bottom = interval_means(intervals, [converted_bl])
+
+    temp_axes = add_hlines([axes[2]], intervals, [[12.6]], rt, linecolor='g', legendText="CORR WEIGHT")
+    axes[2] = temp_axes[0]
+    temp_axes = add_hlines([axes[2]], intervals, [means_twc], rt, linecolor='y', legendText="INT MEAN WEIGHT")
+    axes[2] = temp_axes[0]
+
+    wd = weight_difference([[12.6]], means_twc)
+    ld = weight_difference(means_left_bottom, means_left_top)
 
 
-def center_file(complete_raw_path, complete_converted_path, intervals, cumu_weights):
+    #data1 = [rt, [rtl, rtr, rbl, rbr], "Time(s)", "Raw values",  "Raw " + title,
+    #         ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"]]
+    #data2 = [ct, [ctl, ctr, cbl, cbr], "Time (s)", "Converted Values (Kg)", 'Converted files',
+    #         ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"]]
+
+    #axis1 = axe_populator(data1, axes[0])
+    #axis2 = axe_populator(data2, axes[1])
+
+    return [rtl, rtr, rbl, rbr, rt, rtw, ctl, ctr, cbl, cbr, ct, ctw, figure, axes[0], axes[1]]
+
+
+def calibration_file(complete_raw_path, complete_converted_path, intervals, cumu_weights, file_name=[]):
+
     [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
     [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
-    zero_out([rtr[intervals[0][0]:intervals[0][1]], rbr[intervals[0][0]:intervals[0][1]],
-             rtl[intervals[0][0]:intervals[0][1]], rbl[intervals[0][0]:intervals[0][1]]])
     rt = time_reshape(rt)
     ct = time_reshape(ct)
+
+    figure, axes = subplot_overlap([rt, ct, ct], [[rtl, rtr, rbl, rbr], [ctl, ctr, cbl, cbr], [ctw]],
+                                   title=['Raw files', 'Converted files', 'Total weight'],
+                                   xlabel=["Time (s)", "Time (s)", "Time (s)"],
+                                   ylabel=["Raw values", "Converted Values (Kg)", 'Total weight (Kg)'],
+                                   legend=[["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+                                           ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
+                                           ["TOTAL"]],
+                                   lines=1, columns=3, fontsize=12)
+    figure = add_sup_title(figure, file_name, fontsize=14)
+    zero_out([rtr[intervals[0][0]:intervals[0][1]], rbr[intervals[0][0]:intervals[0][1]],
+             rtl[intervals[0][0]:intervals[0][1]], rbl[intervals[0][0]:intervals[0][1]]])
+
 
     means_raw = interval_means(intervals, [rtr, rbr, rtl, rbl])
     means_converted = interval_means(intervals, [ctr, cbr, ctl, cbl])
     means_tw = interval_means(intervals, [ctw])
-    
-    figure, axes = subplot_overlap([rt, ct, ct], [[rtl, rtr, rbl, rbr], [ctl, ctr, cbl, cbr], [ctw]],
-                             title=['Raw files', 'Converted files', 'Total weight'],
-                             xlabel=["Time (s)", "Time (s)", "Time (s)"],
-                             ylabel=["Raw values", "Converted Values (Kg)", 'Total weight (Kg)'],
-                             legend=[["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
-                                     ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
-                                     ["TOTAL"]],
-                             lines=1, columns=3, fontsize=12)
 
     #axes = add_vlines(axes, intervals_1, [max([max(rtl), max(rtr), max(rbl), max(rbr)]),
     #                                      max([max(ctl), max(ctr), max(cbl), max(cbr)]), max(ctw)], rt)
@@ -106,7 +148,7 @@ def center_file(complete_raw_path, complete_converted_path, intervals, cumu_weig
                                            ["TOP_LEFT", "TOP_RIGHT", "BOTTOM_LEFT", "BOTTOM_RIGHT"],
                                            ["TOTAL", "CORNER SUM", "RAW SUM"]],
                                    lines=1, columns=3, fontsize=12)
-
+    figure = add_sup_title(figure, file_name, fontsize=14)
     means_twc = interval_means(intervals, [tw_r])
     means_left_top = interval_means(intervals, [converted_tl])
     means_left_bottom = interval_means(intervals, [converted_bl])
@@ -116,10 +158,11 @@ def center_file(complete_raw_path, complete_converted_path, intervals, cumu_weig
     temp_axes = add_hlines([axes[2]], intervals, [means_twc], rt, linecolor='y', legendText="INT MEAN WEIGHT")
     axes[2] = temp_axes[0]
 
+
     wd = weight_difference(cumu_weights, means_twc)
     ld = weight_difference(means_left_bottom, means_left_top)
 
-    figure, axes = subplot_overlap([cumu_weights, cumu_weights, cumu_weights], [[wd], [ld], [wd, ld]],
+    figure, axes = subplot_overlap([cumu_weights, cumu_weights, cumu_weights], [[wd], [np.abs(ld)], [wd, np.abs(ld)]],
                                    title=['Total Weight Difference', 'Left Sensor Differences', 'Total vs Left'],
                                    xlabel=["Weight (kg)", "Weight (kg)", "Weight (kg)"],
                                    ylabel=["Weight Difference (Kg)", "Weight Difference (Kg)", 'Weight Difference (Kg)'],
@@ -127,4 +170,5 @@ def center_file(complete_raw_path, complete_converted_path, intervals, cumu_weig
                                            ['Left Sensor Differences'],
                                            ['Total Weight Difference', 'Left Sensor Differences']],
                                    lines=1, columns=3, fontsize=12)
+    figure = add_sup_title(figure, file_name, fontsize=14)
 

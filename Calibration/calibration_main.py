@@ -71,7 +71,7 @@ def load_12kg_corners(folder_path):
 def load_12kg(folder_path):
     load_12kg_corners(folder_path)
 
-def load_center(cut_index, folder_name):
+def load_center(folder_name):
 
     center_file(folder_name + '/raw/Raw_center.txt', folder_name + '/converted/Converted_center.txt',
                 intervals_1, cumu_weight)
@@ -82,6 +82,11 @@ def load_center(cut_index, folder_name):
 
 
 folder_name = '../Calibration/data'
-load_center(1, folder_name)
+x, y = print_calibration_curves()
+subplot_overlap([x], [y], ["Raw Conversions"], ["Raw"], ["Converted (Kg)"], 1, 1,
+                legend=[["BOTTOM_LEFT", "BOTTOM_RIGHT", "TOP_LEFT", "TOP_RIGHT"]], fontsize=[14], overlapx=True)
+plot_show_all()
+
+#load_center(folder_name)
 #load_12kg(folder_name)
 
