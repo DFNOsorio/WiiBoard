@@ -306,8 +306,8 @@ def main():
     board.receive()
 
 if __name__ == "__main__":
-    File1Name = "Raw_" + str(time.strftime('%a_%H:%M:%S'))+"_calibrate_center.txt"
-    File2Name = "Converted_" + str(time.strftime('%a_%H:%M:%S'))+"_calibrate_center.txt"
+    File1Name = "Raw_" + str(time.strftime('%a_%H:%M:%S'))+"_calibrate_final_br.txt"
+    File2Name = "Converted_" + str(time.strftime('%a_%H:%M:%S'))+"_calibrate_final_br.txt"
     File1 = open("Data/"+File1Name, "w")
     File2 = open("Data/"+File2Name, "w")
     File1.write('TL, TR, BL, BR, time \n')

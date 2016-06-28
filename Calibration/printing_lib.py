@@ -28,7 +28,8 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
             yy = y[i]
             temp_ax = plt.subplot(lines, columns, i + 1)
             for j in range(0, len(yy)):
-                if overlapx:
+
+                if overlapx and (len(xx) != len(yy[j])):
                     temp_ax.plot(xx[j], yy[j], label='test'+str(j))
                 else:
                     temp_ax.plot(xx, yy[j], label='test'+str(j))
