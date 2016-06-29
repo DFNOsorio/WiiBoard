@@ -1,16 +1,16 @@
 import numpy.random
 from numpy import *
 from pylab import *
-from scipy import interpolate
+import scipy as sc
+from scipy import interpolate, spatial
 import random
 import os
 from numpy.testing import assert_almost_equal, assert_approx_equal
 
 import seaborn
 import matplotlib.pyplot as plt
-import bokeh as bk
-from bokeh.io import hplot
-from bokeh.plotting import figure, output_file, show
+from plot_lib import print_simple_bokeh
+from contouring import new_contour
 
 
 
@@ -221,7 +221,18 @@ def get_windows(x, y, scanning_window=0):
         """
 
     def list_populator(indexes):
+        indexes = array(indexes)
         points = []
+
+        dup_x = find(diff(new_x[indexes]) == 0)
+        dup_y = find(diff(new_y[indexes]) == 0)
+
+        index_equal = find(dup_x == dup_y)
+        if len(index_equal) != 0:
+
+            index_2_del = dup_x[index_equal]
+            indexes = delete(indexes, index_2_del)
+
         index_on_window.append(indexes)
         [[points.append([new_x[i], new_y[i]]), points_total.append([new_x[i], new_y[i]])] for i in indexes]
         points_on_window.append(points)
@@ -261,42 +272,8 @@ def get_windows(x, y, scanning_window=0):
     return scanning_window, points_total, points_on_window, index_on_window
 
 
-def area_contour(points_total, show_plot=False):
-
-    """ This function sorts the contour data, using first all the positive y points and afterwards adds all the negative
-    points. It also adds the first point again in order to close the contour.
-
-        Parameters
-        ----------
-        points_total: array
-            x axis coordinates
-
-        show_plot: boolean
-            option to plot the contour
-
-        Returns
-        -------
-        points_reshape: array
-            contour path
-
-        """
-
-    points_positive = points_total[(points_total[:, 1] >= 0), :]
-    points_negative = points_total[(points_total[:, 1] < 0), :]
-
-    points_reshape = points_positive
-    points_reshape = concatenate([points_reshape, flipud(points_negative), [points_positive[0, :]]])
-
-    if show_plot:
-
-        plt.plot(points_reshape[:, 0], points_reshape[:, 1], 'r--')
-        regular_plot(points_reshape[:, 0], points_reshape[:, 1], 'Area Contour', 'x', 'y', plot_line='r-')
-        plt.fill_between(points_reshape[:, 0], points_reshape[:, 1])
-
-    return points_reshape
-
-
 def area_calc(contour_array):
+
 
     """ This function uses the contour path to calculate the area, using Green's theorem.
 
@@ -311,7 +288,6 @@ def area_calc(contour_array):
             value for the area within the contour
 
     """
-
     x = contour_array[:, 0]
     y = contour_array[:, 1]
 
@@ -322,7 +298,7 @@ def area_calc(contour_array):
     return area / 2.0
 
 
-def get_area(x, y, scanning_window=1, show_plot=False):
+def get_area(x, y, scanning_window=1):
 
     """ This function calculates the area of a set of scattered points.
 
@@ -337,9 +313,6 @@ def get_area(x, y, scanning_window=1, show_plot=False):
         scanning_window: float
             Value for the segmentation window. 0 to use the mean distance between points.
 
-        show_plot: boolean
-            option to plot the contour
-
         Returns
         -------
         area: float
@@ -349,11 +322,11 @@ def get_area(x, y, scanning_window=1, show_plot=False):
 
     scanning_window, points_total, points_on_window, index_on_window = get_windows(x, y, scanning_window)
 
-    contour_array = area_contour(points_total, show_plot)
+    up, down, contour_final = new_contour(points_on_window)
 
-    area = area_calc(contour_array)
+    area = area_calc(contour_final)
 
-    return area, contour_array, scanning_window
+    return area, contour_final
 
 ###
 
@@ -521,34 +494,7 @@ def overlap(xx, yy, title, xlabel, ylabel, legend, fontsize=20, plot_line=['-', 
   
     return fig
 
-############################
-#                          #
-#      Bokeh Plotting      #
-#                          #
-############################
 
-
-def print_simple_bokeh(x, y, title, xlabel, ylabel):
-
-    bk.plotting.output_file("scatter_data.html")
-    p = bk.plotting.figure(title=title, x_axis_label=xlabel, y_axis_label=ylabel)
-    p.line(x, y)
-    bk.plotting.show(p)
-
-
-def bokeh_subplot(x, y, title, xlabel, ylabel):
-    bk.plotting.output_file("subplot_data.html")
-    s1 = bk.plotting.figure(title=title[0], x_axis_label=xlabel[0], y_axis_label=ylabel[0])
-    s1.circle(x[0], y[0], size=5, color='firebrick', alpha=0.5)
-    s1.line(x[1], y[1], alpha=0.5, line_width=2, line_dash="dashed")
-
-    s2 = bk.plotting.figure(title=title[1], x_axis_label=xlabel[1], y_axis_label=ylabel[1])
-    s2.circle(x[1], y[1], size=5, color='olive', alpha=0.5)
-    s2.patch(x[1], y[1], alpha=0.5, line_width=2)
-
-    p = hplot(s1, s2)
-
-    bk.plotting.show(p)
 ############################
 #                          #
 #      To Be Deleted       #
@@ -559,21 +505,16 @@ def bokeh_subplot(x, y, title, xlabel, ylabel):
 
 
 
+#x, y = generate_random_data([-20, 20], [-20, 20], 100)
 
-# x, y = generate_random_data([-20, 20], [-20, 20], 100)
 
-#figure2 = regular_plot(x, y, "Generated Data", "x", "y", plot_line='o')
+area, contour_array = get_area(COPx, COPy, scanning_window=0.1)
 
-#area, contour_array = get_area(x, y, scanning_window=0)
+print_simple_bokeh(contour_array[:, 0], contour_array[:, 1], "hey", "x", "y")
 
-#print area
-
-#print_simple_bokeh(x, y, "Generated Data", "x", "y")
 
 #bokeh_subplot([x, contour_array[:, 0]], [y, contour_array[:, 1]], ["Generated Data", "Contour Plot"], ["x", "x"], ["y", "y"])
 
-
-#plt.show()
 
 
 # [t,x,y] =  generate_circle(r=2)

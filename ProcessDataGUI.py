@@ -360,11 +360,6 @@ if __name__ == "__main__":
 
     Data = open('Data/Converted_Wed_11:05:44_Calibration.txt')
     [FS, COPx, COPy, COPmaxx, COPminx, COPmaxy, COPminyx, freqPlot, Y] = getData(Data)
-    f = open("COP.txt", "w")
-    [f.write(str(COPx[i]) + ", ") for i in arange(0, len(COPx), 1)]
-    f.write("\n")
-    [f.write(str(COPy[i]) + ", ") for i in arange(0, len(COPx), 1)]
-    f.close()
     #test_bokeh_and_area(COPx, COPy)
     app = WiiBoardProcApp()
     app.geometry("700x600")

@@ -1,1 +1,1 @@
-from pathmath import *
+from PathMath import *

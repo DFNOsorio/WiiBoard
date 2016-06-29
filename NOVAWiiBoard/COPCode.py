@@ -14,16 +14,20 @@ def COP(TL, TR, BL, BR):
     by Harrison L.Bartlett (PUBMED ref: 23910725)
     '''
 
-    tl = np.array(TL)
-    tr = np.array(TR)
-    bl = np.array(BL)
-    br = np.array(BR)
+    COPx = []
+    COPy = []
 
     L = 433.0
     W = 228.0
 
-    COPx = (L/2.0) * ((tr + br) - (tl + bl)) / (tr + br + tl + bl)
-    COPy = (W/2.0) * ((tr + tl) - (br + bl)) / (tr + br + tl + bl)
+    for i in range(0, len(TL)):
+        total_weight = TL[i] + TR[i] + BL[i] + BR[i]
+        if total_weight > 0.2:
+            COPx.append((L / 2.0) * ((TR[i] + BR[i]) - (TL[i] + BL[i])) / (total_weight * 1.0))
+            COPy.append((W / 2.0) * ((TR[i] + TL[i]) - (BR[i] + BL[i])) / (total_weight * 1.0))
+        else:
+            COPx.append(0.0)
+            COPy.append(0.0)
 
     return [COPx, COPy]
 

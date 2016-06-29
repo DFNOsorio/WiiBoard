@@ -2,6 +2,7 @@ from Calibration.calibration_processing import *
 from Calibration.printing_lib import *
 from NOVAWiiBoard import COP
 
+
 def file_reader(name_of_file):
     tl = []
     tr = []
@@ -235,6 +236,7 @@ def load_file_adjusted(complete_raw_path, complete_converted_path, intervals=Fal
                                        lines=2, columns=2, fontsize=12)
 
         figure = add_sup_title(figure, file_name, fontsize=14)
+
 
     [COPx, COPy] = COP(converted_tl, converted_tr, converted_bl, converted_br)
     [COPx_a, COPy_a] = COP(converted_tl_a, converted_tr_a, converted_bl_a, converted_br_a)
