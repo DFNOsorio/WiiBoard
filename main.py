@@ -169,14 +169,14 @@ class Wiiboard:
         bytes = bytes[2:12]
         buttonPressed = False
         buttonReleased = False
-
+        SampleTime = time.time()
         state = (int(buttonBytes[0].encode("hex"), 16) << 8) | int(buttonBytes[1].encode("hex"), 16)
         if state == BUTTON_DOWN_MASK:
             buttonPressed = True
             if not self.buttonDown:
                 print "Button pressed"
-                File1.write("Button pressed" + "\n")
-                File2.write("Button pressed" + "\n")
+                File1.write("Button pressed; " + str(SampleTime) + "\n")
+                File2.write("Button pressed " + str(SampleTime) + "\n")
                 self.buttonDown = True
 
         if not buttonPressed:
@@ -190,7 +190,7 @@ class Wiiboard:
         rawTL = (int(bytes[4].encode("hex"), 16) << 8) + int(bytes[5].encode("hex"), 16)
         rawBL = (int(bytes[6].encode("hex"), 16) << 8) + int(bytes[7].encode("hex"), 16)
 
-        SampleTime = time.time()
+
         topLeft = self.calcMass(rawTL, TOP_LEFT)
         topRight = self.calcMass(rawTR, TOP_RIGHT)
         bottomLeft = self.calcMass(rawBL, BOTTOM_LEFT)
@@ -306,7 +306,7 @@ def main():
     board.receive()
 
 if __name__ == "__main__":
-    File1Name = "Raw_" + str(time.strftime('%a_%H:%M:%S'))+"_calibrate_final_br.txt"
+    File1Name = "Raw_" + str(time.strftime('%a_%H:%M:%S'))+"_ACC_5.txt"
     File2Name = "Converted_" + str(time.strftime('%a_%H:%M:%S'))+"_calibrate_final_br.txt"
     File1 = open("Data/"+File1Name, "w")
     File2 = open("Data/"+File2Name, "w")

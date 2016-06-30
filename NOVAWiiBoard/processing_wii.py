@@ -14,6 +14,7 @@ def file_reader(name_of_file):
     br = []
     time = []
     events = []
+    event_time = 0
 
     occurred = False
 
@@ -25,6 +26,7 @@ def file_reader(name_of_file):
         if temp_line[0] == 'Button pressed\n':
             occurred = True
             events.pop()
+
         else:
             tl.append(float(temp_line[0]))
             tr.append(float(temp_line[1]))
@@ -37,7 +39,7 @@ def file_reader(name_of_file):
         else:
             events.append(0)
 
-    return [tl, tr, bl, br, time, events]
+    return [tl, tr, bl, br, time, events, event_time]
 
 
 def raw_to_kilos(raw_data_point, corner, matrix):
@@ -139,3 +141,15 @@ def time_to_points(time_vector, time_stamps):
         points_stamps.append(
             [np.where(np.array(time_vector) < i[0])[0][-1], np.where(np.array(time_vector) < i[1])[0][-1]])
     return points_stamps
+
+
+def segmentation(time_vector, time_stamps, vectors):
+    indexes = time_to_points(time_vector, time_stamps)
+    output = []
+    for i in vectors:
+        temp = []
+        for j in indexes:
+            temp.append(i[j[0]:(j[1]+1)])
+        output.append(temp)
+    return output
+

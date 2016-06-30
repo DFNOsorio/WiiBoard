@@ -106,7 +106,7 @@ folder_name = '../Calibration/data'
 #plot_show_all()
 
 #load_corners(folder_name)
-#load_scale_converters(folder_name)
+load_scale_converters(folder_name)
 #load_center(folder_name)
 load_center_2(folder_name)
 

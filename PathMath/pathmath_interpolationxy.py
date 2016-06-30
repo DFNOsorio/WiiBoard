@@ -508,9 +508,9 @@ def overlap(xx, yy, title, xlabel, ylabel, legend, fontsize=20, plot_line=['-', 
 #x, y = generate_random_data([-20, 20], [-20, 20], 100)
 
 
-area, contour_array = get_area(COPx, COPy, scanning_window=0.1)
+#area, contour_array = get_area(COPx, COPy, scanning_window=0.1)
 
-print_simple_bokeh(contour_array[:, 0], contour_array[:, 1], "hey", "x", "y")
+#print_simple_bokeh(contour_array[:, 0], contour_array[:, 1], "hey", "x", "y")
 
 
 #bokeh_subplot([x, contour_array[:, 0]], [y, contour_array[:, 1]], ["Generated Data", "Contour Plot"], ["x", "x"], ["y", "y"])

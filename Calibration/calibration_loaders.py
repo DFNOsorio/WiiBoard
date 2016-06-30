@@ -8,35 +8,42 @@ def file_reader(name_of_file):
     tr = []
     bl = []
     br = []
-    tw = []
     time = []
+    events = []
+    event_time = 0
+
+    occurred = False
 
     data = open(name_of_file)
     lines = data.readlines()[1:]
 
     for line in lines:
         temp_line = line.split(';')
-        if len(temp_line) <= 5:
-            tl.append(float(temp_line[0]))
-            tr.append(float(temp_line[1]))
-            bl.append(float(temp_line[2]))
-            br.append(float(temp_line[3]))
-            time.append(float(temp_line[4]))
+        if temp_line[0] == 'Button pressed':
+            occurred = True
+            events.pop()
+            if len(temp_line) > 1:
+                event_time = float(temp_line[1])
+
         else:
             tl.append(float(temp_line[0]))
             tr.append(float(temp_line[1]))
             bl.append(float(temp_line[2]))
             br.append(float(temp_line[3]))
-            tw.append(float(temp_line[4]))
-            time.append(float(temp_line[5]))
+            time.append(float(temp_line[4]))
 
-    return [tl, tr, bl, br, time, tw]
+        if occurred:
+            events.append(1)
+        else:
+            events.append(0)
+
+    return [tl, tr, bl, br, time, events, event_time]
 
 
 def load_file(complete_raw_path, complete_converted_path, axes, intervals, title="Plots"):
 
-    [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
-    [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
+    [rtl, rtr, rbl, rbr, rt, rtw, events, event_time] = file_reader(complete_raw_path)
+    [ctl, ctr, cbl, cbr, ct, ctw, events, event_time] = file_reader(complete_converted_path)
 
     rt = time_reshape(rt)
     ct = time_reshape(ct)
@@ -106,8 +113,8 @@ def load_file(complete_raw_path, complete_converted_path, axes, intervals, title
 
 def calibration_file(complete_raw_path, complete_converted_path, intervals, cumu_weights, file_name=[], plots=True):
 
-    [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
-    [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
+    [rtl, rtr, rbl, rbr, rt, rtw, events, event_time] = file_reader(complete_raw_path)
+    [ctl, ctr, cbl, cbr, ct, ctw, events, event_time] = file_reader(complete_converted_path)
     rt = time_reshape(rt)
     ct = time_reshape(ct)
     #print file_name
@@ -188,8 +195,8 @@ def calibration_file(complete_raw_path, complete_converted_path, intervals, cumu
 def load_file_adjusted(complete_raw_path, complete_converted_path, intervals=False, file_name="Plots", plots=False,
                        cumu_weights=False):
 
-    [rtl, rtr, rbl, rbr, rt, rtw] = file_reader(complete_raw_path)
-    [ctl, ctr, cbl, cbr, ct, ctw] = file_reader(complete_converted_path)
+    [rtl, rtr, rbl, rbr, rt, rtw, events, event_time] = file_reader(complete_raw_path)
+    [ctl, ctr, cbl, cbr, ct, ctw, events, event_time] = file_reader(complete_converted_path)
 
     rt = time_reshape(rt)
     ct = time_reshape(ct)
