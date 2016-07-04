@@ -153,3 +153,15 @@ def segmentation(time_vector, time_stamps, vectors):
         output.append(temp)
     return output
 
+
+def data_cleaner(points, other):
+    output = []
+    differences = np.diff(points)
+    for i in range(0, len(differences)):
+        if differences[i] != 0:
+            output.append(i)
+    output_ = []
+
+    for i in other:
+        output_.append(list(np.array(i)[output]))
+    return list(np.array(points)[output]), output, output_

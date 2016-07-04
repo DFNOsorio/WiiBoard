@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def COP(TL, TR, BL, BR):
 
     '''
@@ -31,43 +32,14 @@ def COP(TL, TR, BL, BR):
 
     return [COPx, COPy]
 
-def getInitialPosition(TLo, TRo, BLo, BRo):
-    '''
-        :param TLo: Top Left Corner without weight positions
-        :param TR: Top Right Corner without weight positions
-        :param BL: Bottom Left Corner without weight positions
-        :param BR: Bottom Right Corner without weight positions
-        :param L: Board Length
-        :return: Center of Pressure (on the X and Y axis) without weight positions
 
-        Using equations 1 and 2 of the paper "Accuracy of force and center of pressure measures of the Wii Balance Board"
-        by Harrison L.Bartlett (PUBMED ref: 23910725)
-    '''
-    TLc = np.mean(TLo)
-    TRc = np.mean(TRo)
-    BLc = np.mean(BLo)
-    BRc = np.mean(BRo)
+def velocity(COPx, COPy, rt):
+    Vx = np.diff(COPx) / (np.diff(rt) * 1.0)
+    Vy = np.array(COPy[1:]) - np.array(COPy[0:-1])/np.array(rt[1:]) - np.array(rt[0:-1])
 
-    if(TLc == 0.0 and TRc == 0.0 and BLc == 0.0 and BRc == 0.0):
-        return [0.0, 0.0]
-    else:
-        return COP(TLc, TRc, BLc, BRc)
-
-def getCorrectedCOP(finalIndex,TL, TR, BL, BR):
-
-    '''
-    :param finalIndex: Index of the point without any weight on top of the board
-    :return: Center of Pressure (on the X and Y axis) correct for the inital sensor values
-    '''
-    if finalIndex!=0:
-        [COPxo,COPyo] = getInitialPosition(TL[0:finalIndex], TR[0:finalIndex], BL[0:finalIndex], BR[0:finalIndex])
-    else:
-        [COPxo, COPyo] = [0.0, 0.0]
-
-    [RawCOPx, RawCOPy] = COP(TL, TR, BL, BR)
+    return Vx
 
 
-    return [RawCOPx - COPxo,RawCOPy - COPyo]
 
 
 

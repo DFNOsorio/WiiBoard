@@ -5,7 +5,7 @@ folder_name = '../Trials/'
 patient = 'David/'
 
 
-# load_wii_trial(folder_name+patient+'WII_Data/David_TEST2', 'David_TEST2', DAVID_2_SEGMENTS)
+load_wii_trial(folder_name+patient+'WII_Data/David_TEST2', 'David_TEST2', DAVID_2_SEGMENTS)
 # load_wii_trial(folder_name+patient+'WII_Data/David_TEST3', 'David_TEST3', DAVID_3_SEGMENTS)
 # load_wii_trial(folder_name+patient+'WII_Data/David_TEST4', 'David_TEST4', DAVID_4_SEGMENTS)
 
