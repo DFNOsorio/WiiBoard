@@ -27,7 +27,6 @@ def file_reader(name_of_file):
         if temp_line[0] == 'Button pressed\n':
             occurred = True
             events.pop()
-
         else:
             tl.append(float(temp_line[0]))
             tr.append(float(temp_line[1]))
@@ -36,6 +35,8 @@ def file_reader(name_of_file):
             time.append(float(temp_line[4]))
 
         if occurred:
+            if event_time == 0:
+                event_time = time[-1] - time[0]
             events.append(1)
         else:
             events.append(0)

@@ -80,7 +80,7 @@ def data_characterize(data_points, labels, columns):
     ECG_labels = []
 
     for i in range(0, len(columns)):
-        print columns[i]
+
         if columns[i] == "EMG":
             EMG.append(data_points[:, i])
             EMG_labels.append(labels[i])

@@ -19,7 +19,7 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
     fig = plt.figure()
     axes = []
     wii_location = wii
-    if (columns*lines) >= len(x):
+    if (columns * lines) >= len(x):
         if isinstance(fontsize, int):
             fontsize = [fontsize]
             [[fontsize.append(fontsize[0])] for _ in xrange(0, len(x))]
@@ -31,13 +31,13 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
             temp_ax = plt.subplot(lines, columns, i + 1)
             for j in range(0, len(yy)):
                 if isinstance(wii_location, list):
-                    if len(wii_location) > 0 and wii_location[0] == i+1:
+                    if len(wii_location) > 0 and wii_location[0] == i + 1:
                         add_wii(temp_ax)
                         wii_location.pop(0)
                 if overlapx and (len(xx) != len(yy[j])):
-                    temp_ax.plot(xx[j], yy[j], label='test'+str(j))
+                    temp_ax.plot(xx[j], yy[j], label='test' + str(j))
                 else:
-                    temp_ax.plot(xx, yy[j], label='test'+str(j))
+                    temp_ax.plot(xx, yy[j], label='test' + str(j))
 
             temp_ax.set_xlabel(xlabel[i])
             temp_ax.set_ylabel(ylabel[i])
@@ -52,7 +52,6 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
 
 
 def grid(run):
-
     f = plt.figure()
     plt.figtext(0.08, 0.95, run, fontsize=20)
     gs1 = GridSpec(2, 4)
@@ -127,8 +126,9 @@ def add_hlines(axis, intervals, means, time, linestyle='-', linecolor="k", legen
             if type(means_interval) is not list:
                 means_interval = [means_interval]
             for t in means_interval:
-                axis[i].plot([time[intervals[j][0]], time[intervals[j][1]]], [t, t], linestyle+linecolor, label="NEW"+str(j))
-                axis[i].set_xlim([0, time[len(time)-1]])
+                axis[i].plot([time[intervals[j][0]], time[intervals[j][1]]], [t, t], linestyle + linecolor,
+                             label="NEW" + str(j))
+                axis[i].set_xlim([0, time[len(time) - 1]])
         h, l = axis[i].get_legend_handles_labels()
         h[len(previous_legend)].set_color(linecolor)
         new_legend.append(legendText)
@@ -155,3 +155,11 @@ def add_wii(axis):
     axis.set_ylim([-114 - 30, 114 + 30])
     axis.set_xlabel("CoPx (mm)", fontsize=14)
     axis.set_ylabel("CoPy (mm)", fontsize=14)
+
+
+def add_indexes(axix, xx, yy, window):
+    for i in range(0, len(xx)):
+        axix.text(xx[i], yy[i] - 1000, window[i], fontsize=8, horizontalalignment='left',
+                  verticalalignment='center',
+                  bbox={'boxstyle': "square", 'ec': "0.5", 'fc': "gray", 'alpha': 0.2}
+                  )
