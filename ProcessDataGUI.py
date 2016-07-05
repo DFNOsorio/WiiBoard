@@ -1,17 +1,13 @@
-import matplotlib
-import seaborn
-import numpy as np
+from Tkinter import *
+from scipy.misc import imread
 
-from NOVAWiiBoard import *
-from PathMath import *
+from PIL import Image, ImageTk
 from matplotlib import gridspec
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
-from scipy.misc import imread
 from numpy import *
 
-from Tkinter import *
-from PIL import Image, ImageTk
+from DataProcessor.NOVAWiiBoard import *
 
 
 # Logos

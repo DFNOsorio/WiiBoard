@@ -1,6 +1,6 @@
 from Calibration.calibration_processing import *
 from Calibration.printing_lib import *
-from NOVAWiiBoard import COP
+from DataProcessor.NOVAWiiBoard import COP
 
 
 def file_reader(name_of_file):

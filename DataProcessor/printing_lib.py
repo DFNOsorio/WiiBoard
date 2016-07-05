@@ -34,7 +34,6 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
                     if len(wii_location) > 0 and wii_location[0] == i+1:
                         add_wii(temp_ax)
                         wii_location.pop(0)
-
                 if overlapx and (len(xx) != len(yy[j])):
                     temp_ax.plot(xx[j], yy[j], label='test'+str(j))
                 else:
