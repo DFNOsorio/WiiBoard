@@ -1,5 +1,5 @@
 import numpy as np
-
+from processing_wii import converter
 
 def COP(TL, TR, BL, BR):
 
@@ -33,14 +33,26 @@ def COP(TL, TR, BL, BR):
     return [COPx, COPy]
 
 
+def interval_COPs(interval_data):
+    output = []
+
+    for i in range(0, 4):
+        tl = interval_data[i][0][1]
+        tr = interval_data[i][0][2]
+        bl = interval_data[i][0][3]
+        br = interval_data[i][0][4]
+        [ctl, ctr, cbl, cbr] = converter(tl, tr, bl, br)
+        new_cop = COP(ctl, ctr, cbl, cbr)
+        output.append(new_cop)
+
+    return [output[0], output[1], output[2], output[3]]
+
+
 def velocity(COPx, COPy, rt):
     Vx = np.diff(COPx) / (np.diff(rt) * 1.0)
     Vy = np.array(COPy[1:]) - np.array(COPy[0:-1])/np.array(rt[1:]) - np.array(rt[0:-1])
 
     return Vx
-
-
-
 
 
 

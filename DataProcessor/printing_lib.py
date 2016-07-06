@@ -2,15 +2,16 @@ import seaborn
 import matplotlib.pyplot as plt
 from matplotlib.gridspec import GridSpec
 from scipy.misc import imread
+import numpy as np
 
 
-def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-'):
+def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend=[]):
     fig = plt.figure()
     plt.plot(x, y, plot_line)
     plt.xlabel(xlabel)
     plt.ylabel(ylabel)
     plt.title(title, fontsize=fontsize)
-
+    plt.legend(legend)
     return fig
 
 
@@ -25,22 +26,21 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
             [[fontsize.append(fontsize[0])] for _ in xrange(0, len(x))]
         elif len(fontsize) is 1:
             [[fontsize.append(fontsize[0])] for _ in xrange(0, len(x))]
+        fontsize.append(fontsize[0])
         for i in range(0, len(x)):
             xx = x[i]
             yy = y[i]
             temp_ax = plt.subplot(lines, columns, i + 1)
             for j in range(0, len(yy)):
                 if isinstance(wii_location, list):
-                    if len(wii_location) > 0 and wii_location[0] == i + 1:
+                    if len(wii_location) > 0 and wii_location[0] == i:
                         add_wii(temp_ax)
                         wii_location.pop(0)
                 if overlapx and (len(xx) != len(yy[j])):
                     temp_ax.plot(xx[j], yy[j], label='test' + str(j))
                 else:
                     temp_ax.plot(xx, yy[j], label='test' + str(j))
-
             temp_ax.set_xlabel(xlabel[i])
-            temp_ax.set_ylabel(ylabel[i])
             temp_ax.set_title(title[i], fontsize=fontsize[i])
             if len(legend) is not 0:
                 temp_ax.legend(legend[i], fontsize=10)
@@ -148,7 +148,7 @@ def plot_show_all():
 
 
 def add_wii(axis):
-    img = imread("../Images/Wii.JPG")
+    img = imread("../WiiBoard/Images/Wii.JPG")
     axis.imshow(img, zorder=0, extent=[-216 - 26, 216 + 26, -114 - 26, 114 + 26])
 
     axis.set_xlim([-216 - 30, 216 + 30])
@@ -163,3 +163,24 @@ def add_indexes(axix, xx, yy, window):
                   verticalalignment='center',
                   bbox={'boxstyle': "square", 'ec': "0.5", 'fc': "gray", 'alpha': 0.2}
                   )
+
+
+def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend = 'New'):
+    ax2 = axis.twinx()
+    ax2.plot(xx, yy, linestyle+linecolor, label="NEW")
+    ax2.set_ylabel(label)
+    ax2.legend(legend)
+
+    previous_legend = axis.get_legend().get_texts()
+    new_legend = []
+    for j in range(0, len(previous_legend)):
+        new_legend.append(previous_legend[j].get_text())
+
+    h, l = ax2.get_legend_handles_labels()
+    h1, l1 = axis.get_legend_handles_labels()
+
+    ax2.legend("")
+    new_legend.append(legend)
+    axis.legend(handles=list(np.concatenate([h1, h])), labels=new_legend)
+
+    return [axis, ax2]

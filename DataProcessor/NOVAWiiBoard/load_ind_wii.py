@@ -31,10 +31,6 @@ def load_wii_trial(path, run, segments=False):
         COPy_s = COPy
         rt_s = rt
 
-    area, contour_array = pathmath_interpolationxy.get_area(COPx_s, COPy_s, scanning_window=1)
+    tw = weight_sum(converted_tl_a, converted_tr_a, converted_bl_a, converted_br_a)
 
-
-
-    velocity(COPx_s, COPy_s, rt_s)
-
-    return COPx_s, COPy_s, area, contour_array, event_time, rt, [tl, tr, bl, br, events], tm[0]
+    return event_time, rt, [tl, tr, bl, br, events, tw], tm[0]

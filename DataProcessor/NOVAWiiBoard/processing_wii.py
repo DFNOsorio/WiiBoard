@@ -167,3 +167,24 @@ def data_cleaner(points, other):
     for i in other:
         output_.append(list(np.array(i)[output]))
     return list(np.array(points)[output]), output, output_
+
+
+def weight_sum(tl, tr, bl, br):
+    total_weight = []
+    for i in range(0, len(tl)):
+        total_weight.append(tl[i] + tr[i] + bl[i] + br[i])
+    return total_weight
+
+
+def converter(rtl, rtr, rbl, rbr):
+    [converted_tl, converted_tr, converted_bl, converted_br] = all_2_kilo([rtl, rtr, rbl, rbr],
+                                                                          [TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT,
+                                                                           BOTTOM_RIGHT],
+                                                                          calibration_matrix_adjusted)
+
+    [converted_tl_a, converted_tr_a, converted_bl_a, converted_br_a] = all_2_converting([converted_tl, converted_tr,
+                                                                                         converted_bl, converted_br],
+                                                                                        [TOP_LEFT, TOP_RIGHT,
+                                                                                         BOTTOM_LEFT, BOTTOM_RIGHT])
+    return [converted_tl_a, converted_tr_a, converted_bl_a, converted_br_a]
+
