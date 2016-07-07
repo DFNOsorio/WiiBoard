@@ -16,17 +16,11 @@ def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend
 
 
 # noinspection PyStatementEffect
-def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], fontsize=[14], overlapx=False, wii=False):
+def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], overlapx=False, wii=False):
     fig = plt.figure()
     axes = []
     wii_location = wii
     if (columns * lines) >= len(x):
-        if isinstance(fontsize, int):
-            fontsize = [fontsize]
-            [[fontsize.append(fontsize[0])] for _ in xrange(0, len(x))]
-        elif len(fontsize) is 1:
-            [[fontsize.append(fontsize[0])] for _ in xrange(0, len(x))]
-        fontsize.append(fontsize[0])
         for i in range(0, len(x)):
             xx = x[i]
             yy = y[i]
@@ -41,7 +35,8 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], font
                 else:
                     temp_ax.plot(xx, yy[j], label='test' + str(j))
             temp_ax.set_xlabel(xlabel[i])
-            temp_ax.set_title(title[i], fontsize=fontsize[i])
+            temp_ax.set_ylabel(ylabel[i])
+            temp_ax.set_title(title[i])
             if len(legend) is not 0:
                 temp_ax.legend(legend[i], fontsize=10)
             axes.append(temp_ax)

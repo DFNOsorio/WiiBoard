@@ -78,6 +78,58 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels):
     return [temp[0], temp[1], temp[2], temp[3]]
 
 
+def remove_duplicates(wii_segment):
+    output = wii_segment
+    original_size = len(wii_segment[0])
+    not_duplicated_indexes = np.where(np.diff(np.array(wii_segment[0])) != 0)[0]
+
+    if not_duplicated_indexes[0] != 0:
+        output[0][0] = output[0][1] - 0.01
+        output[1][0] = output[1][1]
+        output[2][0] = output[2][1]
+        output[3][0] = output[3][1]
+        output[4][0] = output[4][1]
+        output[5][0] = output[5][1]
+
+    for j in range(1, original_size-1):
+        if j not in not_duplicated_indexes:
+            output[0][j] = output[0][j-1] + 0.01
+            output[1][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[1][j-1], output[1][j+1]])
+            output[2][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[2][j-1], output[2][j+1]])
+            output[3][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[3][j-1], output[3][j+1]])
+            output[4][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[4][j-1], output[4][j+1]])
+            output[5][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[5][j-1], output[5][j+1]])
+
+    if original_size-1 not in not_duplicated_indexes:
+        j = original_size-1
+        output[0][j] = output[0][j-1] + 0.01
+        output[1][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[1][j-2], output[1][j-1]])
+        output[2][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[2][j-2], output[2][j-1]])
+        output[3][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[3][j-2], output[3][j-1]])
+        output[4][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[4][j-2], output[4][j-1]])
+        output[5][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[5][j-2], output[5][j-1]])
+
+    return output
+
+
+def remove_duplicates_batch(wii_segments):
+    output = []
+    for i in wii_segments:
+        output.append(remove_duplicates(i))
+    return [output[0], output[1], output[2], output[3]]
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

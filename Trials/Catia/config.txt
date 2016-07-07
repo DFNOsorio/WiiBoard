@@ -3,4 +3,4 @@ sync_index_open; 1423
 test1; 113; 143
 test2; 185; 211
 test3; 253; 280
-test4; 320; 350
+test4; 320; 348
