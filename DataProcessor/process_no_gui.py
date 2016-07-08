@@ -3,7 +3,7 @@ import time
 
 folder_name = '../WiiBoard/Trials/'
 
-patient = 'Joao'
+patient = 'Filipe'
 
 ## Loading  and syncing
 et, rt, data, t0 = load_wii_trial(folder_name+patient+'/WII', patient, False)
@@ -142,44 +142,53 @@ if plot:
 
     add_sup_title(figure, "COP - Clean")
 
+    figure, axes = subplot_overlap([s1[0][0], s2[0][0], s3[0][0], s4[0][0],
+                                    s1[0][0], s2[0][0], s3[0][0], s4[0][0],
+                                    s1[0][0][0:-1], s2[0][0][0:-1], s3[0][0][0:-1], s4[0][0][0:-1],
+                                    s1[0][0][0:-2], s2[0][0][0:-2], s3[0][0][0:-2], s4[0][0][0:-2]],
+                                   [[cop1[0]], [cop2[0]], [cop3[0]], [cop4[0]],
+                                    [cop1[1]], [cop2[1]], [cop3[1]], [cop4[1]],
+                                    [cop1[2], cop1[3]], [cop2[2], cop2[3]],
+                                    [cop3[2], cop3[3]], [cop4[2], cop4[3]],
+                                    [cop1[4], cop1[5]], [cop2[4], cop2[5]],
+                                    [cop3[4], cop3[5]], [cop4[4], cop4[5]]
+                                    ],
+                                   ["2 Feet - Eyes Open COPx", "2 Feet - Eyes Closed COPx",
+                                    "1 Feet - Eyes Open COPx", "1 Feet - Eyes Closed COPx",
+                                    "COPy", "COPy", "COPy", "COPy", "Velocity", "Velocity", "Velocity", "Velocity",
+                                    "Acceleration", "Acceleration", "Acceleration", "Acceleration"],
+                                   ["Time (s)", "Time (s)", "Time (s)", "Time (s)",
+                                    "Time (s)", "Time (s)", "Time (s)", "Time (s)",
+                                    "Time (s)", "Time (s)", "Time (s)", "Time (s)",
+                                    "Time (s)", "Time (s)", "Time (s)", "Time (s)"],
+                                   ["COPx (mm)", "COPx (mm)", "COPx (mm)", "COPx (mm)",
+                                    "COPy (mm)", "COPy (mm)", "COPy (mm)", "COPy (mm)",
+                                    "V (m/s)", "V (m/s)", "V (m/s)", "V (m/s)",
+                                    "A (m2/s)", "A (m2/s)", "A (m2/s)", "A (m2/s)"]
+                                   , 4, 4,
+                                   legend=[[], [], [], [], [], [], [], [],
+                                           ["Vx", "Vy"], ["Vx", "Vy"], ["Vx", "Vy"], ["Vx", "Vy"],
+                                           ["Ax", "Ay"], ["Ax", "Ay"], ["Ax", "Ay"], ["Ax", "Ay"]], tight=True)
+    add_sup_title(figure, "Motion Report")
+plot = True
 
-    figure, axes = subplot_overlap([s1[0][0][0:-2], s2[0][0][0:-2], s3[0][0][0:-2], s4[0][0][0:-2]],
-                                   [[cop1[5], cop1[6], cop1[7]], [cop2[5], cop2[6], cop2[7]],
-                                    [cop3[5], cop3[6], cop3[7]], [cop4[5], cop4[6], cop4[7]]],
-                                   ["2 Feet - Eyes Open", "2 Feet - Eyes Closed", "1 Feet - Eyes Open",
-                                    "1 Feet - Eyes Closed"],
-                                   ["COPx (mm)", "COPx (mm)", "COPx (mm)", "COPx (mm)"],
-                                   ["COPy (mm)", "COPy (mm)", "COPy (mm)", "COPy (mm)"], 4, 1)
+if plot:
+    #motion_report(patient, " - Two Feet Eyes Open", cop1, s1)
+    motion_report(patient, " - Two Feet Eyes Closed", cop2, s2)
+    #motion_report(patient, " - One Feet Eyes Open", cop3, s3)
+    #motion_report(patient, " - One Feet Eyes Closed", cop4, s4)
 
-motion_equations(COPx, COPy, rt)
+window = 20
 
+[s1_, s2_, s3_, s4_] = smooth_intervals([s1, s2, s3, s4], window)
+[cop1_, cop2_, cop3_, cop4_] = interval_COPs([s1_, s2_, s3_, s4_])
 
+plot = True
 
+if plot:
+    #motion_report(patient, " - Two Feet Eyes Open (Smoothed " + str(window) + " points)", cop1_, s1_)
+    motion_report(patient, " - Two Feet Eyes Closed (Smoothed " + str(window) + " points)", cop2_, s2_)
+    #motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)", cop3_, s3_)
+    #motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)", cop4_, s4_)
 
 plot_show_all()
-# figure, axes = subplot_overlap([s1[0][0], s2[0][0], s3[0][0], s4[0][0], s1[0][0], s2[0][0], s3[0][0], s4[0][0],
-#                                 s1[0][0], s2[0][0], s3[0][0], s4[0][0],
-#                                 s1[0][0], s2[0][0], s3[0][0], s4[0][0]],
-#                                [[cop1[0]], [cop2[0]], [cop3[0]], [cop4[0]],
-#                                 [cop1[1]], [cop2[1]], [cop3[1]], [cop4[1]],
-#                                 [cop1[2], cop1[3], cop1[4]], [cop2[2], cop2[3], cop2[4]],
-#                                 [cop3[2], cop3[3], cop3[4]], [cop4[2], cop4[3], cop4[4]],
-#                                 [cop1[5], cop1[6], cop1[7]], [cop2[5], cop2[6], cop2[7]],
-#                                 [cop3[5], cop3[6], cop3[7]], [cop4[5], cop4[6], cop4[7]]
-#                                 ],
-#                                ["2 Feet - Eyes Open COPx", "2 Feet - Eyes Closed COPx",
-#                                 "1 Feet - Eyes Open COPx", "1 Feet - Eyes Closed COPx",
-#                                 "COPy", "COPy", "COPy", "COPy", "Velocity", "Velocity", "Velocity", "Velocity",
-#                                 "Acceleration", "Acceleration", "Acceleration", "Acceleration"],
-#                                ["Time (s)", "Time (s)", "Time (s)", "Time (s)",
-#                                 "Time (s)", "Time (s)", "Time (s)", "Time (s)",
-#                                 "Time (s)", "Time (s)", "Time (s)", "Time (s)",
-#                                 "Time (s)", "Time (s)", "Time (s)", "Time (s)"],
-#                                ["COPx (mm)", "COPx (mm)", "COPx (mm)", "COPx (mm)",
-#                                 "COPy (mm)", "COPy (mm)", "COPy (mm)", "COPy (mm)",
-#                                 "V (m/s)", "V (m/s)", "V (m/s)", "V (m/s)",
-#                                 "A (m2/s)", "A (m2/s)", "A (m2/s)", "A (m2/s)"]
-#                                , 4, 4,
-#                                legend=[[], [], [], [], [], [], [], [],
-#                                        ["Vx", "Vy", "V"], ["Vx", "Vy", "V"], ["Vx", "Vy", "V"], ["Vx", "Vy", "V"],
-#                                        ["Ax", "Ay", "A"], ["Ax", "Ay", "A"], ["Ax", "Ay", "A"], ["Ax", "Ay", "A"]])

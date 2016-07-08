@@ -1,4 +1,5 @@
 import numpy as np
+from novainstrumentation import *
 
 
 def reformat_time(time_vector, delay):
@@ -119,6 +120,13 @@ def remove_duplicates_batch(wii_segments):
     return [output[0], output[1], output[2], output[3]]
 
 
+def smooth_intervals(data, window=20):
+    output = data
+    for i in range(0, len(data)):
+        for j in range(0, len(data[i])-1):
+            for k in range(1, len(data[i][j])):
+                output[i][j][k] = list(smooth(np.array(data[i][j][k]), window_len=window))
+    return [output[0], output[1], output[2], output[3]]
 
 
 

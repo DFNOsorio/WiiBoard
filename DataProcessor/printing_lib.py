@@ -16,7 +16,7 @@ def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend
 
 
 # noinspection PyStatementEffect
-def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], overlapx=False, wii=False):
+def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], overlapx=False, wii=False, tight=False):
     fig = plt.figure()
     axes = []
     wii_location = wii
@@ -40,7 +40,8 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], over
             if len(legend) is not 0:
                 temp_ax.legend(legend[i], fontsize=10)
             axes.append(temp_ax)
-
+        if tight:
+            plt.subplots_adjust(hspace=0.33, top=0.91, bottom=0.04, left=0.04, right=0.98)
         return fig, axes
     else:
         print "Wrong configuration"
@@ -64,6 +65,46 @@ def grid(run):
     return f, ax1, ax2, ax3, ax4, ax5, ax6
 
 
+def grid_report(text):
+
+    f = plt.figure()
+    plt.figtext(0.08, 0.95, text, fontsize=20)
+    gs1 = GridSpec(3, 2)
+    gs1.update(left=0.04, right=0.29, hspace=0.25)
+
+    gs1_ax1 = plt.subplot(gs1[0, :])
+    gs1_ax2 = plt.subplot(gs1[1, :])
+    gs1_ax3 = plt.subplot(gs1[2, :])
+
+    gs1_ax = [gs1_ax1, gs1_ax2, gs1_ax3]
+
+    gs2 = GridSpec(3, 2)
+    gs2.update(left=0.33, right=0.65, wspace=0.3, hspace=0.25)
+
+    gs2_ax1 = plt.subplot(gs2[0, 0])
+    gs2_ax2 = plt.subplot(gs2[0, 1])
+    gs2_ax3 = plt.subplot(gs2[1, 0])
+    gs2_ax4 = plt.subplot(gs2[1, -1])
+    gs2_ax5 = plt.subplot(gs2[2, 0])
+    gs2_ax6 = plt.subplot(gs2[2, -1])
+
+    gs2_ax = [gs2_ax1, gs2_ax2, gs2_ax3, gs2_ax4, gs2_ax5, gs2_ax6]
+
+    gs3 = GridSpec(2, 2)
+    gs3.update(left=0.69, right=0.98, wspace=0.3, hspace=0.15)
+
+    gs3_ax1 = plt.subplot(gs3[0, 0])
+    gs3_ax2 = plt.subplot(gs3[0, -1])
+    gs3_ax3 = plt.subplot(gs3[1, 0])
+    gs3_ax4 = plt.subplot(gs3[1, -1])
+
+    gs3_ax = [gs3_ax1, gs3_ax2, gs3_ax3, gs3_ax4]
+
+    plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.03, right=0.98)
+
+    return f, gs1_ax, gs2_ax, gs3_ax
+
+
 def ax1_pop(filler, ax):
     add_wii(ax)
     for i in range(0, len(filler[1])):
@@ -81,21 +122,27 @@ def ax1_pop(filler, ax):
     return ax
 
 
-def axe_populator(data, ax):
+def axe_populator(data, ax, wii=False, xlim=[]):
     x = data[0]
     yy = data[1]
-
+    if wii:
+        add_wii(ax)
     for j in range(0, len(yy)):
         ax.plot(x, yy[j])
+
+
     for label in ax.get_xticklabels():
         label.set_fontsize(10)
 
     for label in ax.get_yticklabels():
         label.set_fontsize(10)
-
-    ax.set_xlabel(data[2])
-    ax.set_ylabel(data[3])
+    if len(xlim) == 0:
+        xlim = [min(x), max(x)]
+    ax.set_xlabel(data[2], fontsize=10)
+    ax.set_ylabel(data[3], fontsize=10)
     ax.set_title(data[4], fontsize=14)
+    if not wii:
+        ax.set_xlim(xlim)
     ax.legend(data[5], fontsize=10)
 
     return ax
@@ -143,6 +190,8 @@ def plot_show_all():
 
 
 def add_wii(axis):
+    axis.grid(b=False)
+
     img = imread("../WiiBoard/Images/Wii.JPG")
     axis.imshow(img, zorder=0, extent=[-216 - 26, 216 + 26, -114 - 26, 114 + 26])
 
@@ -160,7 +209,7 @@ def add_indexes(axix, xx, yy, window):
                   )
 
 
-def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend = 'New'):
+def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend='New'):
     ax2 = axis.twinx()
     ax2.plot(xx, yy, linestyle+linecolor, label="NEW")
     ax2.set_ylabel(label)
