@@ -1,7 +1,7 @@
 from DataProcessor import *
 import time
 
-folder_name = '../WiiBoard/Trials/'
+folder_name = '../Trials/'
 
 patient = 'Filipe'
 
@@ -170,25 +170,52 @@ if plot:
                                            ["Vx", "Vy"], ["Vx", "Vy"], ["Vx", "Vy"], ["Vx", "Vy"],
                                            ["Ax", "Ay"], ["Ax", "Ay"], ["Ax", "Ay"], ["Ax", "Ay"]], tight=True)
     add_sup_title(figure, "Motion Report")
-plot = True
-
+plot = False
 if plot:
-    #motion_report(patient, " - Two Feet Eyes Open", cop1, s1)
-    motion_report(patient, " - Two Feet Eyes Closed", cop2, s2)
-    #motion_report(patient, " - One Feet Eyes Open", cop3, s3)
-    #motion_report(patient, " - One Feet Eyes Closed", cop4, s4)
+    #motion_report(patient, " - Two Feet Eyes Open (" + str(round(s1[0][0][-1] - s1[0][0][0], 2)) + " s)", cop1, s1)
+    #motion_report(patient, " - Two Feet Eyes Closed (" + str(round(s2[0][0][-1] - s2[0][0][0], 2)) + " s)", cop2, s2)
+    #motion_report(patient, " - One Feet Eyes Open " + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3, s3)
+    motion_report(patient, " - One Feet Eyes Closed " + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4, s4)
 
 window = 20
 
 [s1_, s2_, s3_, s4_] = smooth_intervals([s1, s2, s3, s4], window)
 [cop1_, cop2_, cop3_, cop4_] = interval_COPs([s1_, s2_, s3_, s4_])
 
+plot = False
+
+if plot:
+    #motion_report(patient, " - Two Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s1[0][0][-1] - s1[0][0][0], 2)) + " s)", cop1_, s1_)
+    #motion_report(patient, " - Two Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s2[0][0][-1] - s2[0][0][0], 2)) + " s)", cop2_, s2_)
+    #motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_)
+    motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4_, s4_)
+
+# Zero out data
+
+EMG_zero, EMG_l_zero, EMG_means_zero = load_emg_rest(folder_name+patient+'/Base')
+
+plot = False
+if plot:
+    figure, axes = subplot_overlap([range(0, len(EMG_zero[0])), range(0, len(EMG_zero[0])),
+                                    range(0, len(EMG_zero[0])), range(0, len(EMG_zero[0]))],
+                                   [[EMG_zero[0]], [EMG_zero[1]], [EMG_zero[2]], [EMG_zero[3]]], EMG_l_zero,
+                                   ["Index", "Index", "Index", "Index"], ["Raw", "Raw", "Raw", "Raw"], 4, 1, tight=True,
+                                   legend=[[EMG_l_zero[0]], [EMG_l_zero[1]], [EMG_l_zero[2]], [EMG_l_zero[3]]])
+    add_hlines(axes[0], [0, len(EMG_zero[0])], EMG_means_zero[0], "Mean")
+    add_hlines(axes[1], [0, len(EMG_zero[0])], EMG_means_zero[1], "Mean")
+    add_hlines(axes[2], [0, len(EMG_zero[0])], EMG_means_zero[2], "Mean")
+    add_hlines(axes[3], [0, len(EMG_zero[0])], EMG_means_zero[3], "Mean")
+
+[s1_z, s2_z, s3_z, s4_z] = zero_out_EMG([s1_, s2_, s3_, s4_], EMG_means_zero)
+
 plot = True
 
 if plot:
-    #motion_report(patient, " - Two Feet Eyes Open (Smoothed " + str(window) + " points)", cop1_, s1_)
-    motion_report(patient, " - Two Feet Eyes Closed (Smoothed " + str(window) + " points)", cop2_, s2_)
-    #motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)", cop3_, s3_)
-    #motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)", cop4_, s4_)
+    motion_report(patient, " - Two Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s1[0][0][-1] - s1[0][0][0], 2)) + " s)", cop1_, s1_z)
+    motion_report(patient, " - Two Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s2[0][0][-1] - s2[0][0][0], 2)) + " s)", cop2_, s2_z)
+    motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_z)
+    motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4_, s4_z)
+
+
 
 plot_show_all()

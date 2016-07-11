@@ -125,12 +125,19 @@ def smooth_intervals(data, window=20):
     for i in range(0, len(data)):
         for j in range(0, len(data[i])-1):
             for k in range(1, len(data[i][j])):
-                output[i][j][k] = list(smooth(np.array(data[i][j][k]), window_len=window))
+                if k != 8:
+                    output[i][j][k] = list(smooth(np.array(data[i][j][k]), window_len=window))
     return [output[0], output[1], output[2], output[3]]
 
 
-
-
+def zero_out_EMG(data, zero_out_array):
+    output = data
+    for i in range(0, len(data)):
+        output[i][1][1] = list(np.array(data[i][1][1])-zero_out_array[0])
+        output[i][1][2] = list(np.array(data[i][1][2])-zero_out_array[1])
+        output[i][1][3] = list(np.array(data[i][1][3])-zero_out_array[2])
+        output[i][1][4] = list(np.array(data[i][1][4])-zero_out_array[3])
+    return output
 
 
 

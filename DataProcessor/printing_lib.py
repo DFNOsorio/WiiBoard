@@ -1,9 +1,9 @@
 import seaborn
 import matplotlib.pyplot as plt
+
 from matplotlib.gridspec import GridSpec
 from scipy.misc import imread
 import numpy as np
-
 
 def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend=[]):
     fig = plt.figure()
@@ -31,9 +31,9 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], over
                         add_wii(temp_ax)
                         wii_location.pop(0)
                 if overlapx and (len(xx) != len(yy[j])):
-                    temp_ax.plot(xx[j], yy[j], label='test' + str(j))
+                    temp_ax.plot(xx[j], yy[j], label="test" + str(j))
                 else:
-                    temp_ax.plot(xx, yy[j], label='test' + str(j))
+                    temp_ax.plot(xx, yy[j], label="test" + str(j))
             temp_ax.set_xlabel(xlabel[i])
             temp_ax.set_ylabel(ylabel[i])
             temp_ax.set_title(title[i])
@@ -130,14 +130,13 @@ def axe_populator(data, ax, wii=False, xlim=[]):
     for j in range(0, len(yy)):
         ax.plot(x, yy[j])
 
-
     for label in ax.get_xticklabels():
         label.set_fontsize(10)
 
     for label in ax.get_yticklabels():
         label.set_fontsize(10)
     if len(xlim) == 0:
-        xlim = [min(x), max(x)]
+        xlim = [x[0], x[-1]]
     ax.set_xlabel(data[2], fontsize=10)
     ax.set_ylabel(data[3], fontsize=10)
     ax.set_title(data[4], fontsize=14)
@@ -156,7 +155,21 @@ def add_vlines(axis, intervals, maximum, time):
     return axis
 
 
-def add_hlines(axis, intervals, means, time, linestyle='-', linecolor="k", legendText="INT MEAN"):
+def add_hlines(axis, interval, y_value, legend_text, color='k', linestyle="--"):
+    previous_legend = axis.get_legend().get_texts()
+    new_legend = []
+    for j in range(0, len(previous_legend)):
+        new_legend.append(previous_legend[j].get_text())
+
+    axis.axhline(y=y_value, xmin=interval[0], xmax=interval[1], label="NEW", color=color, linestyle=linestyle)
+    axis.set_xlim(interval)
+    h, l = axis.get_legend_handles_labels()
+    h[len(previous_legend)].set_color(color)
+    new_legend.append(legend_text)
+    axis.legend(new_legend, fontsize=10)
+    return axis
+
+def add_hlines_intervals(axis, intervals, means, time, linestyle='-', linecolor="k", legendText="INT MEAN"):
     for i in range(0, len(axis)):
         means_axis = means[i]
         previous_legend = axis[i].get_legend().get_texts()
@@ -184,15 +197,15 @@ def add_sup_title(figure, title, fontsize=20):
 
 
 def plot_show_all():
-    mng = plt.get_current_fig_manager()
-    mng.window.showMaximized()
+    #mng = plt.get_current_fig_manager()
+    #mng.window.showMaximized()
     plt.show()
 
 
 def add_wii(axis):
     axis.grid(b=False)
 
-    img = imread("../WiiBoard/Images/Wii.JPG")
+    img = imread("../Images/Wii.JPG")
     axis.imshow(img, zorder=0, extent=[-216 - 26, 216 + 26, -114 - 26, 114 + 26])
 
     axis.set_xlim([-216 - 30, 216 + 30])

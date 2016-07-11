@@ -71,7 +71,7 @@ def time_vector_creator(sampling_rate, initial_time, length):
     return output
 
 
-def data_characterize(data_points, labels, columns):
+def data_characterize_all(data_points, labels, columns):
     EMG = []
     EMG_labels= []
     ACC = []
@@ -91,3 +91,19 @@ def data_characterize(data_points, labels, columns):
             ECG.append(data_points[:, i])
             ECG_labels.append(labels[i])
     return EMG, ACC, ECG, EMG_labels, ACC_labels, ECG_labels
+
+
+def data_characterize_rest(data_points, labels, columns):
+    EMG = []
+    EMG_labels = []
+    EMG_means = []
+
+    for i in range(0, len(columns)):
+        if columns[i] == "EMG":
+            EMG.append(data_points[:, i])
+            EMG_labels.append(labels[i])
+            EMG_means.append(np.mean(data_points[:, i]))
+
+    return EMG, EMG_labels, EMG_means
+
+
