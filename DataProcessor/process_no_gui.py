@@ -1,7 +1,7 @@
 from DataProcessor import *
 import time
 
-folder_name = '../Trials/'
+folder_name = '../WiiBoard/Trials/'
 
 patient = 'Filipe'
 
@@ -215,7 +215,6 @@ if plot:
     motion_report(patient, " - Two Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s2[0][0][-1] - s2[0][0][0], 2)) + " s)", cop2_, s2_z)
     motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_z)
     motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4_, s4_z)
-
 
 
 plot_show_all()

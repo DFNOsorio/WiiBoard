@@ -169,6 +169,7 @@ def add_hlines(axis, interval, y_value, legend_text, color='k', linestyle="--"):
     axis.legend(new_legend, fontsize=10)
     return axis
 
+
 def add_hlines_intervals(axis, intervals, means, time, linestyle='-', linecolor="k", legendText="INT MEAN"):
     for i in range(0, len(axis)):
         means_axis = means[i]
@@ -197,15 +198,15 @@ def add_sup_title(figure, title, fontsize=20):
 
 
 def plot_show_all():
-    #mng = plt.get_current_fig_manager()
-    #mng.window.showMaximized()
+    mng = plt.get_current_fig_manager()
+    mng.window.showMaximized()
     plt.show()
 
 
 def add_wii(axis):
     axis.grid(b=False)
 
-    img = imread("../Images/Wii.JPG")
+    img = imread("../WiiBoard/Images/Wii.JPG")
     axis.imshow(img, zorder=0, extent=[-216 - 26, 216 + 26, -114 - 26, 114 + 26])
 
     axis.set_xlim([-216 - 30, 216 + 30])
