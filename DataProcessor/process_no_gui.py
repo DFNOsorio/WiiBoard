@@ -1,8 +1,8 @@
 from DataProcessor import *
 import time
 
-#folder_name = '../WiiBoard/Trials/'
-folder_name = '../Trials/'
+folder_name = '../WiiBoard/Trials/'
+#folder_name = '../Trials/'
 
 patient = 'Filipe'
 
@@ -217,10 +217,15 @@ if plot:
     motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_z)
     motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4_, s4_z)
 
-Pxx, freqs, bins, im = get_spectogram(EMG_zero[0], fs=100, window_size=100)
+Pxx, Pxx_dB, freqs, bins = get_spectrogram_no_plot(EMG_zero[0], fs=100, window_size=100)
 
-print Pxx
-print freqs
-print bins
+f = plt.figure()
+ax = f.add_subplot(131)
+spectogram_plot(ax, Pxx_dB, freqs, bins)
+ax1 = f.add_subplot(132, projection='3d')
+spec_representation(ax1, Pxx_dB, freqs, bins)
+ax2 = f.add_subplot(133, projection='3d')
+spec_representation_color(ax2, Pxx_dB, freqs, bins)
+
 
 plot_show_all()

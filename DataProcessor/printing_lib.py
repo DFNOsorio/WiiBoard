@@ -1,9 +1,12 @@
 import seaborn
 import matplotlib.pyplot as plt
-
+from matplotlib.patches import Rectangle
+from mpl_toolkits.mplot3d import axes3d
 from matplotlib.gridspec import GridSpec
+import matplotlib.colors as col
 from scipy.misc import imread
 import numpy as np
+
 
 def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend=[]):
     fig = plt.figure()
@@ -205,8 +208,8 @@ def plot_show_all():
 
 def add_wii(axis):
     axis.grid(b=False)
-    img = imread("../Images/Wii.JPG")
-    #img = imread("../WiiBoard/Images/Wii.JPG")
+    #img = imread("../Images/Wii.JPG")
+    img = imread("../WiiBoard/Images/Wii.JPG")
     axis.imshow(img, zorder=0, extent=[-216 - 26, 216 + 26, -114 - 26, 114 + 26])
 
     axis.set_xlim([-216 - 30, 216 + 30])
@@ -244,10 +247,153 @@ def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend='New')
     return [axis, ax2]
 
 
-def get_spectogram(x, fs, window_size):
-    len(x)*1.0/fs
-    Pxx, freqs, bins, im = plt.specgram(x, Fs=fs, NFFT=window_size, noverlap=0, cmap='jet')
-    cbar = plt.colorbar(im)
-    plt.xlim([0, len(x)*1.0/fs])
+def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram"):
 
-    return Pxx, freqs, bins, im
+    im = ax.pcolor(bins, freqs, Pxx, cmap='jet')
+    cbar = plt.colorbar(im, ticks=range(int(np.min(Pxx)), int(np.max(Pxx)), 5))
+    cbar.set_label('Power Spectral Density (dB)')
+    ax.axis("tight")
+    ax.set_ylabel("Frequencies (Hz)")
+    ax.set_xlabel("Time (s)")
+    ax.set_title(title)
+    return ax
+
+
+def spec_representation(ax, powerDb, freq, time, title="Spectrogram"):
+    ax.grid(b=False)
+    ax.set_axis_bgcolor('white')
+    ax.w_xaxis.set_pane_color((1, 1, 1, 1.0))
+    ax.w_yaxis.set_pane_color((1, 1, 1, 1.0))
+    ax.w_zaxis.set_pane_color((1, 1, 1, 1.0))
+    for i in range(0, len(time)):
+        y = np.ones([len(powerDb[:, i]), 1]) * time[i]
+        z = powerDb[:, i]
+        ax.plot(freq, y, z, 'g')
+
+    ax.set_xlabel("Frequencies (Hz)")
+    ax.set_ylabel("Time (s)")
+    ax.set_zlabel("Power Spectral Density (dB)")
+    ax.legend()
+    ax.axis("tight")
+    ax.set_title(title)
+
+    return ax
+
+
+def spec_representation_color(ax, powerDb, freq, time, title="Spectrogram"):
+
+    ax.grid(b=False)
+    ax.set_axis_bgcolor('white')
+    ax.w_xaxis.set_pane_color((1, 1, 1, 1.0))
+    ax.w_yaxis.set_pane_color((1, 1, 1, 1.0))
+    ax.w_zaxis.set_pane_color((1, 1, 1, 1.0))
+
+    my_cmap = LibPhysColorMap()
+
+    m = 256*1.0/(np.max(powerDb) - np.min(powerDb))
+    b = 256 - np.max(powerDb)*m
+
+    x = np.arange(-5, 5, 0.25)  # points in the x axis
+    y = np.arange(-5, 5, 0.25)  # points in the y axis
+    X, Y = np.meshgrid(x, y)  # create the "base grid"
+    Z = X ** 2 - Y ** 2
+    Z[0:4, 0] = int(np.min(powerDb))
+    Z[5:8, 1:9] = int(np.max(powerDb))
+    surf = ax.plot_surface(X, Y, Z, cmap=my_cmap, rstride=1, cstride=1,
+                           linewidth=0)
+    cbar = plt.colorbar(surf, ticks=range(int(np.min(powerDb)), int(np.max(powerDb)), 5))
+
+    cbar.set_label('Power Spectral Density (dB)')
+    ax.clear()
+    for i in range(0, len(time)):
+        for j in range(0, len(powerDb[:, i])-1):
+            im = ax.plot([freq[j], freq[j]+1], [time[i], time[i]], [powerDb[j, i], powerDb[j+1, i]],
+                    color=my_cmap(int(m*powerDb[j, i]+b)))
+
+    ax.set_xlabel("Frequencies (Hz)")
+    ax.set_ylabel("Time (s)")
+    ax.set_zlabel("Power Spectral Density (dB)")
+    ax.legend()
+    ax.axis("tight")
+    ax.set_title(title)
+
+    return ax
+
+
+def LibPhysColorMap():
+    # Used http://jdherman.github.io/colormap/ to get the values
+
+    colors = [(86, 88, 255), (86, 89, 255), (87, 90, 254), (88, 92, 253), (88, 93, 253), (89, 94, 252), (90, 95, 251),
+              (90, 96, 250), (91, 97, 250), (91, 99, 249), (92, 100, 248), (93, 101, 247), (93, 102, 247),
+              (94, 103, 246), (95, 105, 245), (95, 106, 244), (96, 107, 244), (96, 108, 243), (97, 109, 242),
+              (98, 110, 241), (98, 112, 241), (99, 113, 240), (100, 114, 239), (100, 115, 238), (101, 116, 237),
+              (102, 117, 237), (102, 119, 236), (103, 120, 235), (103, 121, 234), (104, 122, 234), (105, 123, 233),
+              (105, 125, 232), (106, 126, 231), (107, 127, 231), (107, 128, 230), (108, 129, 229), (108, 130, 228),
+              (109, 132, 228), (110, 133, 227), (110, 134, 226), (111, 135, 225), (112, 136, 224), (112, 137, 224),
+              (113, 139, 223), (114, 140, 222), (114, 141, 221), (115, 142, 221), (115, 143, 220), (116, 145, 219),
+              (117, 146, 218), (117, 147, 218), (118, 148, 217), (119, 149, 216), (119, 150, 215), (120, 152, 215),
+              (120, 153, 214), (121, 154, 213), (122, 155, 212), (122, 156, 211), (123, 157, 211), (124, 159, 210),
+              (124, 160, 209), (125, 161, 208), (125, 162, 208), (126, 163, 207), (127, 163, 206), (128, 163, 204),
+              (128, 164, 203), (129, 164, 202), (130, 164, 201), (130, 164, 199), (131, 164, 198), (132, 164, 197),
+              (132, 165, 196), (133, 165, 194), (134, 165, 193), (134, 165, 192), (135, 165, 191), (136, 165, 189),
+              (136, 166, 188), (137, 166, 187), (138, 166, 186), (139, 166, 184), (139, 166, 183), (140, 166, 182),
+              (141, 167, 181), (141, 167, 179), (142, 167, 178), (143, 167, 177), (143, 167, 176), (144, 168, 174),
+              (145, 168, 173), (145, 168, 172), (146, 168, 171), (147, 168, 169), (148, 168, 168), (148, 169, 167),
+              (149, 169, 166), (150, 169, 164), (150, 169, 163), (151, 169, 162), (152, 169, 161), (152, 170, 159),
+              (153, 170, 158), (154, 170, 157), (154, 170, 156), (155, 170, 154), (156, 170, 153), (157, 171, 152),
+              (157, 171, 151), (158, 171, 149), (159, 171, 148), (159, 171, 147), (160, 171, 146), (161, 172, 144),
+              (161, 172, 143), (162, 172, 142), (163, 172, 141), (163, 172, 139), (164, 172, 138), (165, 173, 137),
+              (166, 173, 136), (166, 173, 134), (167, 173, 133), (168, 173, 132), (168, 173, 131), (169, 174, 129),
+              (170, 174, 128), (171, 174, 127), (172, 174, 126), (173, 175, 125), (174, 175, 124), (175, 175, 123),
+              (176, 176, 122), (177, 176, 121), (178, 176, 120), (179, 177, 119), (180, 177, 118), (181, 177, 117),
+              (182, 177, 116), (183, 178, 115), (185, 178, 114), (186, 178, 113), (187, 179, 112), (188, 179, 111),
+              (189, 179, 110), (190, 180, 109), (191, 180, 108), (192, 180, 107), (193, 181, 106), (194, 181, 105),
+              (195, 181, 104), (196, 182, 103), (198, 182, 102), (199, 182, 101), (200, 183, 100), (201, 183, 98),
+              (202, 183, 97), (203, 183, 96), (204, 184, 95), (205, 184, 94), (206, 184, 93), (207, 185, 92),
+              (208, 185, 91), (209, 185, 90), (210, 186, 89), (212, 186, 88), (213, 186, 87), (214, 187, 86),
+              (215, 187, 85), (216, 187, 84), (217, 188, 83), (218, 188, 82), (219, 188, 81), (220, 189, 80),
+              (221, 189, 79), (222, 189, 78), (223, 189, 77), (224, 190, 76), (226, 190, 75), (227, 190, 74),
+              (228, 191, 73), (229, 191, 72), (230, 191, 71), (231, 192, 70), (232, 192, 69), (233, 192, 68),
+              (234, 193, 67), (235, 193, 66), (236, 193, 65), (237, 194, 64), (239, 194, 63), (239, 193, 62),
+              (239, 192, 61), (240, 191, 60), (240, 190, 59), (240, 189, 58), (240, 188, 57), (241, 187, 56),
+              (241, 186, 55), (241, 185, 54), (241, 184, 53), (242, 183, 52), (242, 182, 51), (242, 181, 50),
+              (242, 179, 49), (243, 178, 48), (243, 177, 47), (243, 176, 46), (244, 175, 45), (244, 174, 44),
+              (244, 173, 43), (244, 172, 42), (245, 171, 41), (245, 170, 40), (245, 169, 39), (245, 168, 38),
+              (246, 167, 37), (246, 166, 36), (246, 165, 35), (246, 164, 34), (247, 163, 33), (247, 162, 32),
+              (247, 160, 31), (248, 159, 30), (248, 158, 29), (248, 157, 28), (248, 156, 27), (249, 155, 27),
+              (249, 154, 26), (249, 153, 25), (249, 152, 24), (250, 151, 23), (250, 150, 22), (250, 149, 21),
+              (250, 148, 20), (251, 147, 19), (251, 146, 18), (251, 145, 17), (252, 144, 16), (252, 143, 15),
+              (252, 141, 14), (252, 140, 13), (253, 139, 12), (253, 138, 11), (253, 137, 10), (253, 136, 9),
+              (254, 135, 8), (254, 134, 7), (254, 133, 6), (254, 132, 5), (255, 131, 4), (255, 130, 3), (255, 129, 2),
+              (255, 128, 1), (255, 127, 0)]
+    return make_cmap(colors, bit=True)
+
+
+def make_cmap(colors, position=None, bit=False):
+    '''
+    make_cmap takes a list of tuples which contain RGB values. The RGB
+    values may either be in 8-bit [0 to 255] (in which bit must be set to
+    True when called) or arithmetic [0 to 1] (default). make_cmap returns
+    a cmap with equally spaced colors.
+    Arrange your tuples so that the first color is the lowest value for the
+    colorbar and the last is the highest.
+    position contains values from 0 to 1 to dictate the location of each color.
+    '''
+
+    bit_rgb = np.linspace(0, 1, 256)
+
+    if position is None:
+        position = np.linspace(0, 1, len(colors))
+    if bit:
+        for i in range(len(colors)):
+            colors[i] = (bit_rgb[colors[i][0]],
+                         bit_rgb[colors[i][1]],
+                         bit_rgb[colors[i][2]])
+    cdict = {'red':[], 'green':[], 'blue':[]}
+    for pos, color in zip(position, colors):
+        cdict['red'].append((pos, color[0], color[0]))
+        cdict['green'].append((pos, color[1], color[1]))
+        cdict['blue'].append((pos, color[2], color[2]))
+
+    cmap = col.LinearSegmentedColormap('my_colormap', cdict, 256)
+    return cmap
