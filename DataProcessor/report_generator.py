@@ -1,4 +1,4 @@
-from DataProcessor.printing_lib import *
+from DataProcessor.printing.printing_lib import *
 
 
 def motion_report(patient, text, cop1, s1):
