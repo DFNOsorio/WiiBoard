@@ -12,7 +12,10 @@ def fft(x, fs, filtered=True):
     y = np.fft.fft(x)/(n*1.0)
     y = y[range(n/2)]
 
-    if (filtered):
+    if filtered:
         y[0] = 0
 
     return [freq_plot, y]
+
+
+

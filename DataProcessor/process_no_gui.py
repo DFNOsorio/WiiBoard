@@ -1,7 +1,8 @@
 from DataProcessor import *
 import time
 
-folder_name = '../WiiBoard/Trials/'
+#folder_name = '../WiiBoard/Trials/'
+folder_name = '../Trials/'
 
 patient = 'Filipe'
 
@@ -208,7 +209,7 @@ if plot:
 
 [s1_z, s2_z, s3_z, s4_z] = zero_out_EMG([s1_, s2_, s3_, s4_], EMG_means_zero)
 
-plot = True
+plot = False
 
 if plot:
     motion_report(patient, " - Two Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s1[0][0][-1] - s1[0][0][0], 2)) + " s)", cop1_, s1_z)
@@ -216,5 +217,10 @@ if plot:
     motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_z)
     motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4_, s4_z)
 
+Pxx, freqs, bins, im = get_spectogram(EMG_zero[0], fs=100, window_size=100)
+
+print Pxx
+print freqs
+print bins
 
 plot_show_all()

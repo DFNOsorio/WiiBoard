@@ -198,15 +198,15 @@ def add_sup_title(figure, title, fontsize=20):
 
 
 def plot_show_all():
-    mng = plt.get_current_fig_manager()
-    mng.window.showMaximized()
+    #mng = plt.get_current_fig_manager()
+    #mng.window.showMaximized()
     plt.show()
 
 
 def add_wii(axis):
     axis.grid(b=False)
-
-    img = imread("../WiiBoard/Images/Wii.JPG")
+    img = imread("../Images/Wii.JPG")
+    #img = imread("../WiiBoard/Images/Wii.JPG")
     axis.imshow(img, zorder=0, extent=[-216 - 26, 216 + 26, -114 - 26, 114 + 26])
 
     axis.set_xlim([-216 - 30, 216 + 30])
@@ -242,3 +242,12 @@ def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend='New')
     axis.legend(handles=list(np.concatenate([h1, h])), labels=new_legend)
 
     return [axis, ax2]
+
+
+def get_spectogram(x, fs, window_size):
+    len(x)*1.0/fs
+    Pxx, freqs, bins, im = plt.specgram(x, Fs=fs, NFFT=window_size, noverlap=0, cmap='jet')
+    cbar = plt.colorbar(im)
+    plt.xlim([0, len(x)*1.0/fs])
+
+    return Pxx, freqs, bins, im
