@@ -1,5 +1,7 @@
 import numpy as np
 from novainstrumentation import *
+from frequency_functions import *
+from NOVAOpenSignals.EMG_stats import *
 
 
 def reformat_time(time_vector, delay):
@@ -140,7 +142,122 @@ def zero_out_EMG(data, zero_out_array):
     return output
 
 
+def add_spec(data):
+    # test_1  -> psd    -> [Pxx, Pxx_dB, freqs, bins] -> EMG1 (test_1[3][0])
+    #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][1])
+    #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][2])
+    #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][3])
 
+    output = data
+
+    for i in range(0, len(data)):
+        temp = []
+        for j in range(1, 5):
+            temp_ = get_spectrogram_no_plot(data[i][1][j], fs=100, window_size=100)
+            temp.append(temp_)
+        output[i].append(temp)
+    return output
+
+
+def add_psd(data):
+    # test_1  -> psd    -> [Pxx, Pxx_dB, freqs] -> EMG1 (test_1[4][0])
+    #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][1])
+    #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][2])
+    #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][3])
+
+    output = data
+
+    for i in range(0, len(data)):
+        temp = []
+        for j in range(1, 5):
+            temp_ = get_psd(data[i][1][j], fs=100)
+            temp.append(temp_)
+        output[i].append(temp)
+    return output
+
+
+def add_EMG_stat(data, window_size=100):
+    # test_1 -> EMGStat -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG1 (test_1[5][0])
+    #                   -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG2 (test_1[5][1])
+    #                   -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG2 (test_1[5][2])
+    #                   -> [[Positiv, PT], [Negatif, NT], IEEMG, Var, RMS] -> EMG2 (test_1[5][3])
+
+    output = data
+
+    for i in range(0, len(data)):
+        temp = []
+        current_time = data[i][1][0]
+        for j in range(1, 5):
+            current_EMG = data[i][1][j]
+            positive_indexes = np.where(np.array(current_EMG) > 0)[0]
+            temp.append([list(np.array(current_EMG)[positive_indexes]), list(np.array(current_time)[positive_indexes])])
+            negative_indexes = np.where(np.array(current_EMG) < 0)[0]
+            temp.append([list(np.array(current_EMG)[negative_indexes]), list(np.array(current_time)[negative_indexes])])
+            [IEMG, MAV, EEMG, Var, RMS] = moving_window(current_EMG, window_size)
+
+            temp.append(IEMG)
+            temp.append(MAV)
+            temp.append(EEMG)
+            temp.append(Var)
+            temp.append(RMS)
+
+        output[i].append(temp)
+    return output
+
+
+def moving_window(EMG, window_size):
+    starting_index = window_size/2
+    ending_index = len(EMG) - starting_index
+
+    IEMG = []
+    MAV = []
+    EEMG = []
+    Var = []
+    RMS = []
+
+    for i in range(0, starting_index):
+        start = 0
+        end = starting_index+i
+
+        IEMG.append(integrated_EMG(EMG[start:end]))
+        MAV.append(mean_absolute_value(EMG[start:end]))
+        EEMG.append(energy_EMG(EMG[start:end]))
+        Var.append(variance(EMG[start:end]))
+        RMS.append(RMS_EMG(EMG[start:end]))
+
+    for i in range(starting_index, ending_index):
+
+        start = i - starting_index
+        end = i + starting_index
+
+        IEMG.append(integrated_EMG(EMG[start:end]))
+        MAV.append(mean_absolute_value(EMG[start:end]))
+        EEMG.append(energy_EMG(EMG[start:end]))
+        Var.append(variance(EMG[start:end]))
+        RMS.append(RMS_EMG(EMG[start:end]))
+
+
+    for i in range(ending_index, len(EMG)):
+
+        start = i - starting_index
+        end = len(EMG)-1
+
+        IEMG.append(integrated_EMG(EMG[start:end]))
+        MAV.append(mean_absolute_value(EMG[start:end]))
+        EEMG.append(energy_EMG(EMG[start:end]))
+        Var.append(variance(EMG[start:end]))
+        RMS.append(RMS_EMG(EMG[start:end]))
+
+    return IEMG, MAV, EEMG, Var, RMS
+
+
+
+
+    #IEMG
+    #MAV
+    #EEMG
+    #Var
+    #RMS
 
 
 

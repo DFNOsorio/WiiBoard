@@ -1,8 +1,8 @@
 from DataProcessor import *
 import time
 
-#folder_name = '../WiiBoard/Trials/'
-folder_name = '../Trials/'
+folder_name = '../WiiBoard/Trials/'
+#folder_name = '../Trials/'
 
 patient = 'Filipe'
 
@@ -217,15 +217,30 @@ if plot:
     motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_z)
     motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4_, s4_z)
 
-Pxx, Pxx_dB, freqs, bins = get_spectrogram_no_plot(EMG_zero[0], fs=100, window_size=100)
+[s1_zs, s2_zs, s3_zs, s4_zs] = add_spec([s1_z, s2_z, s3_z, s4_z])
+[s1_zsp, s2_zsp, s3_zsp, s4_zsp] = add_psd([s1_zs, s2_zs, s3_zs, s4_zs])
 
 f = plt.figure()
-ax = f.add_subplot(131)
-spectogram_plot(ax, Pxx_dB, freqs, bins)
-ax1 = f.add_subplot(132, projection='3d')
-spec_representation(ax1, Pxx_dB, freqs, bins)
-ax2 = f.add_subplot(133, projection='3d')
-spec_representation_color(ax2, Pxx_dB, freqs, bins)
+ax1 = f.add_subplot(311, projection='3d')
+spec_representation_color(ax1, s4_zsp[3][2][1], s4_zsp[3][2][2], s4_zsp[3][2][3])
+ax2 = f.add_subplot(312)
+axe_populator([s4_zsp[4][0][2], [s4_zsp[4][0][0]], "Frequency", "dB", "PSD", []], ax2)
+ax3 = f.add_subplot(313)
+axe_populator_psd_spec([s4_zsp[4][0][2], s4_zsp[4][0][0], s4_zsp[3][2][2],
+                        [s4_zsp[3][2][0]]], ax3)
 
+#get_freq_stat(Pxx, Pxx_dB, freqs, bins)
+[s1_zspe, s2_zspe, s3_zspe, s4_zspe] = add_EMG_stat([s1_zsp, s2_zsp, s3_zsp, s4_zsp], window_size=100)
+
+figure, axes = subplot_overlap([[s1_zspe[1][0]], [s1_zspe[5][0][1]], [s1_zspe[1][0], s1_zspe[5][0][1]]],
+                               [[s1_zspe[1][1]], [s1_zspe[5][0][0]], [s1_zspe[1][1], s1_zspe[5][0][0]]],
+                               ["EMG", "EMG_Max", "EMG_Max"], ["Time(s)", "Time(s)", "Time(s)"],
+                               ["Raw", "Raw", "Raw"], 3, 1, overlapx=True)
+
+figure, axes = subplot_overlap([s1_zspe[1][0], s1_zspe[1][0], s1_zspe[1][0]],
+                                [[s1_zspe[1][1]], [s1_zspe[5][4]],
+                                 [np.array(s1_zspe[1][1]) / max(s1_zspe[1][1]), np.array(s1_zspe[5][4]) / max(s1_zspe[5][4])]],
+                                ["EMG", "EMG_Max", "EMG_Max"], ["Time(s)", "Time(s)", "Time(s)"],
+                                ["Raw", "Raw", "Raw"], 3, 1, overlapx=False)
 
 plot_show_all()

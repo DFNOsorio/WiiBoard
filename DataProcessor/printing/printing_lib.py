@@ -150,6 +150,26 @@ def axe_populator(data, ax, wii=False, xlim=[]):
     return ax
 
 
+def axe_populator_psd_spec(data, ax, color='k', y_datal="PSD (dB)", alpha=0.1, xlim=[]):
+    x_psd = data[0]
+    y_psd = data[1]
+    ax.plot(x_psd, y_psd, color='k')
+
+    x_spec = data[2]
+    y_spec = data[3]
+
+    ax.plot(x_spec, y_spec[0], color=color, alpha=alpha)
+
+    if len(xlim) == 0:
+        xlim = [x_psd[0], x_psd[-1]]
+    ax.set_xlim(xlim)
+    ax.set_xlabel("Frequency (Hz)", fontsize=10)
+    ax.set_ylabel(y_datal, fontsize=10)
+    ax.set_title("Psd", fontsize=14)
+    ax.legend(["PSD", "Spec"], fontsize=10)
+    return ax
+
+
 def add_vlines(axis, intervals, maximum, time):
     for i in range(0, len(axis)):
         for j in intervals:
@@ -359,8 +379,8 @@ def make_cmap(colors, position=None, bit=False):
 
 
 def get_color(file_number):
-    path = "../DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
-    #path = "../WiiBoard/DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
+    #path = "../DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
+    path = "../WiiBoard/DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
 
     data = open(path)
     lines = data.readlines()

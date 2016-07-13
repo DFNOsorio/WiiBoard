@@ -23,3 +23,6 @@ def motion_report(patient, text, cop1, s1):
     axe_populator([s1[1][0], [s1[1][2]], "Time (s)", "Raw", s1[2][1][1], []], gs3_ax[1])
     axe_populator([s1[1][0], [s1[1][3]], "Time (s)", "Raw", s1[2][1][2], []], gs3_ax[2])
     axe_populator([s1[1][0], [s1[1][4]], "Time (s)", "Raw", s1[2][1][3], []], gs3_ax[3])
+
+
+#def spectrogram_report

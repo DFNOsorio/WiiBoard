@@ -21,7 +21,25 @@ def fft(x, fs, filtered=True):
 
 def get_spectrogram_no_plot(x, fs, window_size):
     Pxx, freqs, bins = mlab.specgram(x, Fs=fs, NFFT=window_size, noverlap=0)
-    Pxx_dB = 10 * np.log10(Pxx)
+    Pxx_dB = 10.0 * np.log10(Pxx)
 
     return Pxx, Pxx_dB, freqs, bins
+
+
+def get_freq_stat(Pxx_dB, freqs, bins):
+    mean_dB = []
+    max_freq = []
+    for i in range(0, len(bins)):
+        mean_dB.append(np.mean(Pxx_dB[:, i]))
+        max_freq.append(freqs[np.where(Pxx_dB[:, i] == np.max(Pxx_dB[:, i]))[0][0]])
+
+    return mean_dB, max_freq
+
+
+def get_psd(x, fs):
+    Pxx, freqs = mlab.psd(x, Fs=fs)
+    Pxx_dB = 10.0 * np.log10(Pxx)
+    return Pxx, Pxx_dB, freqs
+
+
 
