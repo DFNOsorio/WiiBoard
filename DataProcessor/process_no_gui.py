@@ -1,8 +1,8 @@
 from DataProcessor import *
 import time
 
-folder_name = '../WiiBoard/Trials/'
-#folder_name = '../Trials/'
+#folder_name = '../WiiBoard/Trials/'
+folder_name = '../Trials/'
 
 patient = 'Filipe'
 

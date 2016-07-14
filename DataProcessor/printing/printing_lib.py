@@ -379,8 +379,8 @@ def make_cmap(colors, position=None, bit=False):
 
 
 def get_color(file_number):
-    #path = "../DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
-    path = "../WiiBoard/DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
+    path = "../DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
+    #path = "../WiiBoard/DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
 
     data = open(path)
     lines = data.readlines()
