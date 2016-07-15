@@ -1,0 +1,10 @@
+sync_index_open; 12621
+
+test1; 135; 165
+test2; 220; 250
+test3; 285; 315
+test4; 365; 382
+
+Leg; Right
+Age; 22
+Electrode; No ultrasound

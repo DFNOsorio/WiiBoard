@@ -1,0 +1,8 @@
+sync_index_open; 5484
+
+test1; 149; 179
+test2; 200; 230
+test3; 248; 278
+test4; 505; 535
+
+Leg; Left

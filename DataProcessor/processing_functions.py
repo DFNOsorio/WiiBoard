@@ -22,7 +22,7 @@ def center_segmentation(time_array, y_arrays, center_time, window=150):
 
 
 def read_config(file_path):
-    data = open(file_path + '/config.txt')
+    data = open(file_path + '.txt')
     lines = data.readlines()
 
     peak_delta = int(lines[0].split('; ')[1])
@@ -45,7 +45,7 @@ def window_segmentation(time_arrays, intervals):
     return wii_range, open_range
 
 
-def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels):
+def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels, number_of_segments=4):
 
     # test_1 -> wii     -> time (test_1[0][0])
     #                   -> tl   (test_1[0][1])
@@ -63,7 +63,7 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels):
     #                   -> Open (test_1[2][1])
 
     temp = []
-    for i in range(0, 4):
+    for i in range(0, number_of_segments):
         temp_ = []
         wii_index = indexes[0][i]
         open_index = indexes[1][i]
@@ -78,7 +78,7 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels):
         temp_.append(labels)
         temp.append(temp_)
 
-    return [temp[0], temp[1], temp[2], temp[3]]
+    return temp
 
 
 def remove_duplicates(wii_segment):
@@ -153,7 +153,7 @@ def add_spec(data):
     for i in range(0, len(data)):
         temp = []
         for j in range(1, 5):
-            temp_ = get_spectrogram_no_plot(data[i][1][j], fs=100, window_size=100)
+            temp_ = get_spectrogram_no_plot(data[i][1][j], fs=1000, window_size=1000)
             temp.append(temp_)
         output[i].append(temp)
     return output
@@ -170,7 +170,7 @@ def add_psd(data):
     for i in range(0, len(data)):
         temp = []
         for j in range(1, 5):
-            temp_ = get_psd(data[i][1][j], fs=100)
+            temp_ = get_psd(data[i][1][j], fs=1000)
             temp.append(temp_)
         output[i].append(temp)
     return output

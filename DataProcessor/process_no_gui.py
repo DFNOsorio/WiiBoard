@@ -1,53 +1,18 @@
 from DataProcessor import *
 import time
 
-#folder_name = '../WiiBoard/Trials/'
-folder_name = '../Trials/'
+folder_name = '../WiiBoard/Trials/'
+#folder_name = '../Trials/'
 
-patient = 'Filipe'
+patient = 'Paulo1000'
 
 ## Loading  and syncing
-et, rt, data, t0 = load_wii_trial(folder_name+patient+'/WII', patient, False)
-EMG, ACC, ECG, EMG_l, ACC_l, ECG_l, open_time, epoch = load_open_trial(folder_name+patient+'/Test')
 
-peak_delta, windows = read_config(folder_name+patient)
-
-new_wii_time = reformat_time(np.array(rt), epoch - t0)
-new_event_time = et - (epoch - t0)
-
-wii_window, indexes_ = center_segmentation(new_wii_time, [np.array(data[4])*55000], new_event_time)
-
-adjusted_time = new_event_time - open_time[peak_delta]
-
-new_wii_time_ = reformat_time(np.array(new_wii_time), adjusted_time)
-new_event_time_ = new_event_time - adjusted_time
-
-open_signals_window, indexes = center_segmentation(open_time, [ACC[0], ACC[1], ACC[2]], new_event_time)
-wii_window_, indexes__ = center_segmentation(new_wii_time_, [np.array(data[4])*55000], new_event_time_)
-
-plot = False
-
-if plot:
-    figure, axes = subplot_overlap([[open_time, open_time, open_time, new_wii_time_],
-                      [open_signals_window[0], open_signals_window[0], open_signals_window[0], wii_window[0], wii_window_[0]]],
-                     [[ACC[0], ACC[1], ACC[2], np.array(data[4])*55000],
-                      [open_signals_window[1], open_signals_window[2], open_signals_window[3], wii_window[1], wii_window_[1]]],
-                     ["Acc + Events", "Acc + Events"], ["Time (s)", "Time (s)"], ["Raw data", "Raw data"], 1, 2,
-                     legend=[np.concatenate([ACC_l, ["Events"]]), np.concatenate([ACC_l, ["Events", "Events A"]])], overlapx=True)
-
+output = sync_files(folder_name, patient, plot=False, high=True)
 
 ## Data segmentation
 
-wii_range, open_range = window_segmentation([new_wii_time_, open_time], windows)
-
-wii_array = [new_wii_time_, data[0], data[1], data[2], data[3], data[5]]
-
-opensignal_array = [open_time, EMG[0], EMG[1], EMG[2], EMG[3], ACC[0], ACC[1], ACC[2], ECG[0]]
-
-lbs = [["STL", "STR", "SBL", "SBR", "TW"],
-       [EMG_l[0], EMG_l[1], EMG_l[2], EMG_l[3], ACC_l[0], ACC_l[1], ACC_l[2], ECG_l[0]]]
-
-[s1, s2, s3, s4] = segmentator_interval([wii_range, open_range], wii_array, opensignal_array, lbs)
+[s1, s2, s3, s4] = segmented_signal([output])
 
 ## Processing
 
@@ -111,6 +76,7 @@ if plot:
                     legend=[[s1[2][1][-1]], [s2[2][1][-1]], [s3[2][1][-1]], [s4[2][1][-1]]])
 
     add_sup_title(figure, "ECG data")
+    plot_show_all()
 
 ## Removing duplicates
 
@@ -178,17 +144,17 @@ if plot:
     #motion_report(patient, " - One Feet Eyes Open " + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3, s3)
     motion_report(patient, " - One Feet Eyes Closed " + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4, s4)
 
-window = 20
+window = 100
 
 [s1_, s2_, s3_, s4_] = smooth_intervals([s1, s2, s3, s4], window)
 [cop1_, cop2_, cop3_, cop4_] = interval_COPs([s1_, s2_, s3_, s4_])
 
-plot = False
+plot = True
 
 if plot:
-    #motion_report(patient, " - Two Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s1[0][0][-1] - s1[0][0][0], 2)) + " s)", cop1_, s1_)
-    #motion_report(patient, " - Two Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s2[0][0][-1] - s2[0][0][0], 2)) + " s)", cop2_, s2_)
-    #motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_)
+    motion_report(patient, " - Two Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s1[0][0][-1] - s1[0][0][0], 2)) + " s)", cop1_, s1_)
+    motion_report(patient, " - Two Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s2[0][0][-1] - s2[0][0][0], 2)) + " s)", cop2_, s2_)
+    motion_report(patient, " - One Feet Eyes Open (Smoothed " + str(window) + " points)(" + str(round(s3[0][0][-1] - s3[0][0][0], 2)) + " s)", cop3_, s3_)
     motion_report(patient, " - One Feet Eyes Closed (Smoothed " + str(window) + " points)(" + str(round(s4[0][0][-1] - s4[0][0][0], 2)) + " s)", cop4_, s4_)
 
 # Zero out data
@@ -222,7 +188,7 @@ if plot:
 
 f = plt.figure()
 ax1 = f.add_subplot(311, projection='3d')
-spec_representation_color(ax1, s4_zsp[3][2][1], s4_zsp[3][2][2], s4_zsp[3][2][3])
+spec_representation(ax1, s4_zsp[3][2][1], s4_zsp[3][2][2], s4_zsp[3][2][3])
 ax2 = f.add_subplot(312)
 axe_populator([s4_zsp[4][0][2], [s4_zsp[4][0][0]], "Frequency", "dB", "PSD", []], ax2)
 ax3 = f.add_subplot(313)

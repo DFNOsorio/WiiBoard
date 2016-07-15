@@ -1,8 +1,0 @@
-sync_index_open; 1164
-
-test1; 81; 111
-test2; 135; 165
-test3; 182; 212
-test4; 260; 290
-
-Leg; Left

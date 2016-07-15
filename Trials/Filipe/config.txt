@@ -1,8 +1,0 @@
-sync_index_open; 3064
-
-test1; 120; 150
-test2; 184; 214
-test3; 286; 316
-test4; 573; 588
-
-

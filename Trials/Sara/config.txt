@@ -1,7 +1,0 @@
-sync_index_open; 4103
-
-test1; 151; 181
-test2; 220; 250
-test3; 291; 321
-test4; 350; 380
-

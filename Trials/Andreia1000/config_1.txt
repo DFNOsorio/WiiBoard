@@ -1,0 +1,9 @@
+sync_index_open; 12621
+
+test1; 55; 85
+test2; 110; 140
+test3; 160; 190
+test4; 160; 190
+
+Leg; Right
+Age; 26
