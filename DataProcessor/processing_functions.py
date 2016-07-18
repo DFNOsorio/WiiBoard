@@ -159,7 +159,7 @@ def add_COPs(data, COPs):
 
 
 def add_spec(data, fs=1000, window_size=1000):
-    # test_1  -> psd    -> [Pxx, Pxx_dB, freqs, bins] -> EMG1 (test_1[3][0])
+    # test_1  -> psd    -> [Pxx, Pxx_dB, freqs, bins, maxmin Pxx, maxmin Pxxdb] -> EMG1 (test_1[3][0])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][1])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][2])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][3])

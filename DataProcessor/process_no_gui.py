@@ -42,10 +42,13 @@ if plot:
 
 [s1_zsp, s2_zsp, s3_zsp, s4_zsp] = add_psd([s1_zs, s2_zs, s3_zs, s4_zs])
 
-#spectrogram_report([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
+plot = False
+if plot:
+    spectrogram_report_same_scale([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
 
-
-#psd_reports([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
+plot = True
+if plot:
+    psd_reports([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
 
 
 #Adaptar funcoes para devolver e aceitar indexes

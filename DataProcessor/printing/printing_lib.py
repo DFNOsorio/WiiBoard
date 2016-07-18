@@ -208,16 +208,20 @@ def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend='New')
     return [axis, ax2]
 
 
-def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram"):
+def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram", no_colorbar=False, v=[], color='jet'):
 
-    im = ax.pcolor(bins, freqs, Pxx, cmap='jet')
-    cbar = plt.colorbar(im, ticks=range(int(np.min(Pxx)), int(np.max(Pxx)), 5))
-    cbar.set_label('Power Spectral Density (dB)')
+    if no_colorbar is False:
+        im = ax.pcolor(bins, freqs, Pxx, cmap='jet')
+        cbar = plt.colorbar(im, ticks=range(int(np.min(Pxx)), int(np.max(Pxx)), 5))
+        cbar.set_label('Power Spectral Density (dB)')
+    else:
+        im = ax.pcolor(bins, freqs, Pxx, vmin=v[0], vmax=v[1], cmap=color)
+
     ax.axis("tight")
     ax.set_ylabel("Frequencies (Hz)")
     ax.set_xlabel("Time (s)")
     ax.set_title(title)
-    return ax
+    return ax, im
 
 
 def PSD_plot(ax,freqs, Pxx, title="Power Spectral Density", y_label="Power Spectral Density (dB)"):

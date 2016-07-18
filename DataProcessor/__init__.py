@@ -1,4 +1,4 @@
-from DataProcessor.Printing.printing_lib import *
+from DataProcessor.printing import *
 from NOVAOpenSignals import *
 from NOVAWiiBoard import *
 from frequency_functions import *
