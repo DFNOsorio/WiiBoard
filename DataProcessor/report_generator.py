@@ -34,26 +34,7 @@ def motion_reports(patient, data):
                       data[i][0][6], data[i])
 
 
-def spectrogram_report(data):
-    # EMG1(test_1[3][0])
-    # EMG2(test_1[3][1])
-    # EMG2(test_1[3][2])
-    # EMG2(test_1[3][3])
-    title = ["Spectrogram - Two Feet Eyes Open (1 s segments)", "Spectrogram - Two Feet Eyes Closed (1 s segments)",
-             "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
-    axes = []
-    for i in range(0, len(data)):
-        f = plt.figure()
-        plt.suptitle(title[i])
-        for j in range(0, len(data)):
-            ax = f.add_subplot(2, 2, j+1)
-            spectogram_plot(ax, data[i][3][j][1], data[i][3][j][2], data[i][3][j][3], title=data[i][2][1][j])
-            axes.append(ax)
-
-    return axes
-
-
-def spectrogram_report_same_scale(data):
+def spectrogram_report(data, max=False):
 
     title = ["Spectrogram - Two Feet Eyes Open (1 s segments)", "Spectrogram - Two Feet Eyes Closed (1 s segments)",
               "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
@@ -75,6 +56,7 @@ def spectrogram_report_same_scale(data):
             ax = f.add_subplot(2, 2, j + 1)
             ax, im = spectogram_plot(ax, data[i][3][j][1], data[i][3][j][2], data[i][3][j][3], title=data[i][2][1][j],
                                      no_colorbar=True, v=[min_, max_])
+
             axes_.append(ax)
         axes.append(axes_)
         cax = f.add_axes([0.91, 0.1, 0.02, 0.8])
@@ -82,6 +64,7 @@ def spectrogram_report_same_scale(data):
         cbar.set_label('Power Spectral Density (dB)')
         plt.subplots_adjust(hspace=0.34, top=0.90, bottom=0.09, left=0.10, right=0.90, wspace=0.27)
     return axes
+
 
 def psd_reports(data):
     title = ["PSD - Two Feet Eyes Open", "PSD - Two Feet Eyes Closed",

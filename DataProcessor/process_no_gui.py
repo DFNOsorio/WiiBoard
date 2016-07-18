@@ -44,7 +44,7 @@ if plot:
 
 plot = False
 if plot:
-    spectrogram_report_same_scale([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
+    spectrogram_report([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
 
 plot = True
 if plot:
