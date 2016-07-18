@@ -2,7 +2,6 @@ import seaborn
 import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from mpl_toolkits.mplot3d import axes3d
-from matplotlib.gridspec import GridSpec
 import matplotlib.colors as col
 from scipy.misc import imread
 import numpy as np
@@ -50,64 +49,6 @@ def subplot_overlap(x, y, title, xlabel, ylabel, lines, columns, legend=[], over
         print "Wrong configuration"
 
 
-def grid(run):
-    f = plt.figure()
-    plt.figtext(0.08, 0.95, run, fontsize=20)
-    gs1 = GridSpec(2, 4)
-
-    ax1 = plt.subplot(gs1[0, :-2])
-    ax6 = plt.subplot(gs1[0, -2:])
-
-    ax2 = plt.subplot(gs1[-1, -3])
-    ax3 = plt.subplot(gs1[-1, -2])
-    ax4 = plt.subplot(gs1[-1, -1])
-    ax5 = plt.subplot(gs1[-1, 0])
-
-    plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.03, right=0.98)
-
-    return f, ax1, ax2, ax3, ax4, ax5, ax6
-
-
-def grid_report(text):
-
-    f = plt.figure()
-    plt.figtext(0.08, 0.95, text, fontsize=20)
-    gs1 = GridSpec(3, 2)
-    gs1.update(left=0.04, right=0.29, hspace=0.25)
-
-    gs1_ax1 = plt.subplot(gs1[0, :])
-    gs1_ax2 = plt.subplot(gs1[1, :])
-    gs1_ax3 = plt.subplot(gs1[2, :])
-
-    gs1_ax = [gs1_ax1, gs1_ax2, gs1_ax3]
-
-    gs2 = GridSpec(3, 2)
-    gs2.update(left=0.33, right=0.65, wspace=0.3, hspace=0.25)
-
-    gs2_ax1 = plt.subplot(gs2[0, 0])
-    gs2_ax2 = plt.subplot(gs2[0, 1])
-    gs2_ax3 = plt.subplot(gs2[1, 0])
-    gs2_ax4 = plt.subplot(gs2[1, -1])
-    gs2_ax5 = plt.subplot(gs2[2, 0])
-    gs2_ax6 = plt.subplot(gs2[2, -1])
-
-    gs2_ax = [gs2_ax1, gs2_ax2, gs2_ax3, gs2_ax4, gs2_ax5, gs2_ax6]
-
-    gs3 = GridSpec(2, 2)
-    gs3.update(left=0.69, right=0.98, wspace=0.3, hspace=0.15)
-
-    gs3_ax1 = plt.subplot(gs3[0, 0])
-    gs3_ax2 = plt.subplot(gs3[0, -1])
-    gs3_ax3 = plt.subplot(gs3[1, 0])
-    gs3_ax4 = plt.subplot(gs3[1, -1])
-
-    gs3_ax = [gs3_ax1, gs3_ax2, gs3_ax3, gs3_ax4]
-
-    plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.03, right=0.98)
-
-    return f, gs1_ax, gs2_ax, gs3_ax
-
-
 def ax1_pop(filler, ax):
     add_wii(ax)
     for i in range(0, len(filler[1])):
@@ -125,7 +66,7 @@ def ax1_pop(filler, ax):
     return ax
 
 
-def axe_populator(data, ax, wii=False, xlim=[]):
+def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='k'):
     x = data[0]
     yy = data[1]
     if wii:
@@ -279,16 +220,26 @@ def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram"):
     return ax
 
 
+def PSD_plot(ax,freqs, Pxx, title="Power Spectral Density", y_label="Power Spectral Density (dB)"):
+    ax.plot(freqs, Pxx)
+    ax.axis("tight")
+    ax.set_xlabel("Frequencies (Hz)")
+    ax.set_ylabel(y_label)
+    ax.set_title(title)
+    return ax
+
+
 def spec_representation(ax, powerDb, freq, time, title="Spectrogram"):
     ax.grid(b=False)
     ax.set_axis_bgcolor('white')
     ax.w_xaxis.set_pane_color((1, 1, 1, 1.0))
     ax.w_yaxis.set_pane_color((1, 1, 1, 1.0))
     ax.w_zaxis.set_pane_color((1, 1, 1, 1.0))
+    cmap = LibPhysColorMap(number=1, number_of_colors=len(time))
     for i in range(0, len(time)):
         y = np.ones([len(powerDb[:, i]), 1]) * time[i]
         z = powerDb[:, i]
-        ax.plot(freq, y, z, 'g')
+        ax.plot(freq, y, z, color=cmap(i))
 
     ax.set_xlabel("Frequencies (Hz)")
     ax.set_ylabel("Time (s)")
@@ -340,15 +291,15 @@ def spec_representation_color(ax, powerDb, freq, time, title="Spectrogram"):
     return ax
 
 
-def LibPhysColorMap(number=1):
+def LibPhysColorMap(number=1, number_of_colors=256):
     # Used http://jdherman.github.io/colormap/ to get the values
 
     colors = get_color(number)
 
-    return make_cmap(colors, bit=True)
+    return make_cmap(colors, number_of_colors,  bit=True)
 
 
-def make_cmap(colors, position=None, bit=False):
+def make_cmap(colors, number_of_colors, position=None, bit=False):
     '''
     make_cmap takes a list of tuples which contain RGB values. The RGB
     values may either be in 8-bit [0 to 255] (in which bit must be set to
@@ -374,13 +325,13 @@ def make_cmap(colors, position=None, bit=False):
         cdict['green'].append((pos, color[1], color[1]))
         cdict['blue'].append((pos, color[2], color[2]))
 
-    cmap = col.LinearSegmentedColormap('my_colormap', cdict, 256)
+    cmap = col.LinearSegmentedColormap('my_colormap', cdict, number_of_colors)
     return cmap
 
 
 def get_color(file_number):
-    #path = "../DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
-    path = "../WiiBoard/DataProcessor/printing/ColorMapLib" + str(file_number) + ".txt"
+    #path = "../DataProcessor/Printing/ColorMapLib" + str(file_number) + ".txt"
+    path = "../WiiBoard/DataProcessor/Printing/ColorMapLib" + str(file_number) + ".txt"
 
     data = open(path)
     lines = data.readlines()

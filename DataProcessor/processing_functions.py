@@ -142,7 +142,23 @@ def zero_out_EMG(data, zero_out_array):
     return output
 
 
-def add_spec(data):
+def add_COPs(data, COPs):
+
+    # test_1 -> wii     -> time (test_1[0][0])
+    #                   -> tl   (test_1[0][1])
+    #                   -> tr   (test_1[0][2])
+    #                   -> bl   (test_1[0][3])
+    #                   -> br   (test_1[0][4])
+    #                   -> tw   (test_1[0][5])
+    #                   -> COPs (test_1[0][6])
+    output = data
+    for i in range(0, len(data)):
+        output[i][0].append(COPs[i])
+    return output
+
+
+
+def add_spec(data, fs=1000, window_size=1000):
     # test_1  -> psd    -> [Pxx, Pxx_dB, freqs, bins] -> EMG1 (test_1[3][0])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][1])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][2])
@@ -153,13 +169,13 @@ def add_spec(data):
     for i in range(0, len(data)):
         temp = []
         for j in range(1, 5):
-            temp_ = get_spectrogram_no_plot(data[i][1][j], fs=1000, window_size=1000)
+            temp_ = get_spectrogram_no_plot(data[i][1][j], fs=fs, window_size=window_size)
             temp.append(temp_)
         output[i].append(temp)
     return output
 
 
-def add_psd(data):
+def add_psd(data, fs=1000):
     # test_1  -> psd    -> [Pxx, Pxx_dB, freqs] -> EMG1 (test_1[4][0])
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][1])
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][2])
@@ -170,13 +186,13 @@ def add_psd(data):
     for i in range(0, len(data)):
         temp = []
         for j in range(1, 5):
-            temp_ = get_psd(data[i][1][j], fs=1000)
+            temp_ = get_psd(data[i][1][j], fs=fs)
             temp.append(temp_)
         output[i].append(temp)
     return output
 
 
-def add_EMG_stat(data, window_size=100):
+def add_EMG_stat(data, window_size=1000):
     # test_1 -> EMGStat -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG1 (test_1[5][0])
     #                   -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG2 (test_1[5][1])
     #                   -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG2 (test_1[5][2])
