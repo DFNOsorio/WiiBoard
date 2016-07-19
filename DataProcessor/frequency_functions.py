@@ -20,7 +20,7 @@ def fft(x, fs, filtered=True):
 
 
 def get_spectrogram_no_plot(x, fs, window_size):
-    Pxx, freqs, bins = mlab.specgram(x, Fs=fs, NFFT=window_size, noverlap=0)
+    Pxx, freqs, bins = mlab.specgram(x, Fs=fs, NFFT=window_size, noverlap=0, mode='psd')
     Pxx_dB = 10.0 * np.log10(Pxx)
 
     return Pxx, Pxx_dB, freqs, bins, [np.max(Pxx), np.min(Pxx)], [np.max(Pxx_dB), np.min(Pxx_dB)]

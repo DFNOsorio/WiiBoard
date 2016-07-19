@@ -4,7 +4,7 @@ import time
 folder_name = '../WiiBoard/Trials/'
 #folder_name = '../Trials/'
 
-patient = 'Liliana1000'
+patient = 'Paulo1000'
 
 ## Loading  and syncing
 
@@ -44,13 +44,22 @@ if plot:
 
 plot = False
 if plot:
-    spectrogram_report([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
+    spectrogram_report([s1_zsp, s2_zsp, s3_zsp, s4_zsp], max_flag=True)
 
-plot = True
+plot = False
 if plot:
     psd_reports([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
 
+[s1_zspe, s2_zspe, s3_zspe, s4_zspe] = add_EMG_RMS([s1_zsp, s2_zsp, s3_zsp, s4_zsp], window_size=1000)
 
+plot = False
+if plot:
+    rms_reports([s1_zspe, s2_zspe, s3_zspe, s4_zspe])
+
+print s1_zspe[2][2]
+
+
+#Filtro 10-400 Hz
 #Adaptar funcoes para devolver e aceitar indexes
 #
 #

@@ -1,5 +1,5 @@
 from DataProcessor import *
-
+import numpy as np
 
 def sync_files(folder_name, patient, plot=False, high=False):
     et, rt, data, t0 = load_wii_trial(folder_name+patient+'/WII', patient, False)
@@ -83,7 +83,7 @@ def segmentation_arrays(wii_time, data, open_time, EMG, ACC, ECG, EMG_l, ACC_l, 
     opensignal_array = [open_time, EMG[0], EMG[1], EMG[2], EMG[3], ACC[0], ACC[1], ACC[2], ECG[0]]
 
     lbs = [["STL", "STR", "SBL", "SBR", "TW"],
-           [EMG_l[0], EMG_l[1], EMG_l[2], EMG_l[3], ACC_l[0], ACC_l[1], ACC_l[2], ECG_l[0]]]
+           [EMG_l[0], EMG_l[1], EMG_l[2], EMG_l[3], ACC_l[0], ACC_l[1], ACC_l[2], ECG_l[0]], ["Test"]]
 
     return wii_array, opensignal_array, lbs
 
@@ -94,7 +94,7 @@ def segmented_signal(input, input_index=0, number_of_segments=4):
 
     wii_range, open_range = window_segmentation([wii_time, open_time], windows)
 
-    wii_array, opensignal_array, lbs = segmentation_arrays (wii_time, data, open_time, EMG, ACC, ECG, EMG_l, ACC_l,
+    wii_array, opensignal_array, lbs = segmentation_arrays(wii_time, data, open_time, EMG, ACC, ECG, EMG_l, ACC_l,
                                                             ECG_l)
 
     output = segmentator_interval([wii_range, open_range], wii_array, opensignal_array, lbs, number_of_segments)

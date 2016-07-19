@@ -34,7 +34,7 @@ def motion_reports(patient, data):
                       data[i][0][6], data[i])
 
 
-def spectrogram_report(data, max=False):
+def spectrogram_report(data, max_flag=False):
 
     title = ["Spectrogram - Two Feet Eyes Open (1 s segments)", "Spectrogram - Two Feet Eyes Closed (1 s segments)",
               "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
@@ -56,7 +56,8 @@ def spectrogram_report(data, max=False):
             ax = f.add_subplot(2, 2, j + 1)
             ax, im = spectogram_plot(ax, data[i][3][j][1], data[i][3][j][2], data[i][3][j][3], title=data[i][2][1][j],
                                      no_colorbar=True, v=[min_, max_])
-
+            if max_flag:
+                ax = max_spec_overplot(ax, data[i][3][j][1], data[i][3][j][2], data[i][3][j][3])
             axes_.append(ax)
         axes.append(axes_)
         cax = f.add_axes([0.91, 0.1, 0.02, 0.8])
@@ -77,14 +78,29 @@ def psd_reports(data):
         axes2 = []
         for j in range(0, len(data)):
             ax1 = f.add_subplot(2, 4, j+1)
-            PSD_plot(ax1, data[i][4][j][2], data[i][4][j][1], title=data[i][2][1][j])
+            PSD_plot(ax1, data[i][4][j][1], data[i][4][j][2], title=data[i][2][1][j])
 
             ax2 = f.add_subplot(2, 4, (j+5))
-            PSD_plot(ax2, data[i][4][j][2], data[i][4][j][0], title=data[i][2][1][j],
+            PSD_plot(ax2, data[i][4][j][0], data[i][4][j][2], title=data[i][2][1][j],
                      y_label="Power Spectral Density (No dB)")
 
             axes1.append(ax1)
             axes2.append(ax2)
 
         axes.append(np.concatenate([axes1, axes2]))
+    return axes
+
+
+def rms_reports(data):
+    title = ["RMS - Two Feet Eyes Open", "RMS - Two Feet Eyes Closed",
+             "RMS - One Feet Eyes Open", "RMS - One Feet Eyes Closed"]
+    axes = []
+    for i in range(0, len(data)):
+        f = plt.figure()
+        plt.suptitle(title[i])
+        axes = []
+        for j in range(0, len(data)):
+            ax1 = f.add_subplot(2, 2, j+1)
+            EMGRMS_plot(ax1, data[i][1][0], [data[i][1][j+1], data[i][5][j]], title=data[i][2][1][j])
+            axes.append(ax1)
     return axes

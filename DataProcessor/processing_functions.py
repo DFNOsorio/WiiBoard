@@ -1,4 +1,3 @@
-import numpy as np
 from novainstrumentation import *
 from frequency_functions import *
 from NOVAOpenSignals.EMG_stats import *
@@ -62,7 +61,8 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels, number_
     #        -> labels  -> Wii  (test_1[2][0])
     #                   -> Open (test_1[2][1])
 
-    temp = []
+    temp = [[] for x in xrange(number_of_segments)]
+    asfasfasfsfsdf
     for i in range(0, number_of_segments):
         temp_ = []
         wii_index = indexes[0][i]
@@ -78,7 +78,7 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels, number_
         temp_.append(labels)
         temp.append(temp_)
 
-    return temp
+    return temp[1]
 
 
 def remove_duplicates(wii_segment):
@@ -154,8 +154,8 @@ def add_COPs(data, COPs):
     output = data
     for i in range(0, len(data)):
         output[i][0].append(COPs[i])
-    return output
 
+    return output
 
 
 def add_spec(data, fs=1000, window_size=1000):
@@ -164,15 +164,16 @@ def add_spec(data, fs=1000, window_size=1000):
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][2])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][3])
 
-    output = data
-
     for i in range(0, len(data)):
         temp = []
         for j in range(1, 5):
             temp_ = get_spectrogram_no_plot(data[i][1][j], fs=fs, window_size=window_size)
             temp.append(temp_)
-        output[i].append(temp)
-    return output
+        data[i].append(temp)
+        data[i][2][2]=["Spec"]
+        print data[i][2][2]
+
+    return data
 
 
 def add_psd(data, fs=1000):
@@ -181,14 +182,39 @@ def add_psd(data, fs=1000):
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][2])
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][3])
 
-    output = data
-
     for i in range(0, len(data)):
         temp = []
         for j in range(1, 5):
             temp_ = get_psd(data[i][1][j], fs=fs)
             temp.append(temp_)
+        data[i].append(temp)
+
+
+    temp_1 = data[0][2]
+    temp_1[2]=["PSD"]
+
+    temp_2 = data[1][2]
+    temp_2[2]=["g"]
+    print data[0][2]
+    return data
+
+
+def add_EMG_RMS(data, window_size=1000):
+    output = data
+    for i in range(0, len(data)):
+        temp = []
+        current_time = data[i][1][0]
+        for j in range(1, 5):
+            print "segment", i+1, ", electrode", j
+            current_EMG = data[i][1][j]
+            RMS = RMS_moving_window(current_EMG, window_size)
+            temp.append(RMS)
         output[i].append(temp)
+
+        temp_ = output[i][2][2]
+        temp_.append("EMG_RMS")
+        output[i][2][2] = temp_
+
     return output
 
 
@@ -216,9 +242,31 @@ def add_EMG_stat(data, window_size=1000):
             temp.append(EEMG)
             temp.append(Var)
             temp.append(RMS)
-
         output[i].append(temp)
+        output[i][2][2].append("EMG_stat")
+
     return output
+
+
+def RMS_moving_window(EMG, window_size):
+    starting_index = window_size / 2
+    ending_index = len(EMG) - starting_index
+    RMS = []
+    for i in range(0, starting_index):
+        start = 0
+        end = starting_index + i
+        RMS.append(RMS_EMG(EMG[start:end]))
+
+    for i in range(starting_index, ending_index):
+        start = i - starting_index
+        end = i + starting_index
+        RMS.append(RMS_EMG (EMG[start:end]))
+    for i in range(ending_index, len (EMG)):
+        start = i - starting_index
+        end = len(EMG) - 1
+        RMS.append(RMS_EMG(EMG[start:end]))
+
+    return RMS
 
 
 def moving_window(EMG, window_size):

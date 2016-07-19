@@ -224,13 +224,51 @@ def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram", no_colorbar=False
     return ax, im
 
 
-def PSD_plot(ax,freqs, Pxx, title="Power Spectral Density", y_label="Power Spectral Density (dB)"):
+def max_spec_overplot(ax, Pxx, freqs, bins):
+    y_data = []
+    for i in range(0, len(bins)):
+        index = np.where(max(Pxx[:, i]) == Pxx[:, i])[0][0]
+        y_data.append(freqs[index])
+    ax.plot(bins, y_data,'k')
+
+
+def PSD_plot(ax, Pxx, freqs, title="Power Spectral Density", y_label="Power Spectral Density (dB)"):
     ax.plot(freqs, Pxx)
     ax.axis("tight")
     ax.set_xlabel("Frequencies (Hz)")
     ax.set_ylabel(y_label)
     ax.set_title(title)
     return ax
+
+
+def EMGRMS_plot(ax, x, y, title):
+    ax.plot(x, y[0], label="EMG")
+    ax.set_title(title)
+    ax.set_ylabel("Raw data")
+    ax.set_xlabel("Time (s)")
+    ax.legend("EMG")
+    ax.set_ylim([-np.max([np.max(y[0]), -np.min(y[0])]), np.max([np.max(y[0]), -np.min(y[0])])])
+
+    ax2 = ax.twinx()
+    ax2.grid(b=False)
+    ax2.plot(x, y[1], 'k', label="RMS")
+    ax2.set_ylabel("Raw data")
+    ax2.legend("RMS")
+    ax2.set_ylim([-np.max(y[1]), np.max(y[1])])
+
+    previous_legend = ax.get_legend().get_texts()
+    new_legend = []
+    for j in range(0, len(previous_legend)):
+        new_legend.append(previous_legend[j].get_text())
+
+    h, l = ax2.get_legend_handles_labels()
+    h1, l1 = ax.get_legend_handles_labels()
+
+    ax2.legend("")
+    new_legend.append("RMS")
+    ax.legend(handles=list(np.concatenate([h1, h])), labels=new_legend)
+
+    return ax, ax2
 
 
 def spec_representation(ax, powerDb, freq, time, title="Spectrogram"):
