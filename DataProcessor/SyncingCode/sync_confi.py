@@ -1,5 +1,10 @@
-from DataProcessor import *
+from DataProcessor.NOVAOpenSignals import load_open_trial
+from DataProcessor.NOVAWiiBoard import load_wii_trial
+from DataProcessor.processing_methods import read_config, reformat_time, center_segmentation, window_segmentation,\
+    segmentator_interval
+from DataProcessor.printing.printing_lib import subplot_overlap
 import numpy as np
+
 
 def sync_files(folder_name, patient, plot=False, high=False):
     et, rt, data, t0 = load_wii_trial(folder_name+patient+'/WII', patient, False)
@@ -31,9 +36,8 @@ def sync_files(folder_name, patient, plot=False, high=False):
                                           wii_window_[1]]],
                                         ["Acc + Events", "Acc + Events"], ["Time (s)", "Time (s)"], ["Raw data", "Raw data"], 1,
                                         2,
-                                        legend=[np.concatenate ([ACC_l, ["Events"]]),
-                                                np.concatenate ([ACC_l, ["Events", "Events A"]])], overlapx=True)
-
+                                        legend=[np.concatenate([ACC_l, ["Events"]]),
+                                                np.concatenate([ACC_l, ["Events", "Events A"]])], overlapx=True)
 
     return [new_wii_time_, open_time, windows, data, EMG, ACC, ECG, EMG_l, ACC_l, ECG_l]
 
@@ -83,14 +87,13 @@ def segmentation_arrays(wii_time, data, open_time, EMG, ACC, ECG, EMG_l, ACC_l, 
     opensignal_array = [open_time, EMG[0], EMG[1], EMG[2], EMG[3], ACC[0], ACC[1], ACC[2], ECG[0]]
 
     lbs = [["STL", "STR", "SBL", "SBR", "TW"],
-           [EMG_l[0], EMG_l[1], EMG_l[2], EMG_l[3], ACC_l[0], ACC_l[1], ACC_l[2], ECG_l[0]], ["Test"]]
+           [EMG_l[0], EMG_l[1], EMG_l[2], EMG_l[3], ACC_l[0], ACC_l[1], ACC_l[2], ECG_l[0]]]
 
     return wii_array, opensignal_array, lbs
 
 
 def segmented_signal(input, input_index=0, number_of_segments=4):
     [wii_time, open_time, windows, data, EMG, ACC, ECG, EMG_l, ACC_l, ECG_l] = input[input_index]
-
 
     wii_range, open_range = window_segmentation([wii_time, open_time], windows)
 

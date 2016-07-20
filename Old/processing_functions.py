@@ -1,6 +1,6 @@
 from novainstrumentation import *
-from frequency_functions import *
-from NOVAOpenSignals.EMG_stats import *
+from DataProcessor.frequency_functions import *
+from DataProcessor.NOVAOpenSignals.EMG_stats import *
 
 
 def reformat_time(time_vector, delay):
@@ -61,8 +61,8 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels, number_
     #        -> labels  -> Wii  (test_1[2][0])
     #                   -> Open (test_1[2][1])
 
-    temp = [[] for x in xrange(number_of_segments)]
-    asfasfasfsfsdf
+    temp = []
+
     for i in range(0, number_of_segments):
         temp_ = []
         wii_index = indexes[0][i]
@@ -78,7 +78,7 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels, number_
         temp_.append(labels)
         temp.append(temp_)
 
-    return temp[1]
+    return temp
 
 
 def remove_duplicates(wii_segment):

@@ -38,10 +38,10 @@ def interval_COPs(interval_data):
     output = []
 
     for i in range(0, 4):
-        tl = interval_data[i][0][1]
-        tr = interval_data[i][0][2]
-        bl = interval_data[i][0][3]
-        br = interval_data[i][0][4]
+        tl = interval_data[i].get_variable("wii_data")[1]
+        tr = interval_data[i].get_variable("wii_data")[2]
+        bl = interval_data[i].get_variable("wii_data")[3]
+        br = interval_data[i].get_variable("wii_data")[4]
         [ctl, ctr, cbl, cbr] = converter(tl, tr, bl, br)
         new_cop = COP(ctl, ctr, cbl, cbr)
         montion = motion_equations(new_cop[0], new_cop[1])

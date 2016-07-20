@@ -1,37 +1,43 @@
 from DataProcessor.printing import *
 
 
-def motion_report(patient, text, cop1, s1):
+def motion_report(patient, text, data):
+
+    Wii = data.get_variable("wii_data")
+    EMGs = data.get_variable("open_signals_data")
+    labels = data.get_variable("labels")
+
+    text = text + str(round(Wii[0][-1] - Wii[0][0], 2)) + " s)"
 
     f, gs1_ax, gs2_ax, gs3_ax = grid_report(patient + text)
 
-    axe_populator([cop1[0], [cop1[1]], "COPx (mm)", "COPy (mm)", "COP", []], gs1_ax[0], wii=True)
-    axe_populator([s1[1][0], [s1[1][5], s1[1][6], s1[1][7]], "Time (s)", "Raw data", "Accelerometer data",
-                   s1[2][1][4:7]], gs1_ax[1], xlim=[min(s1[1][0]), max(s1[1][0])+5])
-    axe_populator([s1[1][0], [s1[1][8]], "Time (s)", "Raw data", "ECG data",
+    axe_populator([Wii[6][0], [Wii[6][1]], "COPx (mm)", "COPy (mm)", "COP", []], gs1_ax[0], wii=True)
+    axe_populator([EMGs[0], [EMGs[5], EMGs[6], EMGs[7]], "Time (s)", "Raw data", "Accelerometer data",
+                   labels[1][4:7]], gs1_ax[1], xlim=[min(EMGs[0]), max(EMGs[0])+5])
+    axe_populator([EMGs[0], [EMGs[8]], "Time (s)", "Raw data", "ECG data",
                    []], gs1_ax[2])
 
-    axe_populator([s1[0][0], [cop1[0]], "Time (s)", "COPx (mm)", "COPx", []], gs2_ax[0])
-    axe_populator([s1[0][0][0:-1], [cop1[2]], "Time (s)", "Vx (m/s)", "Vx", []], gs2_ax[2])
-    axe_populator([s1[0][0][0:-2], [cop1[4]], "Time (s)", "Ax (m2/s)", "Ax", []], gs2_ax[4])
+    axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "COPx (mm)", "COPx", []], gs2_ax[0])
+    axe_populator([Wii[0][0:-1], [Wii[6][2]], "Time (s)", "Vx (m/s)", "Vx", []], gs2_ax[2])
+    axe_populator([Wii[0][0:-2], [Wii[6][4]], "Time (s)", "Ax (m2/s)", "Ax", []], gs2_ax[4])
 
-    axe_populator([s1[0][0], [cop1[1]], "Time (s)", "COPy (mm)", "COPy", []], gs2_ax[1])
-    axe_populator([s1[0][0][0:-1], [cop1[3]], "Time (s)", "Vy (m/s)", "Vy", []], gs2_ax[3])
-    axe_populator([s1[0][0][0:-2], [cop1[5]], "Time (s)", "Ay (m2/s)", "Ay", []], gs2_ax[5])
+    axe_populator([Wii[0], [Wii[6][1]], "Time (s)", "COPy (mm)", "COPy", []], gs2_ax[1])
+    axe_populator([Wii[0][0:-1], [Wii[6][3]], "Time (s)", "Vy (m/s)", "Vy", []], gs2_ax[3])
+    axe_populator([Wii[0][0:-2], [Wii[6][5]], "Time (s)", "Ay (m2/s)", "Ay", []], gs2_ax[5])
 
-    axe_populator([s1[1][0], [s1[1][1]], "Time (s)", "Raw", s1[2][1][0], []], gs3_ax[0])
-    axe_populator([s1[1][0], [s1[1][2]], "Time (s)", "Raw", s1[2][1][1], []], gs3_ax[1])
-    axe_populator([s1[1][0], [s1[1][3]], "Time (s)", "Raw", s1[2][1][2], []], gs3_ax[2])
-    axe_populator([s1[1][0], [s1[1][4]], "Time (s)", "Raw", s1[2][1][3], []], gs3_ax[3])
+    axe_populator([EMGs[0], [EMGs[1]], "Time (s)", "Raw", labels[1][0], []], gs3_ax[0])
+    axe_populator([EMGs[0], [EMGs[2]], "Time (s)", "Raw", labels[1][1], []], gs3_ax[1])
+    axe_populator([EMGs[0], [EMGs[3]], "Time (s)", "Raw", labels[1][2], []], gs3_ax[2])
+    axe_populator([EMGs[0], [EMGs[4]], "Time (s)", "Raw", labels[1][3], []], gs3_ax[3])
 
     return f
 
 
 def motion_reports(patient, data):
-    title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (", " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
+    title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
+               " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
     for i in range(0, len(data)):
-        motion_report(patient, title_1[i] + str(round(data[i][0][0][-1] - data[i][0][0][0], 2)) + " s)",
-                      data[i][0][6], data[i])
+        motion_report(patient, title_1[i], data[i])
 
 
 def spectrogram_report(data, max_flag=False):
@@ -42,22 +48,24 @@ def spectrogram_report(data, max_flag=False):
     max_ = 0
     min_ = 100
     for i in range(0, len(data)):
-        for j in range(0, len(data)):
-            if data[i][3][j][5][0] > max_:
-                max_ = data[i][3][j][5][0]
-            if data[i][3][j][5][1] < min_:
-                min_ = data[i][3][j][5][1]
+        spec = data[i].get_variable("spec_data")
+        for j in range(0, len(spec)):
+            if spec[j][5][0] > max_:
+                max_ = spec[j][5][0]
+            if spec[j][5][1] < min_:
+                min_ = spec[j][5][1]
 
     for i in range(0, len(data)):
         f = plt.figure()
         plt.suptitle(title[i])
         axes_=[]
         for j in range(0, len(data)):
+            spec = data[i].get_variable("spec_data")
             ax = f.add_subplot(2, 2, j + 1)
-            ax, im = spectogram_plot(ax, data[i][3][j][1], data[i][3][j][2], data[i][3][j][3], title=data[i][2][1][j],
+            ax, im = spectogram_plot(ax, spec[j][1], spec[j][2], spec[j][3], title=data[i].get_variable("labels")[1][j],
                                      no_colorbar=True, v=[min_, max_])
             if max_flag:
-                ax = max_spec_overplot(ax, data[i][3][j][1], data[i][3][j][2], data[i][3][j][3])
+                ax = max_spec_overplot(ax, spec[j][1], spec[j][2], spec[j][3])
             axes_.append(ax)
         axes.append(axes_)
         cax = f.add_axes([0.91, 0.1, 0.02, 0.8])
@@ -76,12 +84,14 @@ def psd_reports(data):
         plt.suptitle(title[i])
         axes1 = []
         axes2 = []
+        PSD = data[i].get_variable("psd_data")
         for j in range(0, len(data)):
+
             ax1 = f.add_subplot(2, 4, j+1)
-            PSD_plot(ax1, data[i][4][j][1], data[i][4][j][2], title=data[i][2][1][j])
+            PSD_plot(ax1, PSD[j][1], PSD[j][2], title=data[i].get_variable("labels")[1][j])
 
             ax2 = f.add_subplot(2, 4, (j+5))
-            PSD_plot(ax2, data[i][4][j][0], data[i][4][j][2], title=data[i][2][1][j],
+            PSD_plot(ax2, PSD[j][0], PSD[j][2], title=data[i].get_variable("labels")[1][j],
                      y_label="Power Spectral Density (No dB)")
 
             axes1.append(ax1)
@@ -99,8 +109,11 @@ def rms_reports(data):
         f = plt.figure()
         plt.suptitle(title[i])
         axes = []
+        RMS = data[i].get_variable("emg_rms_data")
+        EMGs = data[i].get_variable("open_signals_data")
+        current_time = EMGs[0]
         for j in range(0, len(data)):
             ax1 = f.add_subplot(2, 2, j+1)
-            EMGRMS_plot(ax1, data[i][1][0], [data[i][1][j+1], data[i][5][j]], title=data[i][2][1][j])
+            EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j])
             axes.append(ax1)
     return axes

@@ -1,10 +1,9 @@
 from DataProcessor import *
-import time
 
 folder_name = '../WiiBoard/Trials/'
 #folder_name = '../Trials/'
 
-patient = 'Paulo1000'
+patient = 'Liliana1000'
 
 ## Loading  and syncing
 
@@ -16,11 +15,12 @@ output = sync_files(folder_name, patient, plot=False, high=True)
 
 ## Processing
 
-print "Patient mean weight: " + str(np.mean(s1[0][5]))
+print "Patient mean weight: " + str(np.mean(s1.get_variable("wii_data")[5]))
 
     # Removing duplicates
+#[s1[0], s2[0], s3[0], s4[0]] = remove_duplicates_batch([s1[0], s2[0], s3[0], s4[0]])
 
-[s1[0], s2[0], s3[0], s4[0]] = remove_duplicates_batch([s1[0], s2[0], s3[0], s4[0]])
+[s1, s2, s3, s4] = remove_duplicates_batch([s1, s2, s3, s4])
 
 [s1, s2, s3, s4] = add_COPs([s1, s2, s3, s4], interval_COPs([s1, s2, s3, s4]))
 
@@ -28,35 +28,35 @@ print "Patient mean weight: " + str(np.mean(s1[0][5]))
 
 EMG_zero, EMG_l_zero, EMG_means_zero = load_emg_rest(folder_name+patient+'/Base')
 
-[s1_z, s2_z, s3_z, s4_z] = zero_out_EMG([s1, s2, s3, s4], EMG_means_zero)
+[s1, s2, s3, s4] = zero_out_EMG([s1, s2, s3, s4], EMG_means_zero)
 
-plot = False
+plot = True
 if plot:
-    motion_reports(patient, [s1_z, s2_z, s3_z, s4_z])
+    motion_reports(patient, [s1, s2, s3, s4])
 
 # Spectrogram of each emg, for each interval
 
-[s1_zs, s2_zs, s3_zs, s4_zs] = add_spec([s1_z, s2_z, s3_z, s4_z])
+[s1, s2, s3, s4] = add_spec([s1, s2, s3, s4])
 
 # Spectrogram of each psd, for each interval
 
-[s1_zsp, s2_zsp, s3_zsp, s4_zsp] = add_psd([s1_zs, s2_zs, s3_zs, s4_zs])
+[s1, s2, s3, s4] = add_psd([s1, s2, s3, s4])
+
+plot = True
+if plot:
+    spectrogram_report([s1, s2, s3, s4], max_flag=True)
 
 plot = False
 if plot:
-    spectrogram_report([s1_zsp, s2_zsp, s3_zsp, s4_zsp], max_flag=True)
+    psd_reports([s1, s2, s3, s4])
+
+[s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000)
 
 plot = False
 if plot:
-    psd_reports([s1_zsp, s2_zsp, s3_zsp, s4_zsp])
+    rms_reports([s1, s2, s3, s4])
 
-[s1_zspe, s2_zspe, s3_zspe, s4_zspe] = add_EMG_RMS([s1_zsp, s2_zsp, s3_zsp, s4_zsp], window_size=1000)
 
-plot = False
-if plot:
-    rms_reports([s1_zspe, s2_zspe, s3_zspe, s4_zspe])
-
-print s1_zspe[2][2]
 
 
 #Filtro 10-400 Hz
