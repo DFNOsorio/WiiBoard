@@ -102,7 +102,7 @@ def psd_reports(data, new_var="psd_data"):
     return axes
 
 
-def rms_reports(data):
+def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
     title = ["RMS - Two Feet Eyes Open", "RMS - Two Feet Eyes Closed",
              "RMS - One Feet Eyes Open", "RMS - One Feet Eyes Closed"]
     axes = []
@@ -110,11 +110,31 @@ def rms_reports(data):
         f = plt.figure()
         plt.suptitle(title[i])
         axes = []
-        RMS = data[i].get_variable("emg_rms_data")
-        EMGs = data[i].get_variable("open_signals_data")
+        RMS = data[i].get_variable(rms_data)
+        EMGs = data[i].get_variable(emg_data)
         current_time = EMGs[0]
         for j in range(0, len(data)):
             ax1 = f.add_subplot(2, 2, j+1)
             EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j])
             axes.append(ax1)
     return axes
+
+
+def psd_integrated(data, integrated_data="integrated_spec_psd"):
+    title = ["RMS - Two Feet Eyes Open", "RMS - Two Feet Eyes Closed",
+             "RMS - One Feet Eyes Open", "RMS - One Feet Eyes Closed"]
+
+    axes = []
+    for i in range(0, len(data)):
+        f = plt.figure()
+        plt.suptitle(title[i])
+        axes = []
+
+        psd_integrated = data[i].get_variable(integrated_data)
+        frequency = data[i].get_variable("spec_data")[0][2]
+
+        for j in range(0, len(data)):
+            ax1 = f.add_subplot(2, 2, j + 1)
+            axes.append(ax1)
+    return axes
+

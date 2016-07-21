@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 from mpl_toolkits.mplot3d import axes3d
 import matplotlib.colors as col
+from matplotlib.pyplot import cm
 from scipy.misc import imread
 import numpy as np
 
@@ -208,8 +209,9 @@ def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend='New')
     return [axis, ax2]
 
 
-def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram", no_colorbar=False, v=[], color='jet'):
+def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram", no_colorbar=False, v=[], color=cm.jet):
 
+    color.set_under('k')
     if no_colorbar is False:
         im = ax.pcolor(bins, freqs, Pxx, cmap='jet')
         cbar = plt.colorbar(im, ticks=range(int(np.min(Pxx)), int(np.max(Pxx)), 5))

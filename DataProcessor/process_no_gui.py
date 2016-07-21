@@ -44,6 +44,8 @@ print "Psd and spec integral, for each interval"
 
 [s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4])
 
+psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd")
+
 plot = True
 if plot:
     spectrogram_report([s1, s2, s3, s4], max_flag=True)
