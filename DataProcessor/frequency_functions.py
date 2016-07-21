@@ -1,5 +1,6 @@
 import numpy as np
 from matplotlib import mlab
+from novainstrumentation.code.filter import bandpass
 
 
 def fft(x, fs, filtered=True):
@@ -41,5 +42,8 @@ def get_psd(x, fs):
     Pxx_dB = 10.0 * np.log10(Pxx)
     return Pxx, Pxx_dB, freqs
 
+
+def filter_signal_band(data_vector, frequencies, order=2, fs=1000):
+    return bandpass(data_vector, frequencies[0], frequencies[1], order, fs)
 
 

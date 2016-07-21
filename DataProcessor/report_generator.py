@@ -1,4 +1,4 @@
-from DataProcessor.printing import *
+from DataProcessor.Printing import *
 
 
 def motion_report(patient, text, data):
@@ -40,7 +40,7 @@ def motion_reports(patient, data):
         motion_report(patient, title_1[i], data[i])
 
 
-def spectrogram_report(data, max_flag=False):
+def spectrogram_report(data, max_flag=False, data_var="spec_data"):
 
     title = ["Spectrogram - Two Feet Eyes Open (1 s segments)", "Spectrogram - Two Feet Eyes Closed (1 s segments)",
               "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
@@ -48,7 +48,7 @@ def spectrogram_report(data, max_flag=False):
     max_ = 0
     min_ = 100
     for i in range(0, len(data)):
-        spec = data[i].get_variable("spec_data")
+        spec = data[i].get_variable(data_var)
         for j in range(0, len(spec)):
             if spec[j][5][0] > max_:
                 max_ = spec[j][5][0]
@@ -60,7 +60,7 @@ def spectrogram_report(data, max_flag=False):
         plt.suptitle(title[i])
         axes_=[]
         for j in range(0, len(data)):
-            spec = data[i].get_variable("spec_data")
+            spec = data[i].get_variable(data_var)
             ax = f.add_subplot(2, 2, j + 1)
             ax, im = spectogram_plot(ax, spec[j][1], spec[j][2], spec[j][3], title=data[i].get_variable("labels")[1][j],
                                      no_colorbar=True, v=[min_, max_])
@@ -70,12 +70,13 @@ def spectrogram_report(data, max_flag=False):
         axes.append(axes_)
         cax = f.add_axes([0.91, 0.1, 0.02, 0.8])
         cbar = f.colorbar(im, cax=cax, ticks=range(int(min_), int(max_), 5))
+        im.set_clim(max([-50, int(min_)]), int(max_))
         cbar.set_label('Power Spectral Density (dB)')
         plt.subplots_adjust(hspace=0.34, top=0.90, bottom=0.09, left=0.10, right=0.90, wspace=0.27)
     return axes
 
 
-def psd_reports(data):
+def psd_reports(data, new_var="psd_data"):
     title = ["PSD - Two Feet Eyes Open", "PSD - Two Feet Eyes Closed",
              "PSD - One Feet Eyes Open", "PSD - One Feet Eyes Closed"]
     axes = []
@@ -84,7 +85,7 @@ def psd_reports(data):
         plt.suptitle(title[i])
         axes1 = []
         axes2 = []
-        PSD = data[i].get_variable("psd_data")
+        PSD = data[i].get_variable(new_var)
         for j in range(0, len(data)):
 
             ax1 = f.add_subplot(2, 4, j+1)

@@ -2,7 +2,7 @@ from DataProcessor.NOVAOpenSignals import load_open_trial
 from DataProcessor.NOVAWiiBoard import load_wii_trial
 from DataProcessor.processing_methods import read_config, reformat_time, center_segmentation, window_segmentation,\
     segmentator_interval
-from DataProcessor.printing.printing_lib import subplot_overlap
+from DataProcessor.Printing.printing_lib import subplot_overlap
 import numpy as np
 
 

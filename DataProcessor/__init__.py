@@ -1,4 +1,4 @@
-from DataProcessor.printing import *
+from DataProcessor.Printing import *
 from NOVAOpenSignals import *
 from NOVAWiiBoard import *
 from SyncingCode import *

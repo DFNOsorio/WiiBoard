@@ -30,15 +30,15 @@ EMG_zero, EMG_l_zero, EMG_means_zero = load_emg_rest(folder_name+patient+'/Base'
 
 [s1, s2, s3, s4] = zero_out_EMG([s1, s2, s3, s4], EMG_means_zero)
 
-plot = True
+plot = False
 if plot:
     motion_reports(patient, [s1, s2, s3, s4])
 
-# Spectrogram of each emg, for each interval
+print "Spectrogram of each emg, for each interval"
 
 [s1, s2, s3, s4] = add_spec([s1, s2, s3, s4])
 
-# Spectrogram of each psd, for each interval
+print "Psd, for each interval"
 
 [s1, s2, s3, s4] = add_psd([s1, s2, s3, s4])
 
@@ -50,14 +50,35 @@ plot = False
 if plot:
     psd_reports([s1, s2, s3, s4])
 
-[s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000)
+print "RMS, for each interval"
+
+#[s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000)
 
 plot = False
 if plot:
     rms_reports([s1, s2, s3, s4])
 
+print "Filter, for each interval"
 
+[s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4])
 
+print "New spectrogram of each emg, for each interval"
+
+[s1, s2, s3, s4] = add_spec([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_spec_data")
+
+plot = True
+if plot:
+    spectrogram_report([s1, s2, s3, s4], max_flag=True, data_var="filter_spec_data")
+
+print "New psd, for each interval"
+
+[s1, s2, s3, s4] = add_psd([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_psd_data")
+
+plot = False
+if plot:
+    psd_reports([s1, s2, s3, s4], new_var="filter_psd_data")
+
+######### Para o color map a partir de uma certa frequencia. Depois e negro
 
 #Filtro 10-400 Hz
 #Adaptar funcoes para devolver e aceitar indexes

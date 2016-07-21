@@ -1,4 +1,3 @@
-from novainstrumentation import *
 from frequency_functions import *
 from NOVAOpenSignals.EMG_stats import *
 import copy
@@ -190,7 +189,7 @@ def add_COPs(data, COPs):
     return data
 
 
-def add_spec(data, fs=1000, window_size=1000):
+def add_spec(data, fs=1000, window_size=1000, data_var="open_signals_data", new_var="spec_data"):
     # test_1  -> psd    -> [Pxx, Pxx_dB, freqs, bins, maxmin Pxx, maxmin Pxxdb] -> EMG1 (test_1[3][0])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][1])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][2])
@@ -198,18 +197,18 @@ def add_spec(data, fs=1000, window_size=1000):
 
     for i in range(0, len(data)):
         spec = []
-        EMGs = data[i].get_variable("open_signals_data")
+        EMGs = data[i].get_variable(data_var)
 
         for j in range(1, 5):
             temp_ = get_spectrogram_no_plot(EMGs[j], fs=fs, window_size=window_size)
             spec.append(temp_)
 
-        data[i].add_variable("spec_data", spec)
+        data[i].add_variable(new_var, spec)
 
     return data
 
 
-def add_psd(data, fs=1000):
+def add_psd(data, fs=1000, data_var="open_signals_data", new_var="psd_data"):
     # test_1  -> psd    -> [Pxx, Pxx_dB, freqs] -> EMG1 (test_1[4][0])
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][1])
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][2])
@@ -217,22 +216,22 @@ def add_psd(data, fs=1000):
 
     for i in range(0, len(data)):
         psd = []
-        EMGs = data[i].get_variable("open_signals_data")
+        EMGs = data[i].get_variable(data_var)
 
         for j in range(1, 5):
             temp_ = get_psd(EMGs[j], fs=fs)
             psd.append(temp_)
 
-        data[i].add_variable("psd_data", psd)
+        data[i].add_variable(new_var, psd)
 
     return data
 
 
-def add_EMG_RMS(data, window_size=1000):
+def add_EMG_RMS(data, window_size=1000, data_var="open_signals_data", new_var="emg_rms_data"):
 
     for i in range(0, len(data)):
         emg_rms = []
-        EMGs = data[i].get_variable("open_signals_data")
+        EMGs = data[i].get_variable(data_var)
         current_time = EMGs[0]
         for j in range(1, 5):
             print "segment", i+1, ", electrode", j
@@ -240,12 +239,12 @@ def add_EMG_RMS(data, window_size=1000):
             RMS = RMS_moving_window(current_EMG, window_size)
             emg_rms.append(RMS)
 
-        data[i].add_variable("emg_rms_data", emg_rms)
+        data[i].add_variable(new_var, emg_rms)
 
     return data
 
 
-def add_EMG_stat(data, window_size=1000):
+def add_EMG_stat(data, window_size=1000, data_var = "open_signals_data", new_var="emg_stat_data"):
     # test_1 -> EMGStat -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG1 (test_1[5][0])
     #                   -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG2 (test_1[5][1])
     #                   -> [[Positiv, PT], [Negatif, NT], IEMG, MAV, EEMG, Var, RMS] -> EMG2 (test_1[5][2])
@@ -253,7 +252,7 @@ def add_EMG_stat(data, window_size=1000):
 
     for i in range(0, len(data)):
         emg_rms = []
-        EMGs = data[i].get_variable("open_signals_data")
+        EMGs = data[i].get_variable(data_var)
         current_time = EMGs[0]
         for j in range(1, 5):
 
@@ -271,7 +270,7 @@ def add_EMG_stat(data, window_size=1000):
             emg_rms.append(Var)
             emg_rms.append(RMS)
 
-        data[i].add_variable("emg_stat_data", emg_rms)
+        data[i].add_variable(new_var, emg_rms)
 
     return data
 
@@ -328,7 +327,6 @@ def moving_window(EMG, window_size):
         Var.append(variance(EMG[start:end]))
         RMS.append(RMS_EMG(EMG[start:end]))
 
-
     for i in range(ending_index, len(EMG)):
 
         start = i - starting_index
@@ -343,15 +341,22 @@ def moving_window(EMG, window_size):
     return IEMG, MAV, EEMG, Var, RMS
 
 
+def add_filtered_signal(data, frequencies=[10, 400], fs=1000, data_var="open_signals_data", new_var="filter_EMG_data"):
+
+    for i in range(0, len(data)):
+        filtered_emg = []
+        EMGs = data[i].get_variable(data_var)
+        filtered_emg.append(EMGs[0])
+        for j in range(1, 5):
+            temp_ = filter_signal_band(EMGs[j], frequencies, fs=fs)
+            filtered_emg.append(temp_)
+
+        data[i].add_variable(new_var, filtered_emg)
+
+    return data
 
 
-    #IEMG
-    #MAV
-    #EEMG
-    #Var
-    #RMS
-
-
+def integrate_spec(data)########
 
 
 
