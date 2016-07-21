@@ -232,7 +232,6 @@ def add_EMG_RMS(data, window_size=1000, data_var="open_signals_data", new_var="e
     for i in range(0, len(data)):
         emg_rms = []
         EMGs = data[i].get_variable(data_var)
-        current_time = EMGs[0]
         for j in range(1, 5):
             print "segment", i+1, ", electrode", j
             current_EMG = EMGs[j]
@@ -356,7 +355,37 @@ def add_filtered_signal(data, frequencies=[10, 400], fs=1000, data_var="open_sig
     return data
 
 
-def integrate_spec(data)########
+def integrate_spec_psd(data, dB=True, data_var_psd="psd_data", data_var_spec="spec_data", new_var="integrated_spec_psd"):
+
+    # For each data_holder (data[i]), the variable integrated_spec has the following format
+    #   data_holder -> integrated_spec -> FR -> [ PSD_integral, [Spec_Integrals] ]
+    #                                     FL
+    #                                     BL
+    #                                     BR
+
+    k = 0
+    if dB:
+        k = 1
+
+    for i in range(0, len(data)):
+        integrated_spec = []
+        psds = data[i].get_variable(data_var_psd)
+        spec = data[i].get_variable(data_var_spec)
+
+        for j in range(0, 4):
+            temp_ = [sum(np.array(psds[j][k])) / (spec[j][2][1] - spec[j][2][0])]
+            temp__ = []
+
+            for l in range(0, len(spec[j][3])):
+                temp__.append(sum(np.array(spec[j][k][:, 1])) / (spec[j][2][1] - spec[j][2][0]))
+
+            temp_.append(temp__)
+            integrated_spec.append(temp_)
+
+        data[i].add_variable(new_var, integrated_spec)
+    return data
+
+########
 
 
 

@@ -17,8 +17,6 @@ output = sync_files(folder_name, patient, plot=False, high=True)
 
 print "Patient mean weight: " + str(np.mean(s1.get_variable("wii_data")[5]))
 
-    # Removing duplicates
-#[s1[0], s2[0], s3[0], s4[0]] = remove_duplicates_batch([s1[0], s2[0], s3[0], s4[0]])
 
 [s1, s2, s3, s4] = remove_duplicates_batch([s1, s2, s3, s4])
 
@@ -42,6 +40,10 @@ print "Psd, for each interval"
 
 [s1, s2, s3, s4] = add_psd([s1, s2, s3, s4])
 
+print "Psd and spec integral, for each interval"
+
+[s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4])
+
 plot = True
 if plot:
     spectrogram_report([s1, s2, s3, s4], max_flag=True)
@@ -52,7 +54,7 @@ if plot:
 
 print "RMS, for each interval"
 
-#[s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000)
+[s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000)
 
 plot = False
 if plot:
@@ -78,7 +80,13 @@ plot = False
 if plot:
     psd_reports([s1, s2, s3, s4], new_var="filter_psd_data")
 
-######### Para o color map a partir de uma certa frequencia. Depois e negro
+print "Psd and spec integral (after_filtering), for each interval"
+
+[s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4], data_var_psd="filter_psd_data",
+                                      data_var_spec="filter_spec_data", new_var="integrated_spec_psd_filtered")
+
+
+######### reports para os valores integrados
 
 #Filtro 10-400 Hz
 #Adaptar funcoes para devolver e aceitar indexes
@@ -109,7 +117,5 @@ if plot:
 
 ##### Pegar nas PSD e por no msm grafico
 ##### PSD 2D com os limites a mais claros
-
-
 
 plot_show_all()
