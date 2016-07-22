@@ -67,13 +67,17 @@ def ax1_pop(filler, ax):
     return ax
 
 
-def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='k'):
+def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=1):
     x = data[0]
     yy = data[1]
+
     if wii:
         add_wii(ax)
     for j in range(0, len(yy)):
-        ax.plot(x, yy[j])
+        if len(yy) == 1:
+            ax.plot(x, yy[j], color=color, alpha=alpha, label=color+str(j))
+        else:
+            ax.plot(x, yy[j], alpha=alpha, label=color + str(j))
 
     for label in ax.get_xticklabels():
         label.set_fontsize(10)
@@ -82,12 +86,30 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='k'):
         label.set_fontsize(10)
     if len(xlim) == 0:
         xlim = [x[0], x[-1]]
+
     ax.set_xlabel(data[2], fontsize=10)
     ax.set_ylabel(data[3], fontsize=10)
     ax.set_title(data[4], fontsize=14)
     if not wii:
         ax.set_xlim(xlim)
-    ax.legend(data[5], fontsize=10)
+
+    if overlap:
+        previous_legend = ax.get_legend().get_texts()
+        new_legend = []
+        for j in range(0, len(previous_legend)):
+            new_legend.append(previous_legend[j].get_text())
+
+        ax.legend(data[5], fontsize=10)
+        h, l = ax.get_legend_handles_labels()
+
+        handles = list(np.concatenate([h[0:len(previous_legend)], [h[-1]]]))
+
+        new_legend = list(np.concatenate([new_legend, data[5]]))
+
+        ax.legend(handles=handles, labels=new_legend, fontsize=10)
+
+    elif not overlap:
+        ax.legend(data[5], fontsize=10)
 
     return ax
 
@@ -126,12 +148,14 @@ def add_hlines(axis, interval, y_value, legend_text, color='k', linestyle="--"):
     for j in range(0, len(previous_legend)):
         new_legend.append(previous_legend[j].get_text())
 
-    axis.axhline(y=y_value, xmin=interval[0], xmax=interval[1], label="NEW", color=color, linestyle=linestyle)
+    axis.axhline(y=y_value, label="NEW", color=color, linestyle=linestyle)
     axis.set_xlim(interval)
     h, l = axis.get_legend_handles_labels()
-    h[len(previous_legend)].set_color(color)
-    new_legend.append(legend_text)
-    axis.legend(new_legend, fontsize=10)
+
+    handles = list(np.concatenate([h[0:len(previous_legend)], [h[-1]]]))
+    new_legend = list(np.concatenate([new_legend, [legend_text]]))
+
+    axis.legend(handles=handles, labels=new_legend, fontsize=10)
     return axis
 
 
@@ -231,7 +255,7 @@ def max_spec_overplot(ax, Pxx, freqs, bins):
     for i in range(0, len(bins)):
         index = np.where(max(Pxx[:, i]) == Pxx[:, i])[0][0]
         y_data.append(freqs[index])
-    ax.plot(bins, y_data,'k')
+    ax.plot(bins, y_data, 'k')
 
 
 def PSD_plot(ax, Pxx, freqs, title="Power Spectral Density", y_label="Power Spectral Density (dB)"):
@@ -333,6 +357,9 @@ def spec_representation_color(ax, powerDb, freq, time, title="Spectrogram"):
     ax.set_title(title)
 
     return ax
+
+
+
 
 
 def LibPhysColorMap(number=1, number_of_colors=256):

@@ -350,6 +350,9 @@ def add_filtered_signal(data, frequencies=[10, 400], fs=1000, data_var="open_sig
             temp_ = filter_signal_band(EMGs[j], frequencies, fs=fs)
             filtered_emg.append(temp_)
 
+        for j in range(5, len(EMGs)):
+            filtered_emg.append(EMGs[j])
+
         data[i].add_variable(new_var, filtered_emg)
 
     return data
@@ -377,7 +380,7 @@ def integrate_spec_psd(data, dB=True, data_var_psd="psd_data", data_var_spec="sp
             temp__ = []
 
             for l in range(0, len(spec[j][3])):
-                temp__.append(sum(np.array(spec[j][k][:, 1])) / (spec[j][2][1] - spec[j][2][0]))
+                temp__.append(sum(np.array(spec[j][k][:, l])) / (spec[j][2][1] - spec[j][2][0]))
 
             temp_.append(temp__)
             integrated_spec.append(temp_)

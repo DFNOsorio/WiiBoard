@@ -3,7 +3,7 @@ from DataProcessor import *
 folder_name = '../WiiBoard/Trials/'
 #folder_name = '../Trials/'
 
-patient = 'Liliana1000'
+patient = 'Paulo1000'
 
 ## Loading  and syncing
 
@@ -28,7 +28,7 @@ EMG_zero, EMG_l_zero, EMG_means_zero = load_emg_rest(folder_name+patient+'/Base'
 
 [s1, s2, s3, s4] = zero_out_EMG([s1, s2, s3, s4], EMG_means_zero)
 
-plot = False
+plot = True
 if plot:
     motion_reports(patient, [s1, s2, s3, s4])
 
@@ -44,11 +44,14 @@ print "Psd and spec integral, for each interval"
 
 [s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4])
 
-psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd")
+plot = False
+if plot:
+    spec_psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd")
 
-plot = True
+plot = False
 if plot:
     spectrogram_report([s1, s2, s3, s4], max_flag=True)
+    spec_psd_overlay([s1, s2, s3, s4], dB=True)
 
 plot = False
 if plot:
@@ -66,11 +69,16 @@ print "Filter, for each interval"
 
 [s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4])
 
+plot = True
+if plot:
+    motion_reports(patient+" (10-400 Hz)", [s1, s2, s3, s4], emg_data="filter_EMG_data")
+
+
 print "New spectrogram of each emg, for each interval"
 
 [s1, s2, s3, s4] = add_spec([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_spec_data")
 
-plot = True
+plot = False
 if plot:
     spectrogram_report([s1, s2, s3, s4], max_flag=True, data_var="filter_spec_data")
 

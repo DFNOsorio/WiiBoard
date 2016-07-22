@@ -1,10 +1,10 @@
 from DataProcessor.Printing import *
 
 
-def motion_report(patient, text, data):
+def motion_report(patient, text, data, emg_data):
 
     Wii = data.get_variable("wii_data")
-    EMGs = data.get_variable("open_signals_data")
+    EMGs = data.get_variable(emg_data)
     labels = data.get_variable("labels")
 
     text = text + str(round(Wii[0][-1] - Wii[0][0], 2)) + " s)"
@@ -33,11 +33,11 @@ def motion_report(patient, text, data):
     return f
 
 
-def motion_reports(patient, data):
+def motion_reports(patient, data, emg_data="open_signals_data"):
     title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
                " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
     for i in range(0, len(data)):
-        motion_report(patient, title_1[i], data[i])
+        motion_report(patient, title_1[i], data[i], emg_data)
 
 
 def spectrogram_report(data, max_flag=False, data_var="spec_data"):
@@ -59,7 +59,7 @@ def spectrogram_report(data, max_flag=False, data_var="spec_data"):
         f = plt.figure()
         plt.suptitle(title[i])
         axes_=[]
-        for j in range(0, len(data)):
+        for j in range(0, 4):
             spec = data[i].get_variable(data_var)
             ax = f.add_subplot(2, 2, j + 1)
             ax, im = spectogram_plot(ax, spec[j][1], spec[j][2], spec[j][3], title=data[i].get_variable("labels")[1][j],
@@ -86,7 +86,7 @@ def psd_reports(data, new_var="psd_data"):
         axes1 = []
         axes2 = []
         PSD = data[i].get_variable(new_var)
-        for j in range(0, len(data)):
+        for j in range(0, 4):
 
             ax1 = f.add_subplot(2, 4, j+1)
             PSD_plot(ax1, PSD[j][1], PSD[j][2], title=data[i].get_variable("labels")[1][j])
@@ -109,32 +109,70 @@ def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
     for i in range(0, len(data)):
         f = plt.figure()
         plt.suptitle(title[i])
-        axes = []
+        axes_ = []
         RMS = data[i].get_variable(rms_data)
         EMGs = data[i].get_variable(emg_data)
         current_time = EMGs[0]
-        for j in range(0, len(data)):
+        for j in range(0, 4):
             ax1 = f.add_subplot(2, 2, j+1)
             EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j])
-            axes.append(ax1)
+            axes_.append(ax1)
+        axes.append(axes_)
     return axes
 
 
-def psd_integrated(data, integrated_data="integrated_spec_psd"):
-    title = ["RMS - Two Feet Eyes Open", "RMS - Two Feet Eyes Closed",
-             "RMS - One Feet Eyes Open", "RMS - One Feet Eyes Closed"]
+def spec_psd_integrated(data, integrated_data="integrated_spec_psd"):
+    title = ["EMG Spectrum Energy - Two Feet Eyes Open", "EMG Spectrum Energy - Two Feet Eyes Closed",
+             "EMG Spectrum Energy - One Feet Eyes Open", "EMG Spectrum Energy - One Feet Eyes Closed"]
+
+    axes = []
+
+    for i in range(0, len(data)):
+        f = plt.figure()
+        plt.suptitle(title[i])
+
+        psd_integrated_data = data[i].get_variable(integrated_data)
+        time = data[i].get_variable("spec_data")[0][3]
+        axes_ = []
+        for j in range(0, 4):
+            ax1 = f.add_subplot(2, 2, j + 1)
+            ax1 = axe_populator([time, [psd_integrated_data[j][1]], "Frequency (Hz)", "Energy",
+                                 data[i].get_variable("labels")[1][j], ["Spec Energy"]], ax1, color='k')
+
+            axes_.append(ax1)
+        axes.append(axes_)
+    return axes
+
+
+def spec_psd_overlay(data, data_var_psd="psd_data", data_var_spec="spec_data", alpha=0.1, dB="True"):
+    title = ["EMG Spectrum Energy - Two Feet Eyes Open", "EMG Spectrum Energy - Two Feet Eyes Closed",
+             "EMG Spectrum Energy - One Feet Eyes Open", "EMG Spectrum Energy - One Feet Eyes Closed"]
+    mode = 0
+    if dB:
+        mode = 1
 
     axes = []
     for i in range(0, len(data)):
         f = plt.figure()
         plt.suptitle(title[i])
-        axes = []
 
-        psd_integrated = data[i].get_variable(integrated_data)
-        frequency = data[i].get_variable("spec_data")[0][2]
+        psds = data[i].get_variable(data_var_psd)
+        spec = data[i].get_variable(data_var_spec)
 
-        for j in range(0, len(data)):
+        axes_ = []
+        for j in range(0, 4):
             ax1 = f.add_subplot(2, 2, j + 1)
-            axes.append(ax1)
-    return axes
 
+            frequencies = spec[j][2]
+
+            ax1 = axe_populator([frequencies, [spec[j][mode]], "Frequency (Hz)", "Spec",
+                                 data[i].get_variable("labels")[1][j], ["Spec"]], ax1, alpha=alpha)
+
+            frequencies = psds[j][2]
+
+            ax1 = axe_populator([frequencies, [psds[j][mode]], "Frequency (Hz)", "Psd",
+                                 data[i].get_variable("labels")[1][j], ["Psd"]], ax1, color='k', overlap=True)
+
+            axes_.append(ax1)
+        axes.append(axes_)
+    return axes
