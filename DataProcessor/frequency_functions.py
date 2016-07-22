@@ -1,7 +1,7 @@
 import numpy as np
 from matplotlib import mlab
-#from novainstrumentation.code.filter import bandpass
-from novainstrumentation.filter import bandpass
+from novainstrumentation.code.filter import bandpass
+# from novainstrumentation.filter import bandpass
 
 def fft(x, fs, filtered=True):
 

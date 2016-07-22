@@ -1,7 +1,7 @@
 from DataProcessor.Printing import *
 
 
-def motion_report(patient, text, data, emg_data):
+def motion_report(patient, text, data, emg_data, thresholds):
 
     Wii = data.get_variable("wii_data")
     EMGs = data.get_variable(emg_data)
@@ -30,14 +30,21 @@ def motion_report(patient, text, data, emg_data):
     axe_populator([EMGs[0], [EMGs[3]], "Time (s)", "Raw", labels[1][2], []], gs3_ax[2])
     axe_populator([EMGs[0], [EMGs[4]], "Time (s)", "Raw", labels[1][3], []], gs3_ax[3])
 
+    if thresholds:
+        for i in range(0, 4):
+
+            gs2_ax[i+2].legend("Raw_Data")
+            axe_populator([Wii[7][i][1], [Wii[7][i][0]], "Time (s)", "Vx (m/s)", "Vx", ["Threshold"]], gs2_ax[i+2],
+                          overlap=True, color='r', linestyle='dotted')
+
     return f
 
 
-def motion_reports(patient, data, emg_data="open_signals_data"):
+def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False):
     title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
                " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
     for i in range(0, len(data)):
-        motion_report(patient, title_1[i], data[i], emg_data)
+        motion_report(patient, title_1[i], data[i], emg_data, thresholds)
 
 
 def spectrogram_report(data, max_flag=False, data_var="spec_data"):

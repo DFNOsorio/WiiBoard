@@ -1,5 +1,6 @@
 from frequency_functions import *
 from NOVAOpenSignals.EMG_stats import *
+from NOVAWiiBoard.COPStats import *
 import copy
 
 
@@ -25,8 +26,7 @@ class data_holder:
         if vari_name in self.__dict__["data"]:
             self.__dict__[vari_name] = data
         else:
-            print "No attribute available"
-            print "Choose one of the following: ", self.__dict__["data"]
+            print "No attribute available, please use add_variable"
 
 
 def reformat_time(time_vector, delay):
@@ -71,6 +71,7 @@ def window_segmentation(time_arrays, intervals):
 
 
 def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels, number_of_segments=4):
+    
     # test_1 -> wii     -> time (test_1[0][0])
     #                   -> tl   (test_1[0][1])
     #                   -> tr   (test_1[0][2])
@@ -107,36 +108,28 @@ def segmentator_interval(indexes, wii_arrays, opensignal_arrays, labels, number_
 
 
 def remove_duplicates(wii_segment):
+
     output = wii_segment
     original_size = len(wii_segment[0])
     not_duplicated_indexes = np.where(np.diff(np.array(wii_segment[0])) != 0)[0]
 
     if not_duplicated_indexes[0] != 0:
         output[0][0] = output[0][1] - 0.01
-        output[1][0] = output[1][1]
-        output[2][0] = output[2][1]
-        output[3][0] = output[3][1]
-        output[4][0] = output[4][1]
-        output[5][0] = output[5][1]
+        for i in range(1, 6):
+            output[i][0] = output[i][1]
 
     for j in range(1, original_size-1):
         if j not in not_duplicated_indexes:
             output[0][j] = output[0][j-1] + 0.01
-            output[1][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[1][j-1], output[1][j+1]])
-            output[2][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[2][j-1], output[2][j+1]])
-            output[3][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[3][j-1], output[3][j+1]])
-            output[4][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[4][j-1], output[4][j+1]])
-            output[5][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[5][j-1], output[5][j+1]])
+            for i in range(1, 6):
+                output[i][j] = np.interp(output[0][j], [output[0][j-1], output[0][j+1]], [output[i][j-1], output[i][j+1]])
 
     if original_size-1 not in not_duplicated_indexes:
         j = original_size-1
         output[0][j] = output[0][j-1] + 0.01
-        output[1][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[1][j-2], output[1][j-1]])
-        output[2][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[2][j-2], output[2][j-1]])
-        output[3][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[3][j-2], output[3][j-1]])
-        output[4][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[4][j-2], output[4][j-1]])
-        output[5][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[5][j-2], output[5][j-1]])
-
+        for i in range(1, 6):
+            output[i][j] = np.interp(output[0][j], [output[0][j-2], output[0][j-1]], [output[i][j-2], output[i][j-1]])
+        
     return output
 
 
@@ -190,6 +183,7 @@ def add_COPs(data, COPs):
 
 
 def add_spec(data, fs=1000, window_size=1000, data_var="open_signals_data", new_var="spec_data"):
+
     # test_1  -> psd    -> [Pxx, Pxx_dB, freqs, bins, maxmin Pxx, maxmin Pxxdb] -> EMG1 (test_1[3][0])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][1])
     #                   -> [Pxx, Pxx_dB, freqs, bins] -> EMG2 (test_1[3][2])
@@ -209,6 +203,7 @@ def add_spec(data, fs=1000, window_size=1000, data_var="open_signals_data", new_
 
 
 def add_psd(data, fs=1000, data_var="open_signals_data", new_var="psd_data"):
+    
     # test_1  -> psd    -> [Pxx, Pxx_dB, freqs] -> EMG1 (test_1[4][0])
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][1])
     #                   -> [Pxx, Pxx_dB, freqs] -> EMG2 (test_1[4][2])
@@ -388,6 +383,73 @@ def integrate_spec_psd(data, dB=True, data_var_psd="psd_data", data_var_spec="sp
         data[i].add_variable(new_var, integrated_spec)
     return data
 
+
+def thresholding(vector, time_vector, thresholds):
+    
+    indexes = np.concatenate([np.where(vector <= thresholds[0])[0], np.where(vector >= thresholds[1])[0]])
+
+    if indexes[-1] == len(vector)-1:
+        indexes = indexes[:-2]
+
+    return [list(np.array(vector)[indexes]), list(np.array(time_vector)[indexes])]
+
+
+def a_v_def_thr():
+    a_thr = []
+    v_thr = []
+    for i in range(0, 4):
+        temp_a = []
+        temp_v = []
+        for j in range(0, 2):
+            temp_a.append(['d', 'd'])
+            temp_v.append(['d', 'd'])
+        a_thr.append(temp_a)
+        v_thr.append(temp_v)
+
+    return v_thr, a_thr
+
+
+def a_v_threshold(data, v_th, a_th):
+    Wii = data.get_variable("wii_data")
+
+    time_v = Wii[0][0:-1]
+    time_a = Wii[0][0:-2]
+
+    v = [Wii[6][2], Wii[6][3]]
+    a = [Wii[6][4], Wii[6][5]]
+
+    [v_means, a_means, v_stds, a_stds] = v_and_a_stats(v, a)
+
+    temp_v_th = [v_means[0] - v_stds[0], v_means[0] + v_stds[0], v_means[1] - v_stds[1], v_means[1] + v_stds[1]]
+    temp_a_th = [a_means[0] - a_stds[0], a_means[0] + a_stds[0], a_means[1] - a_stds[1], a_means[1] + a_stds[1]]
+
+    counter = 0
+
+    for i in range(0, 2):
+        for j in range(0, 2):
+            if a_th[i][j] == 'd':
+                a_th[i][j] = temp_a_th[counter]
+            if v_th[i][j] == 'd':
+                v_th[i][j] = temp_v_th[counter]
+
+            counter += 1
+
+    threshold = [thresholding(v[0], time_v, v_th[0]), thresholding(v[1], time_v, v_th[1]),
+                 thresholding(a[0], time_a, a_th[0]), thresholding(a[1], time_a, a_th[1])]
+
+    Wii.append(threshold)
+
+    return Wii
+
+
+def add_threshold(data, default=True, v_th=[], a_th=[]):
+    #   data_holder -> wii_data -> 7 -> [ [THvx, Thvx_time], [THvy, Thvy_time], [THax, Thax_time], [THay, Thay_time] ]
+    if default:
+        v_th, a_th = a_v_def_thr()
+
+    for i in range(0, len(data)):
+        data[i].set_variable('wii_data', a_v_threshold(data[i], v_th[i], a_th[i]))
+    return data
 ########
 
 

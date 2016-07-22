@@ -67,7 +67,7 @@ def ax1_pop(filler, ax):
     return ax
 
 
-def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=1):
+def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=1, linestyle='-'):
     x = data[0]
     yy = data[1]
 
@@ -75,9 +75,9 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=
         add_wii(ax)
     for j in range(0, len(yy)):
         if len(yy) == 1:
-            ax.plot(x, yy[j], color=color, alpha=alpha, label=color+str(j))
+            ax.plot(x, yy[j], color=color, alpha=alpha, label=color+str(j), linestyle=linestyle)
         else:
-            ax.plot(x, yy[j], alpha=alpha, label=color + str(j))
+            ax.plot(x, yy[j], alpha=alpha, label=color + str(j), linestyle=linestyle)
 
     for label in ax.get_xticklabels():
         label.set_fontsize(10)

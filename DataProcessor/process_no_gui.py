@@ -17,20 +17,28 @@ output = sync_files(folder_name, patient, plot=False, high=True)
 
 print "Patient mean weight: " + str(np.mean(s1.get_variable("wii_data")[5]))
 
+print "Removing duplicates"
 
 [s1, s2, s3, s4] = remove_duplicates_batch([s1, s2, s3, s4])
 
+print "Adding COPs"
+
 [s1, s2, s3, s4] = add_COPs([s1, s2, s3, s4], interval_COPs([s1, s2, s3, s4]))
 
-# Zero out data
+print "Adding velocity and acceleration thresholds"
+
+[s1, s2, s3, s4] = add_threshold([s1, s2, s3, s4])
+
+print "Zeroing out data"
 
 EMG_zero, EMG_l_zero, EMG_means_zero = load_emg_rest(folder_name+patient+'/Base')
 
 [s1, s2, s3, s4] = zero_out_EMG([s1, s2, s3, s4], EMG_means_zero)
 
-plot = False
+plot = True
 if plot:
-    motion_reports(patient, [s1, s2, s3, s4])
+    motion_reports(patient, [s1, s2, s3, s4], thresholds=True)
+    plot_show_all()
 
 print "Spectrogram of each emg, for each interval"
 
