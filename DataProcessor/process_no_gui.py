@@ -35,84 +35,94 @@ EMG_zero, EMG_l_zero, EMG_means_zero = load_emg_rest(folder_name+patient+'/Base'
 
 [s1, s2, s3, s4] = zero_out_EMG([s1, s2, s3, s4], EMG_means_zero)
 
-plot = True
-if plot:
-    motion_reports(patient, [s1, s2, s3, s4], thresholds=True)
-    plot_show_all()
+pre_filter = False
 
-print "Spectrogram of each emg, for each interval"
+if pre_filter:
+    print "Spectrogram of each emg, for each interval"
 
-[s1, s2, s3, s4] = add_spec([s1, s2, s3, s4])
+    [s1, s2, s3, s4] = add_spec([s1, s2, s3, s4])
 
-print "Psd, for each interval"
+    print "Psd, for each interval"
 
-[s1, s2, s3, s4] = add_psd([s1, s2, s3, s4])
+    [s1, s2, s3, s4] = add_psd([s1, s2, s3, s4])
 
-print "Psd and spec integral, for each interval"
+    print "Psd and spec integral, for each interval"
 
-[s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4])
+    [s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4])
 
-plot = False
-if plot:
-    spec_psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd")
+    plot = False
+    if plot:
+        spec_psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd")
 
-plot = False
-if plot:
-    spectrogram_report([s1, s2, s3, s4], max_flag=True)
-    spec_psd_overlay([s1, s2, s3, s4], dB=True)
+    plot = False
+    if plot:
+        spectrogram_report([s1, s2, s3, s4], max_flag=True)
+        spec_psd_overlay([s1, s2, s3, s4], dB=True)
 
-plot = False
-if plot:
-    psd_reports([s1, s2, s3, s4])
+    plot = False
+    if plot:
+        psd_reports([s1, s2, s3, s4])
 
-print "RMS, for each interval"
+    print "RMS, for each interval"
 
-[s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000)
+    [s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000)
 
-plot = False
-if plot:
-    rms_reports([s1, s2, s3, s4])
+    plot = False
+    if plot:
+        rms_reports([s1, s2, s3, s4])
 
-print "Filter, for each interval"
+    plot = False
+    if plot:
+        motion_reports(patient, [s1, s2, s3, s4], thresholds=True, rms_data="emg_rms_data")
 
-[s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4], frequencies=[10, 400])
+filtering = True
 
-plot = True
-if plot:
-    motion_reports(patient+" (10-400 Hz)", [s1, s2, s3, s4], emg_data="filter_EMG_data")
+if filtering:
 
+    print "Filter, for each interval"
 
-print "New spectrogram of each emg, for each interval"
+    [s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4], frequencies=[10, 400])
 
-[s1, s2, s3, s4] = add_spec([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_spec_data")
+    print "New spectrogram of each emg, for each interval"
 
-print "New psd, for each interval"
+    [s1, s2, s3, s4] = add_spec([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_spec_data")
 
-[s1, s2, s3, s4] = add_psd([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_psd_data")
+    print "New psd, for each interval"
 
-plot = False
-if plot:
-    spectrogram_report([s1, s2, s3, s4], max_flag=True, data_var="filter_spec_data")
-    spec_psd_overlay([s1, s2, s3, s4], dB=True, data_var_psd="filter_psd_data", data_var_spec="filter_spec_data")
+    [s1, s2, s3, s4] = add_psd([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_psd_data")
 
+    plot = True
+    if plot:
+        spectrogram_report([s1, s2, s3, s4], max_flag=True, data_var="filter_spec_data")
+        spec_psd_overlay([s1, s2, s3, s4], dB=True, data_var_psd="filter_psd_data", data_var_spec="filter_spec_data")
 
-plot = False
-if plot:
-    psd_reports([s1, s2, s3, s4], new_var="filter_psd_data")
+    plot = False
+    if plot:
+        psd_reports([s1, s2, s3, s4], new_var="filter_psd_data")
 
-print "Psd and spec integral (after_filtering), for each interval"
+    print "Psd and spec integral (after_filtering), for each interval"
 
-[s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4], data_var_psd="filter_psd_data",
-                                      data_var_spec="filter_spec_data", new_var="integrated_spec_psd_filtered")
+    [s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4], data_var_psd="filter_psd_data",
+                                          data_var_spec="filter_spec_data", new_var="integrated_spec_psd_filtered")
 
-plot = False
-if plot:
-    spec_psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd_filtered")
+    plot = False
+    if plot:
+        spec_psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd_filtered")
 
-print "New RMS, for each interval"
+    print "New RMS, for each interval"
 
-[s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000,
-                               data_var="filter_EMG_data", new_var="emg_rms_data_filtered")
+    [s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=500,
+                                   data_var="filter_EMG_data", new_var="emg_rms_data_filtered")
+
+    plot = True
+    if plot:
+        rms_reports([s1, s2, s3, s4], rms_data="emg_rms_data_filtered", emg_data="filter_EMG_data")
+
+    plot = False
+    if plot:
+        motion_reports(patient+" (10-400 Hz)", [s1, s2, s3, s4], emg_data="filter_EMG_data", thresholds=False,
+                       rms_data="emg_rms_data_filtered")
+
 # TODO
 # Thresholds para a e para v
 # Contorno

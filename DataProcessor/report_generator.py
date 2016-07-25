@@ -1,7 +1,8 @@
 from DataProcessor.Printing import *
+from DataProcessor.processing_methods import RMS_moving_window
 
 
-def motion_report(patient, text, data, emg_data, thresholds):
+def motion_report(patient, text, data, emg_data, thresholds, rms_data):
 
     Wii = data.get_variable("wii_data")
     EMGs = data.get_variable(emg_data)
@@ -34,23 +35,109 @@ def motion_report(patient, text, data, emg_data, thresholds):
         for i in range(0, 4):
 
             gs2_ax[i+2].legend("Raw_Data")
+
             axe_populator([Wii[7][i][1], [Wii[7][i][0]], "Time (s)", "Vx (m/s)", "Vx", ["Threshold"]], gs2_ax[i+2],
                           overlap=True, color='r', linestyle='dotted')
+
+    if rms_data is not False:
+        RMS = data.get_variable(rms_data)
+        for i in range(0, 4):
+
+            gs3_ax[i].legend("Raw_Data")
+            add_newaxis(gs3_ax[i], EMGs[0], RMS[i], "RMS", legend="RMS", axis_lim=True)
 
     return f
 
 
-def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False):
+def COP_report(patient, text, data, emg_data, rms_data):
+
+    Wii = data.get_variable("wii_data")
+    labels = data.get_variable("labels")
+    RMS = data.get_variable(rms_data)
+    EMGs = data.get_variable(emg_data)
+
+    text = text + str(round(Wii[0][-1] - Wii[0][0], 2)) + " s)"
+
+    f, gs1_ax, gs2_ax = grid_cops(patient + text)
+
+    axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "COPx (mm)", "COPx", []], gs1_ax[0])
+    axe_populator([Wii[0][0:-1], [Wii[6][2]], "Time (s)", "Vx (m/s)", "Vx", []], gs1_ax[2])
+    axe_populator([Wii[0][0:-2], [Wii[6][4]], "Time (s)", "Ax (m2/s)", "Ax", []], gs1_ax[4])
+
+    axe_populator([Wii[0], [Wii[6][1]], "Time (s)", "COPy (mm)", "COPy", []], gs1_ax[1])
+    axe_populator([Wii[0][0:-1], [Wii[6][3]], "Time (s)", "Vy (m/s)", "Vy", []], gs1_ax[3])
+    axe_populator([Wii[0][0:-2], [Wii[6][5]], "Time (s)", "Ay (m2/s)", "Ay", []], gs1_ax[5])
+
+    for i in range(0, 4):
+        axe_populator([EMGs[0], [RMS[i]], "Time (s)", "RMS", labels[1][i], []], gs2_ax[i])
+
+
+def comparing_report(patient, text, data, emg_data, rms_data):
+
+    Wii = data.get_variable("wii_data")
+    labels = data.get_variable("labels")
+    RMS = data.get_variable(rms_data)
+    EMGs = data.get_variable(emg_data)
+
+    text = text + str(round(Wii[0][-1] - Wii[0][0], 2)) + " s)"
+
+    f, gs1_ax, gs2_ax = grid_overlay(patient + text)
+
+    axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "Norm", "COPx", ["Wii"]],
+                  gs1_ax[0], norm=True, offset=True)
+    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[0], norm=True, overlap=True,
+                  offset=True, offset_index=0)
+
+    axe_populator([Wii[0], [Wii[6][1]], "Time (s)", "Norm", "COPy", ["Wii"]],
+                  gs1_ax[1], norm=True, offset=True)
+    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[1], norm=True, overlap=True,
+                  offset=True, offset_index=0)
+
+    axe_populator([Wii[0][0:-1], [Wii[6][2]], "Time (s)", "Norm", "Vx", ["Wii"]], gs1_ax[2], norm=True)
+    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[2], norm=True, overlap=True,
+                  offset=True)
+
+    axe_populator([Wii[0][0:-1], [Wii[6][3]], "Time (s)", "Norm", "Vy", ["Wii"]], gs1_ax[3], norm=True)
+    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[3], norm=True, overlap=True,
+                  offset=True)
+
+    axe_populator([Wii[0][0:-2], [Wii[6][4]], "Time (s)", "Norm", "Ax", ["Wii"]], gs1_ax[4], norm=True)
+    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[4], norm=True, overlap=True,
+                  offset=True)
+
+    axe_populator([Wii[0][0:-2], [Wii[6][5]], "Time (s)", "Norm", "Ay", ["Wii"]], gs1_ax[5], norm=True)
+    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[5], norm=True, overlap=True,
+                  offset=True)
+
+    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "All", labels[1][0:4]], gs2_ax[0], norm=True, overlap=False,
+                  offset=False)
+
+    axe_populator([EMGs[0], [RMS[0], RMS[3]], "Time (s)", "RMS", "Right Side", [labels[1][0], labels[1][3]]], gs2_ax[1],
+                  norm=True, overlap=False, offset=False)
+
+    axe_populator([EMGs[0], [RMS[1], RMS[2]], "Time (s)", "RMS", "Left Side", [labels[1][1], labels[1][2]]], gs2_ax[2],
+                  norm=True, overlap=False, offset=False)
+
+    axe_populator([EMGs[0], [RMS[2], RMS[3]], "Time (s)", "RMS", "Back Side", [labels[1][2], labels[1][3]]], gs2_ax[3],
+                  norm=True, overlap=False, offset=False)
+
+    axe_populator([EMGs[0], [RMS[0], RMS[1]], "Time (s)", "RMS", "Front Side", [labels[1][0], labels[1][1]]], gs2_ax[4],
+                  norm=True, overlap=False, offset=False)
+
+
+def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False, rms_data=False):
     title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
                " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
     for i in range(0, len(data)):
-        motion_report(patient, title_1[i], data[i], emg_data, thresholds)
+        motion_report(patient, title_1[i], data[i], emg_data, thresholds, rms_data)
+
+        comparing_report(patient, title_1[i], data[i], emg_data, rms_data)
 
 
 def spectrogram_report(data, max_flag=False, data_var="spec_data"):
 
     title = ["Spectrogram - Two Feet Eyes Open (1 s segments)", "Spectrogram - Two Feet Eyes Closed (1 s segments)",
-              "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
+             "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
     axes = []
     max_ = 0
     min_ = 100
@@ -115,7 +202,7 @@ def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
     axes = []
     for i in range(0, len(data)):
         f = plt.figure()
-        plt.suptitle(title[i])
+        plt.figtext(0.08, 0.95, title[i], fontsize=20)
         axes_ = []
         RMS = data[i].get_variable(rms_data)
         EMGs = data[i].get_variable(emg_data)
@@ -125,6 +212,8 @@ def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
             EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j])
             axes_.append(ax1)
         axes.append(axes_)
+        plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.03, right=0.98)
+
     return axes
 
 

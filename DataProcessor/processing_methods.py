@@ -281,7 +281,7 @@ def RMS_moving_window(EMG, window_size):
     for i in range(starting_index, ending_index):
         start = i - starting_index
         end = i + starting_index
-        RMS.append(RMS_EMG (EMG[start:end]))
+        RMS.append(RMS_EMG(EMG[start:end]))
     for i in range(ending_index, len (EMG)):
         start = i - starting_index
         end = len(EMG) - 1

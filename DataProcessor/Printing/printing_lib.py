@@ -67,16 +67,26 @@ def ax1_pop(filler, ax):
     return ax
 
 
-def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=1, linestyle='-'):
+def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='#005ca1', alpha=1, linestyle='-', norm=False,
+                  offset=False, offset_index=0):
     x = data[0]
     yy = data[1]
 
     if wii:
         add_wii(ax)
     for j in range(0, len(yy)):
-        if len(yy) == 1:
+        if len(yy) == 1 and norm is False:
             ax.plot(x, yy[j], color=color, alpha=alpha, label=color+str(j), linestyle=linestyle)
         else:
+            if norm is True:
+
+                yy[j] = (np.array(yy[j]) - np.min(yy[j]))
+                yy[j] /= np.max(yy[j])
+                if offset:
+                    yy[j] += j
+                    if overlap:
+                        yy[j] += 1 + offset_index
+
             ax.plot(x, yy[j], alpha=alpha, label=color + str(j), linestyle=linestyle)
 
     for label in ax.get_xticklabels():
@@ -87,9 +97,6 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=
     if len(xlim) == 0:
         xlim = [x[0], x[-1]]
 
-    ax.set_xlabel(data[2], fontsize=10)
-    ax.set_ylabel(data[3], fontsize=10)
-    ax.set_title(data[4], fontsize=14)
     if not wii:
         ax.set_xlim(xlim)
 
@@ -98,11 +105,13 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=
         new_legend = []
         for j in range(0, len(previous_legend)):
             new_legend.append(previous_legend[j].get_text())
+        handles_num = len(data[5])
 
         ax.legend(data[5], fontsize=10)
+
         h, l = ax.get_legend_handles_labels()
 
-        handles = list(np.concatenate([h[0:len(previous_legend)], [h[-1]]]))
+        handles = list(np.concatenate([h[0:len(previous_legend)], h[-handles_num:len(h)]]))
 
         new_legend = list(np.concatenate([new_legend, data[5]]))
 
@@ -110,11 +119,14 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='b', alpha=
 
     elif not overlap:
         ax.legend(data[5], fontsize=10)
+        ax.set_xlabel(data[2], fontsize=10)
+        ax.set_ylabel(data[3], fontsize=10)
+        ax.set_title(data[4], fontsize=14)
 
     return ax
 
 
-def axe_populator_psd_spec(data, ax, color='k', y_datal="PSD (dB)", alpha=0.1, xlim=[]):
+def axe_populator_psd_spec(data, ax, color='#005ca1', y_datal="PSD (dB)", alpha=0.1, xlim=[]):
     x_psd = data[0]
     y_psd = data[1]
     ax.plot(x_psd, y_psd, color='k')
@@ -171,8 +183,8 @@ def add_hlines_intervals(axis, intervals, means, time, linestyle='-', linecolor=
             if type(means_interval) is not list:
                 means_interval = [means_interval]
             for t in means_interval:
-                axis[i].plot([time[intervals[j][0]], time[intervals[j][1]]], [t, t], linestyle + linecolor,
-                             label="NEW" + str(j))
+                axis[i].plot([time[intervals[j][0]], time[intervals[j][1]]], [t, t], linestyle=linestyle,
+                             color=linecolor, label="NEW" + str(j))
                 axis[i].set_xlim([0, time[len(time) - 1]])
         h, l = axis[i].get_legend_handles_labels()
         h[len(previous_legend)].set_color(linecolor)
@@ -212,12 +224,14 @@ def add_indexes(axix, xx, yy, window):
                   )
 
 
-def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend='New'):
+def add_newaxis(axis, xx, yy, label, linestyle='-', alpha=0.5, linecolor='#a3a3a3', legend='New', axis_lim=False, grid=False):
     ax2 = axis.twinx()
-    ax2.plot(xx, yy, linestyle+linecolor, label="NEW")
+    ax2.plot(xx, yy, linestyle=linestyle, color=linecolor, label="NEW", alpha=alpha)
     ax2.set_ylabel(label)
     ax2.legend(legend)
-
+    plt.autoscale(enable=True, axis='x', tight=True)
+    if axis_lim:
+        ax2.set_ylim([-np.max(yy), np.max(yy)])
     previous_legend = axis.get_legend().get_texts()
     new_legend = []
     for j in range(0, len(previous_legend)):
@@ -229,7 +243,8 @@ def add_newaxis(axis, xx, yy, label, linestyle='-', linecolor="k", legend='New')
     ax2.legend("")
     new_legend.append(legend)
     axis.legend(handles=list(np.concatenate([h1, h])), labels=new_legend)
-
+    if grid is False:
+        ax2.grid(b=False)
     return [axis, ax2]
 
 
@@ -357,9 +372,6 @@ def spec_representation_color(ax, powerDb, freq, time, title="Spectrogram"):
     ax.set_title(title)
 
     return ax
-
-
-
 
 
 def LibPhysColorMap(number=1, number_of_colors=256):
