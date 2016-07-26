@@ -71,6 +71,8 @@ def COP_report(patient, text, data, emg_data, rms_data):
     for i in range(0, 4):
         axe_populator([EMGs[0], [RMS[i]], "Time (s)", "RMS", labels[1][i], []], gs2_ax[i])
 
+    return f
+
 
 def comparing_report(patient, text, data, emg_data, rms_data):
 
@@ -124,14 +126,21 @@ def comparing_report(patient, text, data, emg_data, rms_data):
     axe_populator([EMGs[0], [RMS[0], RMS[1]], "Time (s)", "RMS", "Front Side", [labels[1][0], labels[1][1]]], gs2_ax[4],
                   norm=True, overlap=False, offset=False)
 
+    return f
 
 def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False, rms_data=False):
     title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
                " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
+    montion_figs = []
+    comparing_figs = []
     for i in range(0, len(data)):
-        motion_report(patient, title_1[i], data[i], emg_data, thresholds, rms_data)
+        f1 = motion_report(patient, title_1[i], data[i], emg_data, thresholds, rms_data)
 
-        comparing_report(patient, title_1[i], data[i], emg_data, rms_data)
+        f2 = comparing_report(patient, title_1[i], data[i], emg_data, rms_data)
+        montion_figs.append(f1)
+        comparing_figs.append(f2)
+
+    return montion_figs, comparing_figs
 
 
 def spectrogram_report(data, max_flag=False, data_var="spec_data"):
@@ -139,6 +148,7 @@ def spectrogram_report(data, max_flag=False, data_var="spec_data"):
     title = ["Spectrogram - Two Feet Eyes Open (1 s segments)", "Spectrogram - Two Feet Eyes Closed (1 s segments)",
              "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
     axes = []
+    figures = []
     max_ = 0
     min_ = 100
     for i in range(0, len(data)):
@@ -167,13 +177,15 @@ def spectrogram_report(data, max_flag=False, data_var="spec_data"):
         im.set_clim(max([-50, int(min_)]), int(max_))
         cbar.set_label('Power Spectral Density (dB)')
         plt.subplots_adjust(hspace=0.34, top=0.90, bottom=0.09, left=0.10, right=0.90, wspace=0.27)
-    return axes
+        figures.append(f)
+    return figures, axes
 
 
 def psd_reports(data, new_var="psd_data"):
     title = ["PSD - Two Feet Eyes Open", "PSD - Two Feet Eyes Closed",
              "PSD - One Feet Eyes Open", "PSD - One Feet Eyes Closed"]
     axes = []
+    figures =[]
     for i in range(0, len(data)):
         f = plt.figure()
         plt.suptitle(title[i])
@@ -193,13 +205,15 @@ def psd_reports(data, new_var="psd_data"):
             axes2.append(ax2)
 
         axes.append(np.concatenate([axes1, axes2]))
-    return axes
+        figures.append(f)
+    return figures, axes
 
 
 def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
     title = ["RMS - Two Feet Eyes Open", "RMS - Two Feet Eyes Closed",
              "RMS - One Feet Eyes Open", "RMS - One Feet Eyes Closed"]
     axes = []
+    figures = []
     for i in range(0, len(data)):
         f = plt.figure()
         plt.figtext(0.08, 0.95, title[i], fontsize=20)
@@ -213,8 +227,8 @@ def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
             axes_.append(ax1)
         axes.append(axes_)
         plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.03, right=0.98)
-
-    return axes
+        figures.append(f)
+    return figures, axes
 
 
 def spec_psd_integrated(data, integrated_data="integrated_spec_psd"):
@@ -222,7 +236,7 @@ def spec_psd_integrated(data, integrated_data="integrated_spec_psd"):
              "EMG Spectrum Energy - One Feet Eyes Open", "EMG Spectrum Energy - One Feet Eyes Closed"]
 
     axes = []
-
+    figures = []
     for i in range(0, len(data)):
         f = plt.figure()
         plt.suptitle(title[i])
@@ -237,7 +251,8 @@ def spec_psd_integrated(data, integrated_data="integrated_spec_psd"):
 
             axes_.append(ax1)
         axes.append(axes_)
-    return axes
+        figures.append(f)
+    return figures, axes
 
 
 def spec_psd_overlay(data, data_var_psd="psd_data", data_var_spec="spec_data", alpha=0.1, dB="True"):
@@ -248,6 +263,7 @@ def spec_psd_overlay(data, data_var_psd="psd_data", data_var_spec="spec_data", a
         mode = 1
 
     axes = []
+    figures = []
     for i in range(0, len(data)):
         f = plt.figure()
         plt.suptitle(title[i])
@@ -271,4 +287,5 @@ def spec_psd_overlay(data, data_var_psd="psd_data", data_var_spec="spec_data", a
 
             axes_.append(ax1)
         axes.append(axes_)
-    return axes
+        figures.append(f)
+    return figures, axes

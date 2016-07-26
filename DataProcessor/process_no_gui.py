@@ -116,12 +116,14 @@ if filtering:
 
     plot = True
     if plot:
-        rms_reports([s1, s2, s3, s4], rms_data="emg_rms_data_filtered", emg_data="filter_EMG_data")
+        rms_figs, axes = rms_reports([s1, s2, s3, s4], rms_data="emg_rms_data_filtered", emg_data="filter_EMG_data")
 
     plot = False
     if plot:
-        motion_reports(patient+" (10-400 Hz)", [s1, s2, s3, s4], emg_data="filter_EMG_data", thresholds=False,
-                       rms_data="emg_rms_data_filtered")
+        motion_figs, comparing_figs = motion_reports(patient+" (10-400 Hz)", [s1, s2, s3, s4],
+                                                     emg_data="filter_EMG_data", thresholds=False, rms_data="emg_rms_data_filtered")
+
+    pdf_generator(rms_figs, patient, foldername='../WiiBoard/DataProcessor/Images/')
 
 # TODO
 # Thresholds para a e para v
@@ -130,6 +132,7 @@ if filtering:
 # SinalPositivo
 # Tirar eventos da acelaracao e da velocidade
 # ligar eventos
+# Adaptar para usar cython
 
 
 ######### reports para os valores integrados
