@@ -1,4 +1,5 @@
 import numpy as np
+from novainstrumentation import smooth
 
 
 def integrated_EMG(EMG_window):
@@ -25,7 +26,12 @@ def variance(EMG_window):
 
 
 def RMS_EMG(EMG_window):
+
     EMG_len = len(EMG_window)
     EMG_Power = np.array(EMG_window)**2
 
     return np.sqrt(1.0/EMG_len * sum(EMG_Power))
+
+
+def emg_smoother(emg, window):
+        return list(smooth(np.abs(np.array(emg)), window_len=window))

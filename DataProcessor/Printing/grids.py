@@ -110,7 +110,7 @@ def grid_overlay(text):
     gs1 = [gs1_ax1, gs1_ax2, gs1_ax3, gs1_ax4, gs1_ax5, gs1_ax6]
 
     gs2 = GridSpec(3, 2)
-    gs2.update(left=0.69, right=0.98, wspace=0.3, hspace=0.15)
+    gs2.update(left=0.69, right=0.98, wspace=0.3, hspace=0.25)
 
     gs2_ax1 = plt.subplot(gs2[0, :])
     gs2_ax2 = plt.subplot(gs2[1, 0])

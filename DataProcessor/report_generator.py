@@ -14,7 +14,8 @@ def motion_report(patient, text, data, emg_data, thresholds, rms_data):
 
     axe_populator([Wii[6][0], [Wii[6][1]], "COPx (mm)", "COPy (mm)", "COP", []], gs1_ax[0], wii=True)
     axe_populator([EMGs[0], [EMGs[5], EMGs[6], EMGs[7]], "Time (s)", "Raw data", "Accelerometer data",
-                   labels[1][4:7]], gs1_ax[1], xlim=[min(EMGs[0]), max(EMGs[0])+5])
+                   labels[1][4:7]], gs1_ax[1], n_col=3,
+                  ylim=[np.min([EMGs[5], EMGs[6], EMGs[7]])*0.95, np.max([EMGs[5], EMGs[6], EMGs[7]])*1.05])
     axe_populator([EMGs[0], [EMGs[8]], "Time (s)", "Raw data", "ECG data",
                    []], gs1_ax[2])
 
@@ -85,48 +86,59 @@ def comparing_report(patient, text, data, emg_data, rms_data):
 
     f, gs1_ax, gs2_ax = grid_overlay(patient + text)
 
-    axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "Norm", "COPx", ["Wii"]],
+    axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "Norm", "COPx", ["COPx"]],
                   gs1_ax[0], norm=True, offset=True)
     axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[0], norm=True, overlap=True,
-                  offset=True, offset_index=0)
+                  offset=True, offset_index=0, legend_outside=True)
 
-    axe_populator([Wii[0], [Wii[6][1]], "Time (s)", "Norm", "COPy", ["Wii"]],
+    axe_populator([Wii[0], [Wii[6][1]], "Time (s)", "Norm", "COPy", ["COPy"]],
                   gs1_ax[1], norm=True, offset=True)
     axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[1], norm=True, overlap=True,
-                  offset=True, offset_index=0)
+                  offset=True, offset_index=0, legend_outside=True)
 
-    axe_populator([Wii[0][0:-1], [Wii[6][2]], "Time (s)", "Norm", "Vx", ["Wii"]], gs1_ax[2], norm=True)
+    axe_populator([Wii[0][0:-1], [Wii[6][2]], "Time (s)", "Norm", "Vx", ["Vx"]], gs1_ax[2], norm=True)
     axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[2], norm=True, overlap=True,
-                  offset=True)
+                  offset=True, legend_outside=True)
 
-    axe_populator([Wii[0][0:-1], [Wii[6][3]], "Time (s)", "Norm", "Vy", ["Wii"]], gs1_ax[3], norm=True)
+    axe_populator([Wii[0][0:-1], [Wii[6][3]], "Time (s)", "Norm", "Vy", ["Vy"]], gs1_ax[3], norm=True)
     axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[3], norm=True, overlap=True,
-                  offset=True)
+                  offset=True, legend_outside=True)
 
-    axe_populator([Wii[0][0:-2], [Wii[6][4]], "Time (s)", "Norm", "Ax", ["Wii"]], gs1_ax[4], norm=True)
+    axe_populator([Wii[0][0:-2], [Wii[6][4]], "Time (s)", "Norm", "Ax", ["Ax"]], gs1_ax[4], norm=True)
     axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[4], norm=True, overlap=True,
-                  offset=True)
+                  offset=True, legend_outside=True)
 
-    axe_populator([Wii[0][0:-2], [Wii[6][5]], "Time (s)", "Norm", "Ay", ["Wii"]], gs1_ax[5], norm=True)
+    axe_populator([Wii[0][0:-2], [Wii[6][5]], "Time (s)", "Norm", "Ay", ["Ay"]], gs1_ax[5], norm=True)
     axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "COPx", labels[1][0:4]], gs1_ax[5], norm=True, overlap=True,
-                  offset=True)
+                  offset=True, legend_outside=True)
 
-    axe_populator([EMGs[0], RMS, "Time (s)", "RMS", "All", labels[1][0:4]], gs2_ax[0], norm=True, overlap=False,
-                  offset=False)
+    axe_populator([Wii[0], [Wii[6][0], Wii[6][1]], "Time (s)", "Norm", "COPs", ["COPx", "COPy"]], gs2_ax[0], norm=True,
+                  overlap=False, offset=True)
+    axe_populator([Wii[0], [Wii[6][0], Wii[6][1]], "Time (s)", "Norm", "COPx", ["COPx", "COPy"]],
+                  gs2_ax[0], norm=True, offset=False, overlap=True, offset_index=1.05, legend_outside=True)
 
     axe_populator([EMGs[0], [RMS[0], RMS[3]], "Time (s)", "RMS", "Right Side", [labels[1][0], labels[1][3]]], gs2_ax[1],
                   norm=True, overlap=False, offset=False)
+    axe_populator([EMGs[0], [np.array(RMS[0]) - np.array(RMS[3])], "Time (s)", "RMS", "Right Side", ["Subtraction"]],
+                  gs2_ax[1], norm=True, overlap=True, offset=True, offset_index=0.05, ylim=[0, 2.5], n_col=3, leg_font=7)
 
     axe_populator([EMGs[0], [RMS[1], RMS[2]], "Time (s)", "RMS", "Left Side", [labels[1][1], labels[1][2]]], gs2_ax[2],
                   norm=True, overlap=False, offset=False)
+    axe_populator([EMGs[0], [np.array(RMS[1]) - np.array(RMS[2])], "Time (s)", "RMS", "Right Side", ["Subtraction"]],
+                  gs2_ax[2], norm=True, overlap=True, offset=True, offset_index=0.05, ylim=[0, 2.5], n_col=3, leg_font=7)
 
     axe_populator([EMGs[0], [RMS[2], RMS[3]], "Time (s)", "RMS", "Back Side", [labels[1][2], labels[1][3]]], gs2_ax[3],
                   norm=True, overlap=False, offset=False)
+    axe_populator([EMGs[0], [np.array(RMS[2]) - np.array(RMS[3])], "Time (s)", "RMS", "Right Side", ["Subtraction"]],
+                  gs2_ax[3], norm=True, overlap=True, offset=True, offset_index=0.05, ylim=[0, 2.5], n_col=3, leg_font=7)
 
     axe_populator([EMGs[0], [RMS[0], RMS[1]], "Time (s)", "RMS", "Front Side", [labels[1][0], labels[1][1]]], gs2_ax[4],
                   norm=True, overlap=False, offset=False)
+    axe_populator([EMGs[0], [np.array(RMS[0]) - np.array(RMS[1])], "Time (s)", "RMS", "Right Side", ["Subtraction"]],
+                  gs2_ax[4], norm=True, overlap=True, offset=True, offset_index=0.05, ylim=[0, 2.5], n_col=3, leg_font=7)
 
     return f
+
 
 def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False, rms_data=False):
     title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
@@ -161,7 +173,7 @@ def spectrogram_report(data, max_flag=False, data_var="spec_data"):
 
     for i in range(0, len(data)):
         f = plt.figure()
-        plt.suptitle(title[i])
+        plt.figtext(0.08, 0.95, title[i], fontsize=20)
         axes_=[]
         for j in range(0, 4):
             spec = data[i].get_variable(data_var)
@@ -188,7 +200,7 @@ def psd_reports(data, new_var="psd_data"):
     figures =[]
     for i in range(0, len(data)):
         f = plt.figure()
-        plt.suptitle(title[i])
+        plt.figtext(0.08, 0.95, title[i], fontsize=20)
         axes1 = []
         axes2 = []
         PSD = data[i].get_variable(new_var)
@@ -223,31 +235,33 @@ def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
         current_time = EMGs[0]
         for j in range(0, 4):
             ax1 = f.add_subplot(2, 2, j+1)
-            EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j])
+            EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j],
+                        legend_outside=True)
             axes_.append(ax1)
         axes.append(axes_)
-        plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.03, right=0.98)
+        plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.05, right=0.95)
         figures.append(f)
     return figures, axes
 
 
-def spec_psd_integrated(data, integrated_data="integrated_spec_psd"):
-    title = ["EMG Spectrum Energy - Two Feet Eyes Open", "EMG Spectrum Energy - Two Feet Eyes Closed",
-             "EMG Spectrum Energy - One Feet Eyes Open", "EMG Spectrum Energy - One Feet Eyes Closed"]
+def spec_psd_integrated(data, integrated_data="integrated_spec_psd", spec_data = "spec_data" ):
+    title = ["EMG Spectrum - Two Feet Eyes Open", "EMG Spectrum - Two Feet Eyes Closed",
+             "EMG Spectrum - One Feet Eyes Open", "EMG Spectrum - One Feet Eyes Closed"]
 
     axes = []
     figures = []
     for i in range(0, len(data)):
         f = plt.figure()
-        plt.suptitle(title[i])
+        plt.figtext(0.08, 0.95, title[i], fontsize=20)
 
         psd_integrated_data = data[i].get_variable(integrated_data)
-        time = data[i].get_variable("spec_data")[0][3]
+        time = data[i].get_variable(spec_data)[0][3]
         axes_ = []
         for j in range(0, 4):
             ax1 = f.add_subplot(2, 2, j + 1)
             ax1 = axe_populator([time, [psd_integrated_data[j][1]], "Frequency (Hz)", "Energy",
-                                 data[i].get_variable("labels")[1][j], ["Spec Energy"]], ax1, color='k')
+                                 data[i].get_variable("labels")[1][j], ["Spec Energy"]], ax1, color='k',
+                                legend_outside=True)
 
             axes_.append(ax1)
         axes.append(axes_)
@@ -266,7 +280,7 @@ def spec_psd_overlay(data, data_var_psd="psd_data", data_var_spec="spec_data", a
     figures = []
     for i in range(0, len(data)):
         f = plt.figure()
-        plt.suptitle(title[i])
+        plt.figtext(0.08, 0.95, title[i], fontsize=20)
 
         psds = data[i].get_variable(data_var_psd)
         spec = data[i].get_variable(data_var_spec)

@@ -6,6 +6,7 @@ import matplotlib.colors as col
 from matplotlib.pyplot import cm
 from scipy.misc import imread
 import numpy as np
+import pylab
 
 
 def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend=[]):
@@ -67,8 +68,8 @@ def ax1_pop(filler, ax):
     return ax
 
 
-def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='#005ca1', alpha=1, linestyle='-', norm=False,
-                  offset=False, offset_index=0):
+def axe_populator(data, ax, wii=False, xlim=[], ylim=[], overlap=False, color='#005ca1', alpha=1, linestyle='-',
+                  norm=False, offset=False, offset_index=0, legend_outside=False, n_col=1, leg_font=10):
     x = data[0]
     yy = data[1]
 
@@ -84,8 +85,8 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='#005ca1', 
                 yy[j] /= np.max(yy[j])
                 if offset:
                     yy[j] += j
-                    if overlap:
-                        yy[j] += 1 + offset_index
+                if overlap:
+                    yy[j] += 1 + offset_index
 
             ax.plot(x, yy[j], alpha=alpha, label=color + str(j), linestyle=linestyle)
 
@@ -94,11 +95,15 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='#005ca1', 
 
     for label in ax.get_yticklabels():
         label.set_fontsize(10)
+
     if len(xlim) == 0:
         xlim = [x[0], x[-1]]
 
     if not wii:
         ax.set_xlim(xlim)
+
+    if len(ylim) == 2:
+        ax.set_ylim([ylim[0], ylim[-1]])
 
     if overlap:
         previous_legend = ax.get_legend().get_texts()
@@ -107,7 +112,7 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='#005ca1', 
             new_legend.append(previous_legend[j].get_text())
         handles_num = len(data[5])
 
-        ax.legend(data[5], fontsize=10)
+        ax.legend(data[5], fontsize=leg_font)
 
         h, l = ax.get_legend_handles_labels()
 
@@ -115,13 +120,28 @@ def axe_populator(data, ax, wii=False, xlim=[], overlap=False, color='#005ca1', 
 
         new_legend = list(np.concatenate([new_legend, data[5]]))
 
-        ax.legend(handles=handles, labels=new_legend, fontsize=10)
+        ax.legend(handles=handles, labels=new_legend, fontsize=leg_font, ncol=n_col)
+
+        if legend_outside:
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+
+            # Put a legend to the right of the current axis
+            ax.legend(handles=handles, labels=new_legend, fontsize=leg_font, loc='center left', bbox_to_anchor=(1, 0.5),
+                      ncol=n_col)
 
     elif not overlap:
-        ax.legend(data[5], fontsize=10)
+        ax.legend(data[5], fontsize=10, ncol=n_col)
         ax.set_xlabel(data[2], fontsize=10)
         ax.set_ylabel(data[3], fontsize=10)
         ax.set_title(data[4], fontsize=14)
+
+        if legend_outside:
+            box = ax.get_position()
+            ax.set_position([box.x0, box.y0, box.width * 0.9, box.height])
+
+            # Put a legend to the right of the current axis
+            ax.legend(data[5], fontsize=10, loc='center left', bbox_to_anchor=(1, 0.5))
 
     return ax
 
@@ -232,6 +252,7 @@ def add_newaxis(axis, xx, yy, label, linestyle='-', alpha=0.5, linecolor='#a3a3a
     plt.autoscale(enable=True, axis='x', tight=True)
     if axis_lim:
         ax2.set_ylim([-np.max(yy), np.max(yy)])
+
     previous_legend = axis.get_legend().get_texts()
     new_legend = []
     for j in range(0, len(previous_legend)):
@@ -282,12 +303,12 @@ def PSD_plot(ax, Pxx, freqs, title="Power Spectral Density", y_label="Power Spec
     return ax
 
 
-def EMGRMS_plot(ax, x, y, title):
+def EMGRMS_plot(ax, x, y, title, n_col=1, y_lim=[]):
     ax.plot(x, y[0], label="EMG")
     ax.set_title(title)
     ax.set_ylabel("Raw data")
     ax.set_xlabel("Time (s)")
-    ax.legend("EMG")
+    ax.legend(["EMG"])
     ax.set_ylim([-np.max([np.max(y[0]), -np.min(y[0])]), np.max([np.max(y[0]), -np.min(y[0])])])
 
     ax2 = ax.twinx()
@@ -297,17 +318,20 @@ def EMGRMS_plot(ax, x, y, title):
     ax2.legend("RMS")
     ax2.set_ylim([-np.max(y[1]), np.max(y[1])])
 
+    if len(y_lim) == 2:
+        ax.set_ylim([y_lim[0], y_lim[-1]])
+
     previous_legend = ax.get_legend().get_texts()
     new_legend = []
     for j in range(0, len(previous_legend)):
+
         new_legend.append(previous_legend[j].get_text())
 
     h, l = ax2.get_legend_handles_labels()
     h1, l1 = ax.get_legend_handles_labels()
-
     ax2.legend("")
     new_legend.append("RMS")
-    ax.legend(handles=list(np.concatenate([h1, h])), labels=new_legend)
+    ax.legend(handles=list(np.concatenate([h1, h])), labels=new_legend, ncol=n_col)
 
     return ax, ax2
 

@@ -2,6 +2,7 @@ from frequency_functions import *
 from NOVAOpenSignals.EMG_stats import *
 from NOVAWiiBoard.COPStats import *
 import copy
+import pynotify
 
 
 class data_holder:
@@ -27,6 +28,13 @@ class data_holder:
             self.__dict__[vari_name] = data
         else:
             print "No attribute available, please use add_variable"
+
+
+def sendmessage(title, message):
+    pynotify.init("Test")
+    notice = pynotify.Notification(title, message)
+    notice.show()
+    return
 
 
 def reformat_time(time_vector, delay):
@@ -140,14 +148,16 @@ def remove_duplicates_batch(wii_segments):
     return wii_segments
 
 
-# def smooth_intervals(data, window=20):
-#     output = data
-#     for i in range(0, len(data)):
-#         for j in range(0, len(data[i])-1):
-#             for k in range(1, len(data[i][j])):
-#                 if k != 8:
-#                     output[i][j][k] = list(smooth(np.array(data[i][j][k]), window_len=window))
-#     return [output[0], output[1], output[2], output[3]]
+def smooth_intervals(data, data_var="open_signals_data", new_var="smoothed_data", window=200):
+    for i in range(0, len(data)):
+        emg_smooth = []
+        EMGs = data[i].get_variable(data_var)
+        for j in range(1, 5):
+            print "segment", i + 1, ", electrode", j
+            current_EMG = EMGs[j]
+            emg_smooth.append(emg_smoother(current_EMG, window))
+        data[i].add_variable(new_var, emg_smooth)
+    return data
 
 
 def zero_out_EMG(data, zero_out_array):
@@ -335,14 +345,14 @@ def moving_window(EMG, window_size):
     return IEMG, MAV, EEMG, Var, RMS
 
 
-def add_filtered_signal(data, frequencies=[10, 400], fs=1000, data_var="open_signals_data", new_var="filter_EMG_data"):
+def add_filtered_signal(data, order=2, frequencies=[10, 400], fs=1000, data_var="open_signals_data", new_var="filter_EMG_data"):
 
     for i in range(0, len(data)):
         filtered_emg = []
         EMGs = data[i].get_variable(data_var)
         filtered_emg.append(EMGs[0])
         for j in range(1, 5):
-            temp_ = filter_signal_band(EMGs[j], frequencies, fs=fs)
+            temp_ = filter_signal_band(EMGs[j], frequencies, order, fs=fs)
             filtered_emg.append(temp_)
 
         for j in range(5, len(EMGs)):
