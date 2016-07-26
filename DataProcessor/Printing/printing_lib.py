@@ -69,7 +69,7 @@ def ax1_pop(filler, ax):
 
 
 def axe_populator(data, ax, wii=False, xlim=[], ylim=[], overlap=False, color='#005ca1', alpha=1, linestyle='-',
-                  norm=False, offset=False, offset_index=0, legend_outside=False, n_col=1, leg_font=10):
+                  norm=False, offset=False, offset_index=0, legend_outside=False, n_col=1, leg_font=10, labelpad=0):
     x = data[0]
     yy = data[1]
 
@@ -133,7 +133,11 @@ def axe_populator(data, ax, wii=False, xlim=[], ylim=[], overlap=False, color='#
     elif not overlap:
         ax.legend(data[5], fontsize=10, ncol=n_col)
         ax.set_xlabel(data[2], fontsize=10)
-        ax.set_ylabel(data[3], fontsize=10)
+        if labelpad != 0:
+            ax.set_ylabel(data[3], fontsize=10, labelpad=labelpad)
+        else:
+            ax.set_ylabel(data[3], fontsize=10)
+
         ax.set_title(data[4], fontsize=14)
 
         if legend_outside:
@@ -247,7 +251,7 @@ def add_indexes(axix, xx, yy, window):
 def add_newaxis(axis, xx, yy, label, linestyle='-', alpha=0.5, linecolor='#a3a3a3', legend='New', axis_lim=False, grid=False):
     ax2 = axis.twinx()
     ax2.plot(xx, yy, linestyle=linestyle, color=linecolor, label="NEW", alpha=alpha)
-    ax2.set_ylabel(label)
+    ax2.set_ylabel(label, labelpad=5)
     ax2.legend(legend)
     plt.autoscale(enable=True, axis='x', tight=True)
     if axis_lim:

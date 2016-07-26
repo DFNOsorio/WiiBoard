@@ -27,10 +27,10 @@ def motion_report(patient, text, data, emg_data, thresholds, rms_data):
     axe_populator([Wii[0][0:-1], [Wii[6][3]], "Time (s)", "Vy (m/s)", "Vy", []], gs2_ax[3])
     axe_populator([Wii[0][0:-2], [Wii[6][5]], "Time (s)", "Ay (m2/s)", "Ay", []], gs2_ax[5])
 
-    axe_populator([EMGs[0], [EMGs[1]], "Time (s)", "Raw", labels[1][0], []], gs3_ax[0])
-    axe_populator([EMGs[0], [EMGs[2]], "Time (s)", "Raw", labels[1][1], []], gs3_ax[1])
-    axe_populator([EMGs[0], [EMGs[3]], "Time (s)", "Raw", labels[1][2], []], gs3_ax[2])
-    axe_populator([EMGs[0], [EMGs[4]], "Time (s)", "Raw", labels[1][3], []], gs3_ax[3])
+    axe_populator([EMGs[0], [EMGs[1]], "Time (s)", "Raw", labels[1][0], []], gs3_ax[0], labelpad=-15)
+    axe_populator([EMGs[0], [EMGs[2]], "Time (s)", "Raw", labels[1][1], []], gs3_ax[1], labelpad=-15)
+    axe_populator([EMGs[0], [EMGs[3]], "Time (s)", "Raw", labels[1][2], []], gs3_ax[2], labelpad=-10)
+    axe_populator([EMGs[0], [EMGs[4]], "Time (s)", "Raw", labels[1][3], []], gs3_ax[3], labelpad=-15)
 
     if thresholds:
         for i in range(0, 4):
@@ -39,7 +39,7 @@ def motion_report(patient, text, data, emg_data, thresholds, rms_data):
 
             axe_populator([Wii[7][i][1], [Wii[7][i][0]], "Time (s)", "Vx (m/s)", "Vx", ["Threshold"]], gs2_ax[i+2],
                           overlap=True, color='r', linestyle='dotted')
-
+    rms_data = False
     if rms_data is not False:
         RMS = data.get_variable(rms_data)
         for i in range(0, 4):
@@ -235,8 +235,7 @@ def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
         current_time = EMGs[0]
         for j in range(0, 4):
             ax1 = f.add_subplot(2, 2, j+1)
-            EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j],
-                        legend_outside=True)
+            EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j])
             axes_.append(ax1)
         axes.append(axes_)
         plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.05, right=0.95)

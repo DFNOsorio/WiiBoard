@@ -117,11 +117,11 @@ if filtering:
 
     new_figures = pdf_figure_reshape([motion_figs, spec, spec_over, psds, spec_int, rms_figs, comparing_figs])
 
-    LEGENDAS MAXMIN AUTOMATICO
+    # LEGENDAS MAXMIN AUTOMATICO
 
-    sendmessage('Pdf generator', 'Start')
+    #sendmessage('Pdf generator', 'Start')
     pdf_generator(new_figures, patient, foldername='../WiiBoard/DataProcessor/Images/')
-    sendmessage('Pdf generator', 'End')
+    #sendmessage('Pdf generator', 'End')
     plot = False
     if plot:
         plot_show_all()
