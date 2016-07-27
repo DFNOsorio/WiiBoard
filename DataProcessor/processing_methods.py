@@ -2,7 +2,7 @@ from frequency_functions import *
 from NOVAOpenSignals.EMG_stats import *
 from NOVAWiiBoard.COPStats import *
 import copy
-#import pynotify
+import pynotify
 
 
 class data_holder:
@@ -30,11 +30,11 @@ class data_holder:
             print "No attribute available, please use add_variable"
 
 
-#def sendmessage(title, message):
-#    pynotify.init("Test")
-#    notice = pynotify.Notification(title, message)
-#    notice.show()
-#    return
+def sendmessage(title, message):
+   pynotify.init("Test")
+   notice = pynotify.Notification(title, message)
+   notice.show()
+   return
 
 
 def reformat_time(time_vector, delay):

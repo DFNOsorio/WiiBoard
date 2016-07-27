@@ -3,7 +3,7 @@ from DataProcessor import *
 folder_name = '../WiiBoard/Trials/'
 #folder_name = '../Trials/'
 
-patient = 'Diana1000'
+patient = 'JoaoPedro1000'
 
 ## Loading  and syncing
 
@@ -77,12 +77,12 @@ if pre_filter:
         motion_reports(patient, [s1, s2, s3, s4], thresholds=True, rms_data="emg_rms_data")
 
 filtering = True
-
+filter_frequency = [30, 400]
 if filtering:
 
     print "Filter, for each interval"
 
-    [s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4], frequencies=[30, 400], order=4)
+    [s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4], frequencies=filter_frequency, order=4)
 
     print "New spectrogram of each emg, for each interval"
 
@@ -107,21 +107,21 @@ if filtering:
 
     print "New smooth, for each interval"
 
-    [s1, s2, s3, s4] = smooth_intervals([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="smoothed_data_filtered", window=100)
+    [s1, s2, s3, s4] = smooth_intervals([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="smoothed_data_filtered", window=500)
 
     rms_figs, axes = rms_reports([s1, s2, s3, s4], rms_data="smoothed_data_filtered", emg_data="filter_EMG_data")
 
-    motion_figs, comparing_figs = motion_reports(patient+" (10-400 Hz)", [s1, s2, s3, s4],
-                                                 emg_data="filter_EMG_data", thresholds=False,
-                                                 rms_data="smoothed_data_filtered")
+    motion_figs, comparing_figs = motion_reports(patient+" (" + str(filter_frequency[0]) + '-' + str(filter_frequency[1])+
+                                                 " Hz)", [s1, s2, s3, s4], emg_data="filter_EMG_data", thresholds=False,
+                                                 rms_data="smoothed_data_filtered", smoothing=True, normalazing=True)
 
     new_figures = pdf_figure_reshape([motion_figs, spec, spec_over, psds, spec_int, rms_figs, comparing_figs])
 
     # LEGENDAS MAXMIN AUTOMATICO
 
-    #sendmessage('Pdf generator', 'Start')
+    sendmessage('Pdf generator', 'Start')
     pdf_generator(new_figures, patient, foldername='../WiiBoard/DataProcessor/Images/')
-    #sendmessage('Pdf generator', 'End')
+    sendmessage('Pdf generator', 'End')
     plot = False
     if plot:
         plot_show_all()

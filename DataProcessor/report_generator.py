@@ -1,8 +1,9 @@
 from DataProcessor.Printing import *
 from DataProcessor.processing_methods import RMS_moving_window
+from novainstrumentation import *
 
 
-def motion_report(patient, text, data, emg_data, thresholds, rms_data):
+def motion_report(patient, text, data, emg_data, thresholds, normalazing):
 
     Wii = data.get_variable("wii_data")
     EMGs = data.get_variable(emg_data)
@@ -12,6 +13,14 @@ def motion_report(patient, text, data, emg_data, thresholds, rms_data):
 
     f, gs1_ax, gs2_ax, gs3_ax = grid_report(patient + text)
 
+    cops_ranges = []
+    emg_ranges = []
+
+    if normalazing:
+        cops_ranges, cop_range_ = normalize_range([Wii[6][0], Wii[6][1]], cop=True)
+        emg_ranges, emg_range_ = normalize_range([EMGs[1], EMGs[2], EMGs[3], EMGs[4]])
+
+
     axe_populator([Wii[6][0], [Wii[6][1]], "COPx (mm)", "COPy (mm)", "COP", []], gs1_ax[0], wii=True)
     axe_populator([EMGs[0], [EMGs[5], EMGs[6], EMGs[7]], "Time (s)", "Raw data", "Accelerometer data",
                    labels[1][4:7]], gs1_ax[1], n_col=3,
@@ -19,18 +28,22 @@ def motion_report(patient, text, data, emg_data, thresholds, rms_data):
     axe_populator([EMGs[0], [EMGs[8]], "Time (s)", "Raw data", "ECG data",
                    []], gs1_ax[2])
 
-    axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "COPx (mm)", "COPx", []], gs2_ax[0])
+    axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "COPx (mm)", "COPx", []], gs2_ax[0], ylim=cops_ranges[0])
     axe_populator([Wii[0][0:-1], [Wii[6][2]], "Time (s)", "Vx (m/s)", "Vx", []], gs2_ax[2])
     axe_populator([Wii[0][0:-2], [Wii[6][4]], "Time (s)", "Ax (m2/s)", "Ax", []], gs2_ax[4])
 
-    axe_populator([Wii[0], [Wii[6][1]], "Time (s)", "COPy (mm)", "COPy", []], gs2_ax[1])
+    axe_populator([Wii[0], [Wii[6][1]], "Time (s)", "COPy (mm)", "COPy", []], gs2_ax[1], ylim=cops_ranges[1])
     axe_populator([Wii[0][0:-1], [Wii[6][3]], "Time (s)", "Vy (m/s)", "Vy", []], gs2_ax[3])
     axe_populator([Wii[0][0:-2], [Wii[6][5]], "Time (s)", "Ay (m2/s)", "Ay", []], gs2_ax[5])
 
-    axe_populator([EMGs[0], [EMGs[1]], "Time (s)", "Raw", labels[1][0], []], gs3_ax[0], labelpad=-15)
-    axe_populator([EMGs[0], [EMGs[2]], "Time (s)", "Raw", labels[1][1], []], gs3_ax[1], labelpad=-15)
-    axe_populator([EMGs[0], [EMGs[3]], "Time (s)", "Raw", labels[1][2], []], gs3_ax[2], labelpad=-10)
-    axe_populator([EMGs[0], [EMGs[4]], "Time (s)", "Raw", labels[1][3], []], gs3_ax[3], labelpad=-15)
+    axe_populator([EMGs[0], [EMGs[1]], "Time (s)", "Raw", labels[1][0], []], gs3_ax[0], auto_padding=True, auto_lim=True,
+                  ylim=emg_ranges)
+    axe_populator([EMGs[0], [EMGs[2]], "Time (s)", "Raw", labels[1][1], []], gs3_ax[1], auto_padding=True, auto_lim=True,
+                  ylim=emg_ranges)
+    axe_populator([EMGs[0], [EMGs[3]], "Time (s)", "Raw", labels[1][2], []], gs3_ax[2], auto_padding=True, auto_lim=True,
+                  ylim=emg_ranges)
+    axe_populator([EMGs[0], [EMGs[4]], "Time (s)", "Raw", labels[1][3], []], gs3_ax[3], auto_padding=True, auto_lim=True,
+                  ylim=emg_ranges)
 
     if thresholds:
         for i in range(0, 4):
@@ -39,13 +52,6 @@ def motion_report(patient, text, data, emg_data, thresholds, rms_data):
 
             axe_populator([Wii[7][i][1], [Wii[7][i][0]], "Time (s)", "Vx (m/s)", "Vx", ["Threshold"]], gs2_ax[i+2],
                           overlap=True, color='r', linestyle='dotted')
-    rms_data = False
-    if rms_data is not False:
-        RMS = data.get_variable(rms_data)
-        for i in range(0, 4):
-
-            gs3_ax[i].legend("Raw_Data")
-            add_newaxis(gs3_ax[i], EMGs[0], RMS[i], "RMS", legend="RMS", axis_lim=True)
 
     return f
 
@@ -75,7 +81,7 @@ def COP_report(patient, text, data, emg_data, rms_data):
     return f
 
 
-def comparing_report(patient, text, data, emg_data, rms_data):
+def comparing_report(patient, text, data, emg_data, rms_data, normalazing, smoothing, smoothing_indexes=(10, 50)):
 
     Wii = data.get_variable("wii_data")
     labels = data.get_variable("labels")
@@ -85,6 +91,26 @@ def comparing_report(patient, text, data, emg_data, rms_data):
     text = text + str(round(Wii[0][-1] - Wii[0][0], 2)) + " s)"
 
     f, gs1_ax, gs2_ax = grid_overlay(patient + text)
+
+    if normalazing:
+        cops_ranges, cop_range_ = normalize_range([Wii[6][0], Wii[6][1]], cop=True)
+        emg_ranges, emg_range_ = normalize_range([EMGs[1], EMGs[2], EMGs[3], EMGs[4]])
+        sfsdfsdf
+        SPEC ENERGIA EM VEZ DE MAX
+        ELECTO»RO VS EMG
+        A DIFERENCA DIZER PARA ONDE ANDA
+        ACC OVERLAY
+        NOME+FICHEIRO EM TODOS
+
+    if smoothing:
+        Wii[6][0] = smooth(np.array(Wii[6][0]), smoothing_indexes[0])
+        Wii[6][1] = smooth(np.array(Wii[6][1]), smoothing_indexes[0])
+        Wii[6][2] = smooth(np.array(Wii[6][2]), smoothing_indexes[1])
+        Wii[6][3] = smooth(np.array(Wii[6][3]), smoothing_indexes[1])
+        Wii[6][4] = smooth(np.array(Wii[6][4]), smoothing_indexes[1])
+        Wii[6][5] = smooth(np.array(Wii[6][5]), smoothing_indexes[1])
+
+
 
     axe_populator([Wii[0], [Wii[6][0]], "Time (s)", "Norm", "COPx", ["COPx"]],
                   gs1_ax[0], norm=True, offset=True)
@@ -117,6 +143,8 @@ def comparing_report(patient, text, data, emg_data, rms_data):
     axe_populator([Wii[0], [Wii[6][0], Wii[6][1]], "Time (s)", "Norm", "COPx", ["COPx", "COPy"]],
                   gs2_ax[0], norm=True, offset=False, overlap=True, offset_index=1.05, legend_outside=True)
 
+    #RMS
+
     axe_populator([EMGs[0], [RMS[0], RMS[3]], "Time (s)", "RMS", "Right Side", [labels[1][0], labels[1][3]]], gs2_ax[1],
                   norm=True, overlap=False, offset=False)
     axe_populator([EMGs[0], [np.array(RMS[0]) - np.array(RMS[3])], "Time (s)", "RMS", "Right Side", ["Subtraction"]],
@@ -140,15 +168,17 @@ def comparing_report(patient, text, data, emg_data, rms_data):
     return f
 
 
-def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False, rms_data=False):
+def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False, rms_data=False, smoothing=False,
+                   normalazing=(False, False)):
     title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
                " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
     montion_figs = []
     comparing_figs = []
     for i in range(0, len(data)):
-        f1 = motion_report(patient, title_1[i], data[i], emg_data, thresholds, rms_data)
+        f1 = motion_report(patient, title_1[i], data[i], emg_data, thresholds, normalazing[0])
 
-        f2 = comparing_report(patient, title_1[i], data[i], emg_data, rms_data)
+        f2 = comparing_report(patient, title_1[i], data[i], emg_data, rms_data, normalazing[1], smoothing)
+
         montion_figs.append(f1)
         comparing_figs.append(f2)
 
@@ -207,11 +237,12 @@ def psd_reports(data, new_var="psd_data"):
         for j in range(0, 4):
 
             ax1 = f.add_subplot(2, 4, j+1)
-            PSD_plot(ax1, PSD[j][1], PSD[j][2], title=data[i].get_variable("labels")[1][j])
+            ax1 = axe_populator([PSD[j][2], [PSD[j][1]], "Frequencies (Hz)", "Power Spectral Density (dB)",
+                                 data[i].get_variable("labels")[1][j], []], ax1)
 
             ax2 = f.add_subplot(2, 4, (j+5))
-            PSD_plot(ax2, PSD[j][0], PSD[j][2], title=data[i].get_variable("labels")[1][j],
-                     y_label="Power Spectral Density (No dB)")
+            ax2 = axe_populator([PSD[j][2], [PSD[j][0]], "Frequencies (Hz)", "Power Spectral Density (No dB)",
+                                 data[i].get_variable("labels")[1][j], []], ax2)
 
             axes1.append(ax1)
             axes2.append(ax2)
@@ -235,7 +266,12 @@ def rms_reports(data, rms_data="emg_rms_data", emg_data="open_signals_data"):
         current_time = EMGs[0]
         for j in range(0, 4):
             ax1 = f.add_subplot(2, 2, j+1)
-            EMGRMS_plot(ax1, current_time, [EMGs[j+1], RMS[j]], title=data[i].get_variable("labels")[1][j])
+            ax1 = axe_populator([current_time, [EMGs[j+1]], "Time (s)", "Energy",
+                                 data[i].get_variable("labels")[1][j], ["Spec Energy"]], ax1, auto_padding=True,
+                                auto_lim=True)
+            ax1 = add_newaxis(ax1, current_time, RMS[j], "RMS", legend="RMS", auto_padding=True, auto_lim=True,
+                              alpha=0.8, n_col=2)
+
             axes_.append(ax1)
         axes.append(axes_)
         plt.subplots_adjust(hspace=0.16, top=0.91, bottom=0.04, left=0.05, right=0.95)
@@ -258,7 +294,7 @@ def spec_psd_integrated(data, integrated_data="integrated_spec_psd", spec_data =
         axes_ = []
         for j in range(0, 4):
             ax1 = f.add_subplot(2, 2, j + 1)
-            ax1 = axe_populator([time, [psd_integrated_data[j][1]], "Frequency (Hz)", "Energy",
+            ax1 = axe_populator([time, [psd_integrated_data[j][1]], "Time (s)", "Energy",
                                  data[i].get_variable("labels")[1][j], ["Spec Energy"]], ax1, color='k',
                                 legend_outside=True)
 

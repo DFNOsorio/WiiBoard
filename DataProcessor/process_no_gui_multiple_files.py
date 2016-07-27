@@ -43,6 +43,7 @@ EMG_zero, EMG_l_zero, EMG_means_zero = load_emg_rest(folder_name+patient+'/Base'
 pre_filter = False
 
 if pre_filter:
+
     print "Spectrogram of each emg, for each interval"
 
     [s1, s2, s3, s4] = add_spec([s1, s2, s3, s4])
@@ -81,12 +82,12 @@ if pre_filter:
         motion_reports(patient, [s1, s2, s3, s4], thresholds=True, rms_data="emg_rms_data")
 
 filtering = True
-
+filter_frequency = [30, 400]
 if filtering:
 
     print "Filter, for each interval"
 
-    [s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4], frequencies=[10, 400])
+    [s1, s2, s3, s4] = add_filtered_signal([s1, s2, s3, s4], frequencies=filter_frequency, order=4)
 
     print "New spectrogram of each emg, for each interval"
 
@@ -96,37 +97,39 @@ if filtering:
 
     [s1, s2, s3, s4] = add_psd([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="filter_psd_data")
 
-    plot = False
-    if plot:
-        spectrogram_report([s1, s2, s3, s4], max_flag=True, data_var="filter_spec_data")
-        spec_psd_overlay([s1, s2, s3, s4], dB=True, data_var_psd="filter_psd_data", data_var_spec="filter_spec_data")
+    spec, ds = spectrogram_report([s1, s2, s3, s4], max_flag=True, data_var="filter_spec_data")
 
-    plot = False
-    if plot:
-        psd_reports([s1, s2, s3, s4], new_var="filter_psd_data")
+    spec_over, ds = spec_psd_overlay([s1, s2, s3, s4], dB=True, data_var_psd="filter_psd_data", data_var_spec="filter_spec_data")
+
+    psds, bs = psd_reports([s1, s2, s3, s4], new_var="filter_psd_data")
 
     print "Psd and spec integral (after_filtering), for each interval"
 
     [s1, s2, s3, s4] = integrate_spec_psd([s1, s2, s3, s4], data_var_psd="filter_psd_data",
                                           data_var_spec="filter_spec_data", new_var="integrated_spec_psd_filtered")
 
+    spec_int, bs = spec_psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd_filtered", spec_data='filter_spec_data')
+
+    print "New smooth, for each interval"
+
+    [s1, s2, s3, s4] = smooth_intervals([s1, s2, s3, s4], data_var="filter_EMG_data", new_var="smoothed_data_filtered", window=500)
+
+    rms_figs, axes = rms_reports([s1, s2, s3, s4], rms_data="smoothed_data_filtered", emg_data="filter_EMG_data")
+
+    motion_figs, comparing_figs = motion_reports(patient+" (" + str(filter_frequency[0]) + '-' + str(filter_frequency[1])+
+                                                 " Hz)", [s1, s2, s3, s4], emg_data="filter_EMG_data", thresholds=False,
+                                                 rms_data="smoothed_data_filtered")
+
+    new_figures = pdf_figure_reshape([motion_figs, spec, spec_over, psds, spec_int, rms_figs, comparing_figs])
+
+    # LEGENDAS MAXMIN AUTOMATICO
+
+    sendmessage('Pdf generator', 'Start')
+    pdf_generator(new_figures, patient, foldername='../WiiBoard/DataProcessor/Images/')
+    sendmessage('Pdf generator', 'End')
     plot = False
     if plot:
-        spec_psd_integrated([s1, s2, s3, s4], integrated_data="integrated_spec_psd_filtered")
-
-    print "New RMS, for each interval"
-
-    [s1, s2, s3, s4] = add_EMG_RMS([s1, s2, s3, s4], window_size=1000,
-                                   data_var="filter_EMG_data", new_var="emg_rms_data_filtered")
-
-    plot = True
-    if plot:
-        rms_reports([s1, s2, s3, s4], rms_data="emg_rms_data_filtered", emg_data="filter_EMG_data")
-
-    plot = True
-    if plot:
-        motion_reports(patient+" (10-400 Hz)", [s1, s2, s3, s4], emg_data="filter_EMG_data", thresholds=False,
-                       rms_data="emg_rms_data_filtered")
+        plot_show_all()
 
 # TODO
 # Thresholds para a e para v
@@ -169,4 +172,4 @@ if filtering:
 ##### Pegar nas PSD e por no msm grafico
 ##### PSD 2D com os limites a mais claros
 
-plot_show_all()
+#plot_show_all()
