@@ -20,26 +20,26 @@ def autopad(maxim):
     return output
 
 
-def normalize_range(data, cop=False):
-    if cop is False:
-        range_ = np.max([abs(np.min(np.array(data))), abs(np.max(np.array(data)))])
-        return [-range_, range_], range_*2.0
+def center_axis(data, range_, cop=False, smooth=False):
+    if isinstance(range_, list):
+        range_ = range_[0]
+    current_range = np.max(np.array(data)) - np.min(np.array(data))
+    if abs(current_range - range_)/current_range > 1.05:
+        if cop:
+            range_ += 2
+            return [np.mean(np.array(data)) - range_/2.0, np.mean(np.array(data)) + range_/2.0]
+        elif smooth:
+            return [0, range_ * 1.15]
+        else:
+            return [-range_*1.15, range_*1.15]
     else:
-        range_ = 0
-        index = 0
-        for i in range(0, len(data)):
-            range__ = np.max(data[i]) - np.min(data[i])
-            if range__ >= range_:
-                range_ = range__
-                index = i
-        range_ += 2
-        output = []
-        for i in range(0, len(data)):
-            if i is not index:
-                output.append([np.mean(data[i])-range_/2, np.mean(data[i])+range_/2])
-            else:
-                output.append([np.min(data[i]) - 1, np.min(data[i]) + range_])
-        return output, range_ - 2
+        if cop:
+            range_ += 2
+            return [np.min(np.array(data)), np.min(np.array(data)) + range_]
+        elif smooth:
+            return [0, range_ * 1.15]
+        else:
+            return [-range_ * 1.15, range_ * 1.15]
 
 
 def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend=[]):
@@ -103,7 +103,7 @@ def ax1_pop(filler, ax):
 
 def axe_populator(data, ax, wii=False, xlim=(), ylim=(), overlap=False, color='#005ca1', alpha=1, linestyle='-',
                   norm=False, offset=False, offset_index=0, legend_outside=False, n_col=1, leg_font=10, labelpad=0,
-                  auto_lim=False, auto_padding=False):
+                  auto_lim=False, auto_padding=False, plot_over=False):
     x = data[0]
     yy = data[1]
 
@@ -168,7 +168,7 @@ def axe_populator(data, ax, wii=False, xlim=(), ylim=(), overlap=False, color='#
             ax.legend(handles=handles, labels=new_legend, fontsize=leg_font, loc='center left', bbox_to_anchor=(1, 0.5),
                       ncol=n_col)
 
-    elif not overlap:
+    elif not overlap and not plot_over:
         ax.legend(data[5], fontsize=leg_font, ncol=n_col)
         ax.set_xlabel(data[2], fontsize=10)
         if labelpad != 0:
@@ -289,27 +289,26 @@ def add_indexes(axix, xx, yy, window):
                   )
 
 
-def add_newaxis(axis, xx, yy, label, linestyle='-', alpha=0.5, leg_font=10, n_col=1, linecolor='#a3a3a3', legend='New',
-                axis_lim=False, grid=False, auto_padding=False, auto_lim=False):
+def add_newaxis(axis, xx, yy, label, linestyle='-', alpha=0.5, leg_font=10, n_col=1, linecolor='#a3a3a3',
+                legend=('New'), grid=False, auto_padding=False, auto_lim=False, previous_leg=True, y_lim=False):
     ax2 = axis.twinx()
     ax2.plot(xx, yy, linestyle=linestyle, color=linecolor, label="NEW", alpha=alpha)
 
-    ax2.legend(legend)
+    ax2.legend(legend, ncol=n_col)
     plt.autoscale(enable=True, axis='x', tight=True)
-    if axis_lim:
-        ax2.set_ylim([-np.max(yy), np.max(yy)])
 
-    previous_legend = axis.get_legend().get_texts()
-    new_legend = []
-    for j in range(0, len(previous_legend)):
-        new_legend.append(previous_legend[j].get_text())
+    if previous_leg:
+        previous_legend = axis.get_legend().get_texts()
+        new_legend = []
+        for j in range(0, len(previous_legend)):
+            new_legend.append(previous_legend[j].get_text())
 
-    h, l = ax2.get_legend_handles_labels()
-    h1, l1 = axis.get_legend_handles_labels()
+        h, l = ax2.get_legend_handles_labels()
+        h1, l1 = axis.get_legend_handles_labels()
 
-    ax2.legend("")
-    new_legend.append(legend)
-    axis.legend(handles=list(np.concatenate([h1, h])), labels=new_legend, fontsize=leg_font, ncol=n_col)
+        ax2.legend("")
+        new_legend.append(legend)
+        axis.legend(handles=list(np.concatenate([h1, h])), labels=new_legend, fontsize=leg_font, ncol=n_col)
 
     if grid is False:
         ax2.grid(b=False)
@@ -323,6 +322,9 @@ def add_newaxis(axis, xx, yy, label, linestyle='-', alpha=0.5, leg_font=10, n_co
     if auto_lim:
         y_range = ax2.get_ylim()
         ax2.set_ylim([-max(np.abs(y_range)), max(np.abs(y_range))])
+
+    if y_lim is not False:
+        ax2.set_ylim(y_lim[0], y_lim[1])
 
     return [axis, ax2]
 
@@ -342,14 +344,6 @@ def spectogram_plot(ax, Pxx, freqs, bins, title="Spectrogram", no_colorbar=False
     ax.set_xlabel("Time (s)")
     ax.set_title(title)
     return ax, im
-
-
-def max_spec_overplot(ax, Pxx, freqs, bins):
-    y_data = []
-    for i in range(0, len(bins)):
-        index = np.where(max(Pxx[:, i]) == Pxx[:, i])[0][0]
-        y_data.append(freqs[index])
-    ax.plot(bins, y_data, 'k')
 
 
 def spec_representation(ax, powerDb, freq, time, title="Spectrogram"):
@@ -467,3 +461,13 @@ def get_color(file_number):
     colors.append((int(temp[0]), int(temp[1]), int(temp[2])))
     return colors
 
+
+def scale_adjuster(data, new_scale=(0, 1), manual=(0, 0)):
+    if manual[0] == 0 and manual[1] == 0:
+        min = np.min(np.array(data))
+        max = np.max(np.array(data))
+    else:
+        min = manual[0]
+        max = manual[1]
+
+    return (((np.array(data) - min) * (new_scale[1] - new_scale[0])) / (max - min)) + new_scale[0]

@@ -1,5 +1,4 @@
 from DataProcessor.Printing import *
-from DataProcessor.processing_methods import RMS_moving_window
 from novainstrumentation import *
 
 
@@ -95,12 +94,12 @@ def comparing_report(patient, text, data, emg_data, rms_data, normalazing, smoot
     if normalazing:
         cops_ranges, cop_range_ = normalize_range([Wii[6][0], Wii[6][1]], cop=True)
         emg_ranges, emg_range_ = normalize_range([EMGs[1], EMGs[2], EMGs[3], EMGs[4]])
-        sfsdfsdf
-        SPEC ENERGIA EM VEZ DE MAX
-        ELECTO»RO VS EMG
-        A DIFERENCA DIZER PARA ONDE ANDA
-        ACC OVERLAY
-        NOME+FICHEIRO EM TODOS
+        # sfsdfsdf
+        # SPEC ENERGIA EM VEZ DE MAX
+        # ELECTORO VS EMG
+        # A DIFERENCA DIZER PARA ONDE ANDA
+        # ACC OVERLAY
+        # NOME+FICHEIRO EM TODOS
 
     if smoothing:
         Wii[6][0] = smooth(np.array(Wii[6][0]), smoothing_indexes[0])
@@ -168,7 +167,7 @@ def comparing_report(patient, text, data, emg_data, rms_data, normalazing, smoot
     return f
 
 
-def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False, rms_data=False, smoothing=False,
+def motion_reporting(patient, data, emg_data="open_signals_data", thresholds=False, rms_data=False, smoothing=False,
                    normalazing=(False, False)):
     title_1 = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (",
                " - One Feet Eyes Open (", " - One Feet Eyes Closed ("]
@@ -185,40 +184,59 @@ def motion_reports(patient, data, emg_data="open_signals_data", thresholds=False
     return montion_figs, comparing_figs
 
 
-def spectrogram_report(data, max_flag=False, data_var="spec_data"):
+def spectrogram_report(data, integration_flag=False, data_var="spec_data", integrated_data="integrated_spec_psd",
+                       seg_norm=True, global_norm=False):
 
     title = ["Spectrogram - Two Feet Eyes Open (1 s segments)", "Spectrogram - Two Feet Eyes Closed (1 s segments)",
              "Spectrogram - One Feet Eyes Open (1 s segments)", "Spectrogram - One Feet Eyes Closed (1 s segments)"]
     axes = []
     figures = []
-    max_ = 0
-    min_ = 100
+    max_ = [0, 0]
+    min_ = [100, 10000]
+    max_y = []
     for i in range(0, len(data)):
         spec = data[i].get_variable(data_var)
+        inte = data[i].get_variable(integrated_data)
         for j in range(0, len(spec)):
-            if spec[j][5][0] > max_:
-                max_ = spec[j][5][0]
-            if spec[j][5][1] < min_:
-                min_ = spec[j][5][1]
+            if spec[j][5][0] > max_[0]:
+                max_[0] = spec[j][5][0]
+            if spec[j][5][1] < min_[0]:
+                min_[0] = spec[j][5][1]
+        temp_max = 0
+        for j in range(0, 4):
+            temp_max_ = max(data[i].get_variable(integrated_data)[j][1])
+            if temp_max_ > temp_max:
+                temp_max = temp_max_
+        max_y.append(temp_max)
 
     for i in range(0, len(data)):
         f = plt.figure()
         plt.figtext(0.08, 0.95, title[i], fontsize=20)
-        axes_=[]
+        axes_= []
+        y_lim = False
+
+        if seg_norm:
+            y_lim = [0, max_y[i]]
+
+        elif global_norm:
+            y_lim = [0, max(max_y)]
+
         for j in range(0, 4):
             spec = data[i].get_variable(data_var)
             ax = f.add_subplot(2, 2, j + 1)
             ax, im = spectogram_plot(ax, spec[j][1], spec[j][2], spec[j][3], title=data[i].get_variable("labels")[1][j],
-                                     no_colorbar=True, v=[min_, max_])
-            if max_flag:
-                ax = max_spec_overplot(ax, spec[j][1], spec[j][2], spec[j][3])
+                                     no_colorbar=True, v=[min_[0], max_[0]])
+            if integration_flag:
+                integrated = data[i].get_variable(integrated_data)[j][1]
+                ax = add_newaxis(ax, spec[j][3], integrated, "Integration", alpha=1, legend=["Integration"],
+                                 linecolor='k', previous_leg=False, y_lim=y_lim)
             axes_.append(ax)
         axes.append(axes_)
+        plt.subplots_adjust(hspace=0.34, top=0.90, bottom=0.09, left=0.10, right=0.85, wspace=0.27)
         cax = f.add_axes([0.91, 0.1, 0.02, 0.8])
-        cbar = f.colorbar(im, cax=cax, ticks=range(int(min_), int(max_), 5))
-        im.set_clim(max([-50, int(min_)]), int(max_))
+        cbar = f.colorbar(im, cax=cax, ticks=range(int(min_[0]), int(max_[0]), 5))
+        im.set_clim(max([-50, int(min_[0])]), int(max_[0]))
         cbar.set_label('Power Spectral Density (dB)')
-        plt.subplots_adjust(hspace=0.34, top=0.90, bottom=0.09, left=0.10, right=0.90, wspace=0.27)
         figures.append(f)
     return figures, axes
 

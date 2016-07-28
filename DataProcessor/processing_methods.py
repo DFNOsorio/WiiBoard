@@ -3,6 +3,7 @@ from NOVAOpenSignals.EMG_stats import *
 from NOVAWiiBoard.COPStats import *
 import copy
 import pynotify
+from novainstrumentation import smooth
 
 
 class data_holder:
@@ -150,8 +151,9 @@ def remove_duplicates_batch(wii_segments):
 
 def smooth_intervals(data, data_var="open_signals_data", new_var="smoothed_data", window=200):
     for i in range(0, len(data)):
-        emg_smooth = []
+
         EMGs = data[i].get_variable(data_var)
+        emg_smooth = [EMGs[0]]
         for j in range(1, 5):
             print "segment", i + 1, ", electrode", j
             current_EMG = EMGs[j]
@@ -345,7 +347,8 @@ def moving_window(EMG, window_size):
     return IEMG, MAV, EEMG, Var, RMS
 
 
-def add_filtered_signal(data, order=2, frequencies=[10, 400], fs=1000, data_var="open_signals_data", new_var="filter_EMG_data"):
+def add_filtered_signal(data, order=2, frequencies=[10, 400], fs=1000, data_var="open_signals_data",
+                        new_var="filter_EMG_data"):
 
     for i in range(0, len(data)):
         filtered_emg = []
@@ -381,11 +384,20 @@ def integrate_spec_psd(data, dB=True, data_var_psd="psd_data", data_var_spec="sp
         spec = data[i].get_variable(data_var_spec)
 
         for j in range(0, 4):
-            temp_ = [sum(np.array(psds[j][k])) / (spec[j][2][1] - spec[j][2][0])]
+
+            integration = sum(np.array(psds[j][k])) / (spec[j][2][1] - spec[j][2][0])
+            if integration < 0:
+                integration = 0
+            temp_ = [integration]
             temp__ = []
 
             for l in range(0, len(spec[j][3])):
-                temp__.append(sum(np.array(spec[j][k][:, l])) / (spec[j][2][1] - spec[j][2][0]))
+                integration = sum(np.array(spec[j][k][:, l])) / (spec[j][2][1] - spec[j][2][0])
+
+                if integration < 0:
+                    integration = 0
+
+                temp__.append(integration)
 
             temp_.append(temp__)
             integrated_spec.append(temp_)
@@ -460,6 +472,43 @@ def add_threshold(data, default=True, v_th=[], a_th=[]):
     for i in range(0, len(data)):
         data[i].set_variable('wii_data', a_v_threshold(data[i], v_th[i], a_th[i]))
     return data
+
+
+def wii_smoother(wii_data, indexes):
+    temp_1 = 0
+    temp_2 = 0
+    for i in range(0, len(wii_data)):
+        wii_data[i] = smooth(np.array(wii_data[i]), indexes[temp_1])
+        temp_2 += 1
+        if temp_2 == 2:
+            temp_1 += 1
+            temp_2 = 0
+    return wii_data
+
+
+def maximum_range(data):
+    range_ = 0
+    for i in range(0, len(data)):
+        range__ = np.max(data[i]) - np.min(data[i])
+        if range__ >= range_:
+            range_ = range__
+    return range_
+
+
+def get_range_var(data, var_name, indexes, subindex=()):
+    output=[]
+    for i in range(0, len(data)):
+        datas = data[i].get_variable(var_name)
+        segment = []
+        for j in indexes:
+            if len(subindex) != 0:
+                for k in subindex:
+                    segment.append(datas[k][j])
+            else:
+                segment.append(datas[j])
+        output.append(maximum_range(segment))
+    return output
+
 ########
 
 
