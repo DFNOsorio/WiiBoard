@@ -532,10 +532,16 @@ def center_axis(data, range_, cop=False, smooth=False):
             return [-range_ * 1.15, range_ * 1.15]
 
 
-def normalization(data, y_lim, new_limit=(0, 1)):
-    return (((data - y_lim[0]) * (new_limit[1] - new_limit[0])) / (y_lim[1] - y_lim[0])) + y_lim[0]
+def normalization(data, y_lim, new_limit=(0, 1), cop=False):
+    if cop:
 
-kugaEFJIGWfa
+        temp_ = (((np.array(data) - y_lim[0]) * (new_limit[1] - new_limit[0])) / (y_lim[1] - y_lim[0])) + y_lim[0]
+        return temp_ - min(temp_)
+
+    else:
+        return (((np.array(data) - y_lim[0]) * (new_limit[1] - new_limit[0])) / (y_lim[1] - y_lim[0])) + y_lim[0]
+
+
 
 ########
 
