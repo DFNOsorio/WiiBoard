@@ -509,6 +509,34 @@ def get_range_var(data, var_name, indexes, subindex=()):
         output.append(maximum_range(segment))
     return output
 
+
+def center_axis(data, range_, cop=False, smooth=False):
+    if isinstance(range_, list):
+        range_ = range_[0]
+    current_range = np.max(np.array(data)) - np.min(np.array(data))
+    if abs(current_range - range_)/current_range > 1.05:
+        if cop:
+            range_ += 2
+            return [np.mean(np.array(data)) - range_/2.0, np.mean(np.array(data)) + range_/2.0]
+        elif smooth:
+            return [0, range_ * 1.15]
+        else:
+            return [-range_*1.15, range_*1.15]
+    else:
+        if cop:
+            range_ += 2
+            return [np.min(np.array(data)), np.min(np.array(data)) + range_]
+        elif smooth:
+            return [0, range_ * 1.15]
+        else:
+            return [-range_ * 1.15, range_ * 1.15]
+
+
+def normalization(data, y_lim, new_limit=(0, 1)):
+    return (((data - y_lim[0]) * (new_limit[1] - new_limit[0])) / (y_lim[1] - y_lim[0])) + y_lim[0]
+
+kugaEFJIGWfa
+
 ########
 
 

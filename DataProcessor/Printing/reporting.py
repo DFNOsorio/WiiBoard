@@ -1,5 +1,5 @@
 from grids import *
-from DataProcessor.processing_methods import wii_smoother
+from DataProcessor.processing_methods import wii_smoother, center_axis, normalization
 from printing_lib import *
 
 # RAW DATA PLOTTING
@@ -33,14 +33,14 @@ def raw_reporting(data, patient, ranges_, open_signal_var = "open_signals_data",
             elif emg_ynormalization == 'global':
                 ranges[1] = [max(ranges_[1])]
 
-        raw_figures.append(single_report(title, data[i], open_signal_var, wii_smoothing, smoothing_indexes,
+        raw_figures.append(single_raw_report(title, data[i], open_signal_var, wii_smoothing, smoothing_indexes,
                   emg_smoothing, smoothed_var, ranges))
     
     return raw_figures
 
 
-def single_report(title, data_segment, open_signal_var, wii_smoothing, smoothing_indexes,
-                  emg_smoothing, smoothed_var, ranges = ([], [])):
+def single_raw_report(title, data_segment, open_signal_var, wii_smoothing, smoothing_indexes,
+                  emg_smoothing, smoothed_var, ranges=([], [])):
     
     wii = data_segment.get_variable("wii_data")
     open_signal_data = data_segment.get_variable(open_signal_var)
@@ -49,8 +49,6 @@ def single_report(title, data_segment, open_signal_var, wii_smoothing, smoothing
     title = title + str(round(wii[0][-1] - wii[0][0], 2)) + " s)"
 
     f, gs1_ax, gs2_ax, gs3_ax = grid_report(title)
-
-
     if wii_smoothing:
         wii[6] = wii_smoother(wii[6], smoothing_indexes)
 
@@ -108,3 +106,53 @@ def single_report(title, data_segment, open_signal_var, wii_smoothing, smoothing
         
 
 # COMPARING PLOTS
+
+
+def single_comparing_report(text, data, open_signal_var, smoothed_var, wii_smoothing, smoothing_indexes,
+                     ranges=([], [])):
+
+    wii = data.get_variable("wii_data")
+    labels = data.get_variable("labels")
+    RMS = data.get_variable(smoothed_var)
+    EMGs = data.get_variable(open_signal_var)
+
+    text = text + str(round(wii[0][-1] - wii[0][0], 2)) + " s)"
+
+    f, gs1_ax, gs2_ax = grid_overlay(text)
+
+    if wii_smoothing:
+        wii[6] = wii_smoother(wii[6], smoothing_indexes)
+
+    axe_populator([wii[0], [normalization(wii[6][0], center_axis(wii[6][0], ranges[0], cop=True))],
+                   "Time (s)", "Norm", "COPx", ["COPx"]], gs1_ax[0], offset=False)
+
+    axe_populator([wii[0], [normalization(wii[6][1], center_axis(wii[6][1], ranges[0], cop=True))],
+                   "Time (s)", "Norm", "COPx", ["COPx"]], gs1_ax[1], offset=False)
+
+    return f
+
+
+def comparing_reports(data, patient, ranges_, open_signal_var = "open_signals_data", smoothed_var="smoothed_data",
+                      wii_smoothing=False, smoothing_indexes=(10, 10, 10), cop_ynormalization="global",
+                      smoothed_ynormalization="global"):
+
+    segments = [" - Two Feet Eyes Open (", " - Two Feet Eyes Closed (", " - One Feet Eyes Open (",
+                " - One Feet Eyes Closed ("]
+
+    comparing_figures = []
+    ranges = [[], []]
+
+    for i in range(0, len(data)):
+        title = patient + segments[i]
+        if cop_ynormalization == 'segment':
+            ranges[0] = [ranges_[0][i]]
+        elif cop_ynormalization == 'global':
+            ranges[0] = [max(ranges_[0])]
+        if smoothed_ynormalization == 'segment':
+            ranges[1] = [ranges_[2][i]]
+        elif smoothed_ynormalization == 'global':
+            ranges[1] = [max(ranges_[2])]
+
+        comparing_figures.append(single_comparing_report(title, data[i], open_signal_var, smoothed_var, wii_smoothing,
+                                               smoothing_indexes, ranges))
+    return comparing_figures

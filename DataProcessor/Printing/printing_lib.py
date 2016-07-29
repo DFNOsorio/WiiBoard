@@ -102,7 +102,7 @@ def ax1_pop(filler, ax):
 
 
 def axe_populator(data, ax, wii=False, xlim=(), ylim=(), overlap=False, color='#005ca1', alpha=1, linestyle='-',
-                  norm=False, offset=False, offset_index=0, legend_outside=False, n_col=1, leg_font=10, labelpad=0,
+                  offset=False, offset_index=0, legend_outside=False, n_col=1, leg_font=10, labelpad=0,
                   auto_lim=False, auto_padding=False, plot_over=False):
     x = data[0]
     yy = data[1]
@@ -110,13 +110,9 @@ def axe_populator(data, ax, wii=False, xlim=(), ylim=(), overlap=False, color='#
     if wii:
         add_wii(ax)
     for j in range(0, len(yy)):
-        if len(yy) == 1 and norm is False:
+        if len(yy) == 1 and plot_over is False:
             ax.plot(x, yy[j], color=color, alpha=alpha, label=color+str(j), linestyle=linestyle)
         else:
-            if norm is True:
-
-                yy[j] = (np.array(yy[j]) - np.min(yy[j]))
-                yy[j] /= np.max(yy[j])
             if offset:
                 yy[j] += j
             if overlap:

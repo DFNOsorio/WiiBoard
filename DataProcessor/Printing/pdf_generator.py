@@ -45,15 +45,18 @@ def pdf_selection(data, patient, filter_frequency, filtered=True, motion=True, s
         smoothed_var = 'smoothed_data_filtered'
         open_signal_var = "filter_EMG_data"
 
+    ranges = [get_range_var(data, "wii_data", [0, 1], [6]), get_range_var(data, open_signal_var, [1, 2, 3, 4]),
+              get_range_var(data, smoothed_var, [1, 2, 3, 4])]
     if motion:
-
-        ranges = [get_range_var(data, "wii_data", [0, 1], [6]), get_range_var(data, open_signal_var, [1, 2, 3, 4]),
-                  get_range_var(data, smoothed_var, [1, 2, 3, 4])]
 
         figs.append(raw_reporting(data, pdf_title, ranges_=ranges, smoothed_var=smoothed_var, wii_smoothing=False,
                                   smoothing_indexes=[10, 50, 50], emg_smoothing=True, open_signal_var=open_signal_var,
                                   cop_ynormalization='global', emg_ynormalization='global',
                                   smoothed_ynormalization="global"))
+
+    if comparison:
+        figs.append(comparing_reports(data, pdf_title, ranges_=ranges, smoothed_var=smoothed_var,
+                                      open_signal_var=open_signal_var))
 
     new_figures = pdf_figure_reshape(figs)
     pdf_generator(new_figures, patient, foldername='../WiiBoard/DataProcessor/Images/')
