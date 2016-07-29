@@ -109,7 +109,7 @@ def single_raw_report(title, data_segment, open_signal_var, wii_smoothing, smoot
 
 
 def single_comparing_report(text, data, open_signal_var, smoothed_var, wii_smoothing, smoothing_indexes,
-                     ranges=([], [])):
+                     ranges=([], []), cop_norm=False, smooth_norm=False):
 
     wii = data.get_variable("wii_data")
     labels = data.get_variable("labels")
@@ -123,11 +123,15 @@ def single_comparing_report(text, data, open_signal_var, smoothed_var, wii_smoot
     if wii_smoothing:
         wii[6] = wii_smoother(wii[6], smoothing_indexes)
 
-    axe_populator([wii[0], [normalization(wii[6][0], center_axis(wii[6][0], ranges[0], cop=True), cop=True)],
-                   "Time (s)", "Norm", "COPx", ["COPx"]], gs1_ax[0], offset=False)
+    if cop_norm:
+        wii[6][0] = normalization(wii[6][0], center_axis(wii[6][0], ranges[0], cop=True), cop=True)
+        wii[6][1] = normalization(wii[6][1], center_axis(wii[6][1], ranges[0], cop=True), cop=True)
 
-    axe_populator([wii[0], [normalization(wii[6][1], center_axis(wii[6][1], ranges[0], cop=True), cop=True)],
-                   "Time (s)", "Norm", "COPx", ["COPx"]], gs1_ax[1], offset=False)
+    dsfsdgsdgsdfgsdgsdfsdf #O MESM PARA OS OUTRIS EIXOS
+
+    axe_populator([wii[0], [wii[6][0]], "Time (s)", "Norm", "COPx", ["COPx"]], gs1_ax[0], offset=False)
+
+    axe_populator([wii[0], [wii[6][1]], "Time (s)", "Norm", "COPy", ["COPy"]], gs1_ax[1], offset=False)
 
     return f
 
@@ -141,20 +145,27 @@ def comparing_reports(data, patient, ranges_, open_signal_var = "open_signals_da
 
     comparing_figures = []
     ranges = [[], []]
-
+    cop_norm = False
+    smooth_norm = False
     for i in range(0, len(data)):
-        title = patient + segments[i]
+
         if cop_ynormalization == 'segment':
             ranges[0] = [ranges_[0][i]]
+            cop_norm = True
         elif cop_ynormalization == 'global':
             ranges[0] = [max(ranges_[0])]
+            cop_norm = True
         if smoothed_ynormalization == 'segment':
             ranges[1] = [ranges_[2][i]]
+            smooth_norm = True
         elif smoothed_ynormalization == 'global':
             ranges[1] = [max(ranges_[2])]
+            smooth_norm = True
+        title = patient + "(COP_Norm = " + cop_ynormalization + " Smooth_Norm = " + smoothed_ynormalization + ")" \
+                + segments[i]
 
         comparing_figures.append(single_comparing_report(title, data[i], open_signal_var, smoothed_var, wii_smoothing,
-                                               smoothing_indexes, ranges))
+                                               smoothing_indexes, ranges, cop_norm=cop_norm, smooth_norm=smooth_norm))
     return comparing_figures
 
 

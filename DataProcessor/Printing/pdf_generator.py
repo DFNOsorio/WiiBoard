@@ -33,7 +33,7 @@ def pdf_figure_reshape(figures):
 
 
 def pdf_selection(data, patient, filter_frequency, filtered=True, motion=True, spec=True, spec_pds=True, psds=False, spec_int=False,
-                  rms_fig=True, comparison=True, seg_norm=True, global_norm=False):
+                  rms_fig=True, comparison=False, seg_norm=True, global_norm=False):
 
     figs = []
     pdf_title = patient
