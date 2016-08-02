@@ -348,7 +348,7 @@ def moving_window(EMG, window_size):
 
 
 def add_filtered_signal(data, order=2, frequencies=[10, 400], fs=1000, data_var="open_signals_data",
-                        new_var="filter_EMG_data"):
+                        new_var="open_signals_data_filtered"):
 
     for i in range(0, len(data)):
         filtered_emg = []
@@ -366,7 +366,7 @@ def add_filtered_signal(data, order=2, frequencies=[10, 400], fs=1000, data_var=
     return data
 
 
-def integrate_spec_psd(data, dB=True, data_var_psd="psd_data", data_var_spec="spec_data", new_var="integrated_spec_psd"):
+def integrate_spec_psd(data, dB=True, data_var_psd="psd_data", data_var_spec="spec_data", new_var="spec_psd_integrated"):
 
     # For each data_holder (data[i]), the variable integrated_spec has the following format
     #   data_holder -> integrated_spec -> FR -> [ PSD_integral, [Spec_Integrals] ]
@@ -493,8 +493,7 @@ def maximum_range(data):
         range__ = np.max(data[i]) - np.min(data[i])
         if range__ >= range_:
             range_ = range__
-            min_ = np.min(data[i])
-    return [range_, min_]
+    return range_
 
 
 def get_range_var(data, var_name, indexes, subindex=()):
@@ -512,32 +511,29 @@ def get_range_var(data, var_name, indexes, subindex=()):
     return output
 
 
-def center_axis(data, range_, cop=False, smooth=False, test=False):
+def centering(data, range_, cop_data=False, smooth_data=False, scaling_factor=1.25):
+
     if isinstance(range_, list):
         range_ = range_[0]
+
     current_range = np.max(np.array(data)) - np.min(np.array(data))
-    if abs(current_range - range_)/current_range > 1.15:
-        if cop:
-            return [np.mean(np.array(data)) - range_/2.0, np.mean(np.array(data)) + range_/2.0]
-        elif smooth:
-            return [0, range_ + abs(current_range - range_)]
-        elif test:
-            return []
+
+    if cop_data:
+        if abs(current_range - range_) / current_range > 1.15:
+            return [np.mean(np.array(data)) - range_/2.0*scaling_factor,
+                    np.mean(np.array(data)) + range_/2.0*scaling_factor]
         else:
-            return [-range_/2.0, range_/2.0]
+            return [np.min(np.array(data))*scaling_factor, np.min(np.array(data)) + range_*scaling_factor]
+    elif smooth_data:
+        return [0, range_*scaling_factor]
     else:
-        if cop:
-            return [np.min(np.array(data)), np.min(np.array(data)) + range_]
-        elif smooth:
-            return [0, range_ + abs(current_range - range_)]
-        else:
-            return [-range_/2.0, range_/2.0]
+        return [-(range_/2.0)*scaling_factor, (range_/2.0)*scaling_factor]
 
 
-def multiple_vals(data, range_, cop=False, smooth=False):
+def multiple_vals(data, range_, cop_data=False, smooth_data=False):
     output = []
     for i in data:
-        output.append(center_axis(i, range_=range_, cop=cop, smooth=smooth))
+        output.append(centering(i, range_=range_, cop_data=cop_data, smooth_data=smooth_data))
     return output
 
 

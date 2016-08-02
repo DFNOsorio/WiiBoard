@@ -21,28 +21,6 @@ def autopad(maxim):
     return output
 
 
-def center_axis(data, range_, cop=False, smooth=False):
-    if isinstance(range_, list):
-        range_ = range_[0]
-    current_range = np.max(np.array(data)) - np.min(np.array(data))
-    if abs(current_range - range_)/current_range > 1.05:
-        if cop:
-            range_ += 2
-            return [np.mean(np.array(data)) - range_/2.0, np.mean(np.array(data)) + range_/2.0]
-        elif smooth:
-            return [0, range_ * 1.15]
-        else:
-            return [-range_*1.15, range_*1.15]
-    else:
-        if cop:
-            range_ += 2
-            return [np.min(np.array(data)), np.min(np.array(data)) + range_]
-        elif smooth:
-            return [0, range_ * 1.15]
-        else:
-            return [-range_ * 1.15, range_ * 1.15]
-
-
 def regular_plot(x, y, title, xlabel, ylabel, fontsize=14, plot_line='-', legend=[]):
     fig = plt.figure()
     plt.plot(x, y, plot_line)
