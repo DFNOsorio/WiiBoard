@@ -6,6 +6,7 @@ import matplotlib.colors as col
 from matplotlib.pyplot import cm
 from scipy.misc import imread
 import numpy as np
+import copy
 import pylab
 
 
@@ -105,7 +106,7 @@ def axe_populator(data, ax, wii=False, xlim=(), ylim=(), overlap=False, color='#
                   offset=False, offset_index=0, legend_outside=False, n_col=1, leg_font=10, labelpad=0,
                   auto_lim=False, auto_padding=False, plot_over=False):
     x = data[0]
-    yy = data[1]
+    yy = copy.deepcopy(data[1])
 
     if wii:
         add_wii(ax)

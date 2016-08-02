@@ -2,7 +2,7 @@ from frequency_functions import *
 from NOVAOpenSignals.EMG_stats import *
 from NOVAWiiBoard.COPStats import *
 import copy
-import pynotify
+# import pynotify
 from novainstrumentation import smooth
 
 
@@ -31,11 +31,11 @@ class data_holder:
             print "No attribute available, please use add_variable"
 
 
-def sendmessage(title, message):
-   pynotify.init("Test")
-   notice = pynotify.Notification(title, message)
-   notice.show()
-   return
+# def sendmessage(title, message):
+#    pynotify.init("Test")
+#    notice = pynotify.Notification(title, message)
+#    notice.show()
+#    return
 
 
 def reformat_time(time_vector, delay):
@@ -488,11 +488,13 @@ def wii_smoother(wii_data, indexes):
 
 def maximum_range(data):
     range_ = 0
+    min_ = 0
     for i in range(0, len(data)):
         range__ = np.max(data[i]) - np.min(data[i])
         if range__ >= range_:
             range_ = range__
-    return range_
+            min_ = np.min(data[i])
+    return [range_, min_]
 
 
 def get_range_var(data, var_name, indexes, subindex=()):
@@ -510,38 +512,42 @@ def get_range_var(data, var_name, indexes, subindex=()):
     return output
 
 
-def center_axis(data, range_, cop=False, smooth=False):
+def center_axis(data, range_, cop=False, smooth=False, test=False):
     if isinstance(range_, list):
         range_ = range_[0]
     current_range = np.max(np.array(data)) - np.min(np.array(data))
-    if abs(current_range - range_)/current_range > 1.05:
+    if abs(current_range - range_)/current_range > 1.15:
         if cop:
-            range_ += 2
             return [np.mean(np.array(data)) - range_/2.0, np.mean(np.array(data)) + range_/2.0]
         elif smooth:
-            return [0, range_ * 1.15]
+            return [0, range_ + abs(current_range - range_)]
+        elif test:
+            return []
         else:
-            return [-range_*1.15, range_*1.15]
+            return [-range_/2.0, range_/2.0]
     else:
         if cop:
-            range_ += 2
             return [np.min(np.array(data)), np.min(np.array(data)) + range_]
         elif smooth:
-            return [0, range_ * 1.15]
+            return [0, range_ + abs(current_range - range_)]
         else:
-            return [-range_ * 1.15, range_ * 1.15]
+            return [-range_/2.0, range_/2.0]
 
 
-def normalization(data, y_lim, new_limit=(0, 1), cop=False):
-    if cop:
-
-        temp_ = (((np.array(data) - y_lim[0]) * (new_limit[1] - new_limit[0])) / (y_lim[1] - y_lim[0])) + y_lim[0]
-        return temp_ - min(temp_)
-
-    else:
-        return (((np.array(data) - y_lim[0]) * (new_limit[1] - new_limit[0])) / (y_lim[1] - y_lim[0])) + y_lim[0]
+def multiple_vals(data, range_, cop=False, smooth=False):
+    output = []
+    for i in data:
+        output.append(center_axis(i, range_=range_, cop=cop, smooth=smooth))
+    return output
 
 
+def normalization(data, y_lims, new_limit=(0, 1)):
+    output = copy.deepcopy(data)
+    for i in range(0, len(data)):
+        y_lim = y_lims[i]
+        temp_ = (((np.array(data[i]) - y_lim[0]) * (new_limit[1] - new_limit[0])) / (y_lim[1] - y_lim[0])) + y_lim[0]
+        output[i] = temp_ - min(temp_)
+    return output
 
 ########
 
