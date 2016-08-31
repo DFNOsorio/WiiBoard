@@ -1,7 +1,7 @@
 from DataProcessor import *
 
 folder_name = '/home/danielosorio/PycharmProjects/WiiBoard/Trials/'
-patient = 'JoaoPedro1000'
+patient = 'Joao1000'
 
 et, rt, data, t0 = load_wii_trial(folder_name+patient+'/WII', patient, False)
 EMG, ACC, ECG, EMG_l, ACC_l, ECG_l, open_time, epoch = load_open_trial(folder_name+patient+'/Test')
@@ -9,7 +9,7 @@ EMG, ACC, ECG, EMG_l, ACC_l, ECG_l, open_time, epoch = load_open_trial(folder_na
 new_wii_time = reformat_time(np.array(rt), epoch - t0)
 new_event_time = et - (epoch - t0)
 
-adjusted_time = new_event_time - open_time[13022]
+adjusted_time = new_event_time - open_time[13206]
 
 new_wii_time_ = reformat_time(np.array(new_wii_time), adjusted_time)
 new_event_time_ = new_event_time - adjusted_time

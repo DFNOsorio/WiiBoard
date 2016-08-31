@@ -1,0 +1,9 @@
+sync_index_open; 13206
+
+test1; 142; 172
+test2; 216; 246
+test3; 267; 297
+test4; 395; 425
+
+Leg; Left
+Electrodes; Up
