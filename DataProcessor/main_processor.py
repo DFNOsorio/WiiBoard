@@ -2,10 +2,10 @@ from DataProcessor import *
 
 folder_name = '../WiiBoard/Trials/'
 
-patient = 'Joao1000'
+patient = 'Andreia1000'
 
-data, filter_frequency, emg_smoother_window = process_patient(folder_name, patient)
-EMG_diferential(data)
+data, filter_frequency, emg_smoother_window = process_patient(folder_name, patient, multiple=True)
+EMG_diferential(data, patient)
 
 #sendmessage('Pdf generator', 'Start')
 # print "Generating PDF"
@@ -15,3 +15,4 @@ EMG_diferential(data)
 #               pdf_text='_global')
 # print "Finished"
 #sendmessage('Pdf generator', 'End')
+
