@@ -70,7 +70,8 @@ def EMG_diferential(data, patient):
         plt.subplot(3, 4, i + 5)
         plt.plot(x, color='red')
         plt.plot(t1, Cops[0], color='blue')
-        plt.plot(Acc[0], color='black', alpha=0.2)
+        l4, = plt.plot(Left, color='black', alpha=0.7)
+        l5, = plt.plot(Right, color='green', alpha=0.7)
         plt.xlim([0, len(Acc[0])])
         plt.xlabel("Samples")
         plt.ylabel("Norm x")
@@ -79,7 +80,8 @@ def EMG_diferential(data, patient):
         plt.subplot(3, 4, i + 9)
         plt.plot(y, color='red')
         plt.plot(t1, Cops[1], color='blue')
-        plt.plot(Acc[1], color='black', alpha=0.2)
+        l6, = plt.plot(Front, color='black', alpha=0.7)
+        l7, = plt.plot(Back, color='green', alpha=0.7)
         plt.xlim([0, len(Acc[0])])
         plt.xlabel("Samples")
         plt.ylabel("Norm y")
@@ -92,21 +94,26 @@ def EMG_diferential(data, patient):
         x = list(smooth(np.array(x), 1000))[100:-100]
         y = list(smooth(np.array(y), 1000))[100:-100]
 
+        Left = list(smooth(np.array(Left), 1000))[100:-100]
+        Right = list(smooth(np.array(Right), 1000))[100:-100]
+        Front = list(smooth(np.array(Front), 1000))[100:-100]
+        Back = list(smooth(np.array(Back), 1000))[100:-100]
+
         plt.figure(2)
         t1 = np.linspace(0, len(Acc[1]), len(Cops[0]))
 
         plt.subplot(3, 4, i + 1)
         l1, = plt.plot(x, y, color='red')
         l2, = plt.plot(Cops[0], Cops[1], color='blue')
-        l3, = plt.plot(Acc[0], Acc[1], color='black', alpha=0.2)
+
         plt.xlabel("Norm x")
         plt.ylabel("Norm y")
 
         plt.subplot(3, 4, i + 5)
         plt.plot(x, color='red')
         plt.plot(t1, Cops[0], color='blue')
-        plt.plot(Acc[0], color='black', alpha=0.2)
-        plt.xlim([0, len(Acc[0])])
+        plt.plot(Left, color='black', alpha=0.7)
+        plt.plot(Right, color='green', alpha=0.7)
         plt.xlabel("Samples")
         plt.ylabel("Norm x")
         plt.title("X Axis")
@@ -114,35 +121,46 @@ def EMG_diferential(data, patient):
         plt.subplot(3, 4, i + 9)
         plt.plot(y, color='red')
         plt.plot(t1, Cops[1], color='blue')
-        plt.plot(Acc[1], color='black', alpha=0.2)
-        plt.xlim([0, len(Acc[0])])
+        plt.plot(Front, color='black', alpha=0.7)
+        plt.plot(Back, color='green', alpha=0.7)
         plt.xlabel("Samples")
         plt.ylabel("Norm y")
         plt.title("Y Axis")
 
     plt.figure(1)
     fig1.suptitle(patient, fontsize=20)
-    fig1.legend((l1, l2, l3), ('EMG', 'COP', 'ACC'), loc='lower center', ncol=4, labelspacing=0., fontsize=14)
-    plt.subplots_adjust(hspace=0.26, wspace=0.24, top=0.94, bottom=0.07, left=0.04, right=0.98)
+
+
+
+    plt.subplots_adjust(hspace=0.45, wspace=0.24, top=0.94, bottom=0.11, left=0.04, right=0.98)
     mng = plt.get_current_fig_manager()
     mng.window.showMaximized()
+
+    fig1.legend((l1,l2, l3), ('Emg', 'Cop', 'Acc'), bbox_to_anchor=[0.5, 0.06], loc='center', ncol=3, labelspacing=0.,
+                fontsize=14)
+    fig1.legend([l6, l7], ['Front', 'Back'], bbox_to_anchor=[0.5, 0.03], loc='center', ncol=2, labelspacing=0.,
+                fontsize=14)
+    fig1.legend([l4, l5], ['Left', 'Right'], bbox_to_anchor=[0.5, 0.365], loc='center', ncol=2, labelspacing=0.,
+                fontsize=14)
 
     plt.figure(2)
     fig2.suptitle(patient, fontsize=20)
-    fig2.legend((l1, l2, l3), ('EMG', 'COP', 'ACC'), loc='lower center', ncol=4, labelspacing=0., fontsize=14)
-    plt.subplots_adjust(hspace=0.26, wspace=0.24, top=0.94, bottom=0.07, left=0.04, right=0.98)
+    fig2.legend((l1, l6, l2, l7), ('Emg', 'Front', 'Cop', 'Back'), loc='lower center', ncol=2, labelspacing=1., fontsize=14)
+    fig2.legend([l4, l5], ['Left', 'Right'], bbox_to_anchor=[0.5, 0.365], loc='center', ncol=2, labelspacing=0.,
+                fontsize=14)
+    plt.subplots_adjust(hspace=0.45, wspace=0.24, top=0.94, bottom=0.11, left=0.04, right=0.98)
     mng = plt.get_current_fig_manager()
     mng.window.showMaximized()
 
-    if not os.path.exists('../WiiBoard/DataProcessor/Images/Cops_gen_2/' + patient+'/'):
-        os.makedirs('../WiiBoard/DataProcessor/Images/Cops_gen_2/'+ patient+'/')
-
+    if not os.path.exists('../WiiBoard/DataProcessor/Images/Cops_gen_3/' + patient+'/'):
+        os.makedirs('../WiiBoard/DataProcessor/Images/Cops_gen_3/'+ patient+'/')
     fig1.set_size_inches(20, 11.25)
-    fig2.set_size_inches(20, 11.25)
     plt.figure(1)
-    plt.savefig('../WiiBoard/DataProcessor/Images/Cops_gen_2/' + patient +'/cops1.png', dpi=300)
+    plt.savefig('../WiiBoard/DataProcessor/Images/Cops_gen_3/' + patient +'/cops1.png', dpi=300)
+    fig2.set_size_inches(20, 11.25)
     plt.figure(2)
-    plt.savefig('../WiiBoard/DataProcessor/Images/Cops_gen_2/' + patient + '/cops2.png', dpi=300)
+    plt.savefig('../WiiBoard/DataProcessor/Images/Cops_gen_3/' + patient + '/cops2.png', dpi=300)
+
     plt.show()
 
 
